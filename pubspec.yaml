@@ -1,0 +1,39 @@
+name: mentalist
+description: mentalist — a premium, offline-first expense manager with neumorphic UI, 3D wallet cards, receipt feeds, dark analytics and frosted-glass invoices.
+publish_to: "none"
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.3.0
+
+dependencies:
+  flutter:
+    sdk: flutter
+  provider: ^6.1.2          # state management
+  sqflite: ^2.3.3           # offline-first local SQLite database
+  path: ^1.9.0
+  path_provider: ^2.1.4
+  intl: ^0.19.0             # currency / date formatting (en_IN)
+  google_fonts: ^6.2.1      # Inter typeface
+  fl_chart: ^0.69.0         # analytics bar charts
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^4.0.0
+  flutter_launcher_icons: ^0.14.1
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/icon/app_icon.png
+    - assets/icon/app_icon_foreground.png
+
+# Premium launcher icon generation (run: dart run flutter_launcher_icons)
+flutter_launcher_icons:
+  android: "ic_launcher"
+  ios: false
+  remove_alpha_ios: true
+  image_path: "assets/icon/app_icon.png"
+  adaptive_icon_background: "#F4EFE6"
+  adaptive_icon_foreground: "assets/icon/app_icon_foreground.png"
