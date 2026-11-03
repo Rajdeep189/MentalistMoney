@@ -19,3 +19,6 @@ android/app/release/
 *.iml
 .idea/
 .DS_Store
+
+# local preview server artifacts
+preview/.cache/
