@@ -77,6 +77,7 @@ class DemoData {
       for (final row in categoryRows) row['name']! as String: row['id']! as int,
     };
 
+    final rows = <Map<String, Object?>>[];
     DateTime at(int daysAgo, int hour, int minute) {
       final date = DateTime(now.year, now.month, now.day, hour, minute)
           .subtract(Duration(days: daysAgo));
@@ -111,7 +112,6 @@ class DemoData {
       });
     }
 
-    final rows = <Map<String, Object?>>[];
 
     // Current month
     addTxn(daysAgo: 0, type: 'expense', paise: 32000, category: 'Food & Drinks', account: 'Paytm Wallet', note: 'Swiggy lunch', payment: 'UPI', hour: 13);

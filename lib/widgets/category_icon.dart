@@ -9,7 +9,7 @@ import '../data/models/models.dart';
 class CategoryIcon extends StatelessWidget {
   const CategoryIcon({
     super.key,
-    required this.icon,
+    this.icon,
     this.color,
     this.size = 42,
     this.iconName,
@@ -80,7 +80,7 @@ class CategoryAvatar extends StatelessWidget {
 class IconHeading extends StatelessWidget {
   const IconHeading({
     super.key,
-    required this.icon,
+    this.icon,
     required this.title,
     this.subtitle,
     this.color,
@@ -122,7 +122,7 @@ class IconHeading extends StatelessWidget {
 class RoundedGlyph extends StatelessWidget {
   const RoundedGlyph({
     super.key,
-    required this.icon,
+    this.icon,
     this.color,
     this.size = 64,
   });

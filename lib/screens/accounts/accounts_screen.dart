@@ -142,7 +142,7 @@ class _NetWorthHeader extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
-          Text('Net worth', style: AppTextStyles.label(palette.darkSub)),
+          Text('Net worth', style: AppTextStyles.label(palette.sub)),
           const SizedBox(height: 4),
           AmountText(assets - liabilities, size: 30, color: Colors.white,
               weight: FontWeight.w700),
@@ -153,19 +153,19 @@ class _NetWorthHeader extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[
-                    Text('Assets', style: AppTextStyles.caption(palette.darkSub)),
+                    Text('Assets', style: AppTextStyles.caption(palette.sub)),
                     const SizedBox(height: 2),
                     AmountText(assets, size: 15, color: palette.income),
                   ],
                 ),
               ),
-              Container(width: 1, height: 30, color: palette.darkDivider),
+              Container(width: 1, height: 30, color: palette.divider),
               const SizedBox(width: AppSpacing.x4),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[
-                    Text('Liabilities', style: AppTextStyles.caption(palette.darkSub)),
+                    Text('Liabilities', style: AppTextStyles.caption(palette.sub)),
                     const SizedBox(height: 2),
                     AmountText(liabilities, size: 15, color: palette.expense),
                   ],
@@ -202,7 +202,7 @@ class AccountCard extends StatelessWidget {
             children: <Widget>[
               Row(
                 children: <Widget>[
-                  Icon(Icons.credit_card_rounded, size: 18, color: palette.darkSub),
+                  Icon(Icons.credit_card_rounded, size: 18, color: palette.sub),
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
@@ -211,7 +211,7 @@ class AccountCard extends StatelessWidget {
                     ),
                   ),
                   if (account.archived)
-                    Text('Archived', style: AppTextStyles.caption(palette.darkSub)),
+                    Text('Archived', style: AppTextStyles.caption(palette.sub)),
                 ],
               ),
               const SizedBox(height: AppSpacing.x4),
@@ -222,7 +222,7 @@ class AccountCard extends StatelessWidget {
                 account.creditLimit == null
                     ? 'Outstanding balance'
                     : 'Outstanding · limit ${Fmt.money(account.creditLimit!, forceCompact: true)}',
-                style: AppTextStyles.caption(palette.darkSub),
+                style: AppTextStyles.caption(palette.sub),
               ),
               if (account.creditLimit != null) ...<Widget>[
                 const SizedBox(height: AppSpacing.x3),
@@ -231,13 +231,13 @@ class AccountCard extends StatelessWidget {
                       ? 0
                       : (account.balance.abs() / account.creditLimit!),
                   color: _parse(account.color),
-                  trackColor: palette.darkDivider,
+                  trackColor: palette.divider,
                   height: 6,
                 ),
                 const SizedBox(height: 6),
                 Text(
                   'Available ${Fmt.money(account.availableCredit, forceCompact: true)}',
-                  style: AppTextStyles.caption(palette.darkSub),
+                  style: AppTextStyles.caption(palette.sub),
                 ),
               ],
             ],

@@ -619,10 +619,10 @@ class NetWorthCard extends StatelessWidget {
             children: <Widget>[
               Text(
                 'Net worth',
-                style: AppTextStyles.label(palette.darkSub),
+                style: AppTextStyles.label(palette.sub),
               ),
               const Spacer(),
-              Icon(Icons.chevron_right_rounded, color: palette.darkSub, size: 18),
+              Icon(Icons.chevron_right_rounded, color: palette.sub, size: 18),
             ],
           ),
           const SizedBox(height: 6),
@@ -653,7 +653,7 @@ class NetWorthCard extends StatelessWidget {
               decoration: BoxDecoration(color: tone, shape: BoxShape.circle),
             ),
             const SizedBox(width: 5),
-            Text(label, style: AppTextStyles.caption(context.c.darkSub)),
+            Text(label, style: AppTextStyles.caption(context.c.sub)),
           ],
         ),
         const SizedBox(height: 2),

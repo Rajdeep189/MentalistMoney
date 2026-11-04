@@ -123,7 +123,7 @@ class AnimatedAmountText extends StatelessWidget {
 }
 
 /// Small labelled money row ("Income ...... ₹24,000").
-class MoneyRow extends StatelessWidget {
+class MoneyRow extends ConsumerWidget {
   const MoneyRow({
     super.key,
     required this.label,

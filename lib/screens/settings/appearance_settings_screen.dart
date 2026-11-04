@@ -8,9 +8,11 @@ import '../../core/theme/app_theme.dart';
 import '../../data/models/app_settings.dart';
 import '../../providers/app_providers.dart';
 import '../../widgets/app_card.dart';
+import '../../widgets/buttons.dart';
 import '../../widgets/app_sheets.dart';
 import '../../widgets/fields.dart';
 import '../../widgets/premium_badge.dart';
+import '../../widgets/premium_gate.dart';
 import '../../widgets/settings_tiles.dart';
 
 class AppearanceSettingsScreen extends ConsumerStatefulWidget {

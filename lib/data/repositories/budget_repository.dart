@@ -1,3 +1,5 @@
+import 'package:sqflite/sqflite.dart' show ConflictAlgorithm;
+
 import '../db/app_database.dart';
 import '../models/models.dart';
 

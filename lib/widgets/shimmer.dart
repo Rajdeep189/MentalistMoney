@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../core/theme/app_colors.dart';
 import '../core/theme/app_radius.dart';
 import '../core/theme/app_spacing.dart';
+import '../core/theme/app_text_styles.dart';
 
 /// Animated skeleton block.
 class ShimmerBox extends StatefulWidget {

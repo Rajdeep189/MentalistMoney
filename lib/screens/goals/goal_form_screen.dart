@@ -35,7 +35,7 @@ class _GoalFormScreenState extends ConsumerState<GoalFormScreen> {
   late String _color = widget.goal?.color ?? '#916CFF';
   late int? _accountId = widget.goal?.accountId;
   late int? _categoryId = widget.goal?.categoryId;
-  DateTime? _deadline = widget.goal?.deadline == null
+  late DateTime? _deadline = widget.goal?.deadline == null
       ? null
       : DateTime.fromMillisecondsSinceEpoch(widget.goal!.deadline!);
   bool _saving = false;
