@@ -87,7 +87,7 @@ class IconHeading extends StatelessWidget {
     this.trailing,
   });
 
-  final String icon;
+  final String? icon;
   final String title;
   final String? subtitle;
   final Color? color;
@@ -127,7 +127,7 @@ class RoundedGlyph extends StatelessWidget {
     this.size = 64,
   });
 
-  final IconData icon;
+  final IconData? icon;
   final Color? color;
   final double size;
 
@@ -145,7 +145,7 @@ class RoundedGlyph extends StatelessWidget {
         ),
         borderRadius: BorderRadius.circular(AppRadius.card),
       ),
-      child: Icon(icon, size: size * 0.45, color: tone),
+      child: Icon(icon ?? Icons.category_rounded, size: size * 0.45, color: tone),
     );
   }
 }
