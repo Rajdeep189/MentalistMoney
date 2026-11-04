@@ -213,11 +213,26 @@ void main() {
     final bill = (await bills.byId(billId))!;
     await bills.markPaid(bill, paidOn: DateTime.now());
 
-    final paid = await bills.byId(billId);
-    expect(paid!.status, kBillPaid);
-    expect(paid.lastPaidAt, isNotNull);
-    final count = await transactions.count();
-    expect(count, 1);
+    final rolled = await bills.byId(billId);
+    expect(rolled!.lastPaidAt, isNotNull);
+    // Monthly bills roll forward to the next occurrence instead of closing.
+    expect(rolled.status, kBillUpcoming);
+    expect(rolled.dueDate, greaterThan(bill.dueDate));
+    expect(await transactions.count(), 1);
+
+    final oneTimeId = await bills.create(
+      Bill(
+        name: 'Annual insurance',
+        amount: 450000,
+        dueDate: DateTime.now().millisecondsSinceEpoch,
+        frequency: 'one_time',
+        accountId: accountList.first.id,
+      ),
+    );
+    await bills.markPaid((await bills.byId(oneTimeId))!, paidOn: DateTime.now());
+    final closed = await bills.byId(oneTimeId);
+    expect(closed!.status, kBillPaid);
+    expect(await transactions.count(), 2);
   });
 
   test('split groups compute balances and settlements', () async {
