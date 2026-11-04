@@ -18,8 +18,10 @@ never leaves your phone.
 
 ## Download the APK
 
-1. Open **[Releases](../../releases/latest)**.
-2. Download `MoneyMan-1.0.0.apk`.
+**Direct link:** https://github.com/Rajdeep189/MentalistMoney/releases/download/v1.0.0/MoneyMan-1.0.0.apk
+
+1. Open **[Releases](../../releases/latest)** (or the direct link above).
+2. Download `MoneyMan-1.0.0.apk` (~63 MB, universal APK for arm64 / armv7 / x86_64).
 3. On your phone allow **Install unknown apps** for the browser or file manager you used.
 4. Open the downloaded file → **Install**.
 
@@ -239,6 +241,26 @@ There is no `INTERNET` permission in the release manifest usage and no network l
 - Export PDF → share sheet opens with the file.
 - Toggle dark mode, accent, text size, compact density → every screen follows immediately.
 - Enable biometric lock → background/foreground the app → lock gate appears.
+
+---
+
+## Tests
+
+```bash
+flutter test
+```
+
+CI runs 13 tests before every build:
+
+- **Smoke tests** — rupee formatting, calculator precedence, Hindi localisation, light/dark theme
+  extensions, and a widget tree that renders the design-system cards.
+- **Database tests** (real SQLite via `sqflite_common_ffi`, in-memory) — schema creation, category
+  and achievement seeds, balance effects of transactions, budget window maths, goal contributions,
+  bill payments (recurring roll-forward vs one-time closure), split balances and settlement
+  suggestions, recurring-rule materialisation, full-text search, amount filters and duplicate
+  detection.
+
+The same workflow then builds the release APK and publishes it to Releases.
 
 ---
 
