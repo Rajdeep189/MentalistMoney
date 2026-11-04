@@ -75,6 +75,9 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Run tests
+        run: flutter test --reporter expanded
+
       - name: Build release APK
         run: |
           set +e
