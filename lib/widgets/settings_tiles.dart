@@ -1,0 +1,250 @@
+import 'package:flutter/material.dart';
+
+import '../core/theme/app_colors.dart';
+import '../core/theme/app_radius.dart';
+import '../core/theme/app_spacing.dart';
+import '../core/theme/app_text_styles.dart';
+import 'app_card.dart';
+import 'category_icon.dart';
+import 'premium_badge.dart';
+
+/// Rounded section label used across settings screens.
+class SettingsSectionTitle extends StatelessWidget {
+  const SettingsSectionTitle(this.title, {super.key, this.trailing});
+
+  final String title;
+  final Widget? trailing;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(
+        top: AppSpacing.x5,
+        bottom: AppSpacing.x2,
+        left: 4,
+      ),
+      child: Row(
+        children: <Widget>[
+          Expanded(child: Text(title.toUpperCase(), style: context.overline)),
+          if (trailing != null) trailing!,
+        ],
+      ),
+    );
+  }
+}
+
+/// Grouped card that hosts a list of tiles.
+class SettingsGroup extends StatelessWidget {
+  const SettingsGroup({super.key, required this.children, this.padding});
+
+  final List<Widget> children;
+  final EdgeInsetsGeometry? padding;
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = context.c;
+    return AppCard(
+      padding: padding ?? const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+      child: Column(
+        children: <Widget>[
+          for (var i = 0; i < children.length; i++) ...<Widget>[
+            children[i],
+            if (i != children.length - 1)
+              Padding(
+                padding: const EdgeInsets.only(left: 54),
+                child: Divider(color: palette.divider, height: 1),
+              ),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+/// Navigation / action tile with an icon, title, subtitle and trailing value.
+class SettingsTile extends StatelessWidget {
+  const SettingsTile({
+    super.key,
+    required this.title,
+    this.subtitle,
+    this.icon,
+    this.iconColor,
+    this.trailing,
+    this.onTap,
+    this.premium = false,
+    this.dense = false,
+  });
+
+  final String title;
+  final String? subtitle;
+  final IconData? icon;
+  final Color? iconColor;
+  final Widget? trailing;
+  final VoidCallback? onTap;
+  final bool premium;
+  final bool dense;
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = context.c;
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(AppRadius.sm),
+      child: Padding(
+        padding: EdgeInsets.symmetric(
+          horizontal: AppSpacing.x3,
+          vertical: dense ? 8 : 11,
+        ),
+        child: Row(
+          children: <Widget>[
+            if (icon != null)
+              CategoryIcon(
+                icon: icon,
+                color: iconColor ?? palette.accent,
+                size: dense ? 30 : 34,
+              ),
+            if (icon != null) const SizedBox(width: AppSpacing.x3),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  Row(
+                    children: <Widget>[
+                      Flexible(
+                        child: Text(
+                          title,
+                          style: AppTextStyles.body(palette.ink),
+                        ),
+                      ),
+                      if (premium) ...<Widget>[
+                        const SizedBox(width: 8),
+                        const PremiumBadge(dense: true),
+                      ],
+                    ],
+                  ),
+                  if (subtitle != null)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 2),
+                      child: Text(
+                        subtitle!,
+                        style: AppTextStyles.caption(palette.tertiary),
+                      ),
+                    ),
+                ],
+              ),
+            ),
+            if (trailing != null)
+              trailing!
+            else if (onTap != null)
+              Icon(Icons.chevron_right_rounded, size: 20, color: palette.tertiary),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Row of selectable choice pills used in settings.
+class SettingsChoiceRow<T> extends StatelessWidget {
+  const SettingsChoiceRow({
+    super.key,
+    required this.options,
+    required this.value,
+    required this.onChanged,
+    this.labelOf,
+  });
+
+  final List<T> options;
+  final T value;
+  final ValueChanged<T> onChanged;
+  final String Function(T option)? labelOf;
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = context.c;
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.x3, vertical: 8),
+      child: Wrap(
+        spacing: 8,
+        runSpacing: 8,
+        children: options.map((option) {
+          final selected = option == value;
+          return GestureDetector(
+            onTap: () => onChanged(option),
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 150),
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+              decoration: BoxDecoration(
+                color: selected ? palette.accent : Colors.transparent,
+                borderRadius: BorderRadius.circular(AppRadius.pill),
+                border: Border.all(
+                  color: selected ? palette.accent : palette.divider,
+                ),
+              ),
+              child: Text(
+                labelOf?.call(option) ?? '$option',
+                style: AppTextStyles.caption(selected ? Colors.white : palette.sub),
+              ),
+            ),
+          );
+        }).toList(),
+      ),
+    );
+  }
+}
+
+/// Colour swatch row used by the accent picker.
+class AccentSwatches extends StatelessWidget {
+  const AccentSwatches({
+    super.key,
+    required this.selectedHex,
+    required this.onChanged,
+    required this.palette,
+  });
+
+  final String selectedHex;
+  final ValueChanged<String> onChanged;
+  final Map<String, Color> palette;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = context.c;
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.x3, vertical: 8),
+      child: Wrap(
+        spacing: 12,
+        runSpacing: 12,
+        children: palette.entries.map((entry) {
+          final selected = AppColors.toHex(entry.value) == selectedHex.toUpperCase();
+          return GestureDetector(
+            onTap: () => onChanged(AppColors.toHex(entry.value)),
+            child: Column(
+              children: <Widget>[
+                Container(
+                  height: 36,
+                  width: 36,
+                  decoration: BoxDecoration(
+                    color: entry.value,
+                    shape: BoxShape.circle,
+                    border: Border.all(
+                      color: selected ? theme.ink : Colors.transparent,
+                      width: 2,
+                    ),
+                  ),
+                  child: selected
+                      ? const Icon(Icons.check_rounded, size: 16, color: Colors.white)
+                      : null,
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  entry.key,
+                  style: AppTextStyles.caption(theme.tertiary).copyWith(fontSize: 9.5),
+                ),
+              ],
+            ),
+          );
+        }).toList(),
+      ),
+    );
+  }
+}
