@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:moneyman/core/l10n/l10n.dart';
 import 'package:moneyman/core/theme/app_colors.dart';
@@ -6,6 +7,8 @@ import 'package:moneyman/core/theme/app_text_styles.dart';
 import 'package:moneyman/core/theme/app_theme.dart';
 import 'package:moneyman/core/utils/calc_parser.dart';
 import 'package:moneyman/core/utils/money.dart';
+import 'package:moneyman/data/models/app_settings.dart';
+import 'package:moneyman/providers/app_providers.dart';
 import 'package:moneyman/widgets/app_card.dart';
 import 'package:moneyman/widgets/category_icon.dart';
 import 'package:moneyman/widgets/amount_text.dart';
@@ -73,25 +76,34 @@ void main() {
 
   testWidgets('theme exposes the app palette to widgets', (tester) async {
     await tester.pumpWidget(
-      MaterialApp(
-        theme: AppTheme.light(),
-        home: Builder(
-          builder: (context) {
-            expect(Theme.of(context).extension<AppPalette>(), isNotNull);
-            return Scaffold(
-              body: AppCard(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: <Widget>[
-                    Text('Safe to spend', style: context.caption),
-                    const AmountText(250000, size: 22),
-                    const ProgressBar(value: 0.42),
-                    const RoundedGlyph(),
-                  ],
+      ProviderScope(
+        overrides: <Override>[
+          settingsProvider.overrideWith((ref) => AppSettings.empty),
+        ],
+        child: MaterialApp(
+          theme: AppTheme.light(),
+          home: Builder(
+            builder: (context) {
+              expect(Theme.of(context).extension<AppPalette>(), isNotNull);
+              return Scaffold(
+                body: Center(
+                  child: AppCard(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: <Widget>[
+                        Text('Safe to spend', style: context.caption),
+                        const AmountText(250000, size: 22),
+                        const SizedBox(height: 12),
+                        const ProgressBar(value: 0.42),
+                        const SizedBox(height: 12),
+                        const RoundedGlyph(),
+                      ],
+                    ),
+                  ),
                 ),
-              ),
-            );
-          },
+              );
+            },
+          ),
         ),
       ),
     );
