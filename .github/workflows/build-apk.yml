@@ -76,7 +76,37 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Run tests
-        run: flutter test --reporter expanded
+        run: |
+          set +e
+          flutter test --reporter expanded > test.log 2>&1
+          status=$?
+          tail -n 200 test.log
+          if [ $status -ne 0 ]; then
+            python3 - <<'PY'
+          import json, os, urllib.request
+          body = open('test.log').read()[-55000:]
+          payload = {'title': 'Test report: failures', 'body': '```\n' + body + '\n```'}
+          token = os.environ['GITHUB_TOKEN']
+          repo = os.environ['GITHUB_REPOSITORY']
+          req = urllib.request.Request(
+              'https://api.github.com/repos/%s/issues' % repo,
+              data=json.dumps(payload).encode(),
+              headers={
+                  'Authorization': 'Bearer ' + token,
+                  'Accept': 'application/vnd.github+json',
+                  'Content-Type': 'application/json',
+              },
+              method='POST',
+          )
+          try:
+              urllib.request.urlopen(req)
+          except Exception as exc:
+              print('could not open issue:', exc)
+          PY
+            exit $status
+          fi
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build release APK
         run: |
