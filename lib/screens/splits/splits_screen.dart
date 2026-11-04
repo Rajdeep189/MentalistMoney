@@ -90,7 +90,7 @@ class SplitsScreen extends ConsumerWidget {
 
   Future<void> _create(BuildContext context, WidgetRef ref) async {
     final groups = ref.read(splitGroupsProvider).valueOrNull ?? const <SplitGroup>[];
-    if (groups.length >= 1) {
+    if (groups.isNotEmpty) {
       final allowed = await ensurePremium(
         context,
         ref,

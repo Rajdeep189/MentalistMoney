@@ -292,7 +292,6 @@ class SplitDetailScreen extends ConsumerWidget {
     SplitGroupSummary? summary,
   ) async {
     if (summary == null || summary.members.isEmpty) return;
-    final categories = ref.read(categoriesProvider).valueOrNull ?? const <Category>[];
     final description = TextEditingController();
     int amount = 0;
     int paidBy = summary.members.first.id!;
