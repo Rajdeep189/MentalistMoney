@@ -9,6 +9,7 @@ on:
 
 permissions:
   contents: write
+  issues: write
 
 jobs:
   build:
@@ -38,11 +39,77 @@ jobs:
       - name: Install dependencies
         run: flutter pub get
 
-      - name: Analyze (non-blocking)
-        run: flutter analyze --no-fatal-infos || true
+      - name: Analyze
+        run: |
+          set +e
+          flutter analyze --no-fatal-infos --no-fatal-warnings > analyze.log 2>&1
+          status=$?
+          tail -n 250 analyze.log
+          if [ $status -ne 0 ]; then
+            python3 - <<'PY'
+          import json, os, urllib.request
+          body = open('analyze.log').read()[-55000:]
+          payload = {
+              'title': 'Compile report: analyzer errors',
+              'body': '```\n' + body + '\n```',
+          }
+          token = os.environ['GITHUB_TOKEN']
+          repo = os.environ['GITHUB_REPOSITORY']
+          req = urllib.request.Request(
+              'https://api.github.com/repos/%s/issues' % repo,
+              data=json.dumps(payload).encode(),
+              headers={
+                  'Authorization': 'Bearer ' + token,
+                  'Accept': 'application/vnd.github+json',
+                  'Content-Type': 'application/json',
+              },
+              method='POST',
+          )
+          try:
+              urllib.request.urlopen(req)
+          except Exception as exc:
+              print('could not open issue:', exc)
+          PY
+            exit $status
+          fi
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build release APK
-        run: flutter build apk --release --build-name=1.0.0 --build-number=${{ github.run_number }}
+        run: |
+          set +e
+          flutter build apk --release --build-name=1.0.0 --build-number=${{ github.run_number }} > build.log 2>&1
+          status=$?
+          tail -n 200 build.log
+          if [ $status -ne 0 ]; then
+            python3 - <<'PY'
+          import json, os, urllib.request
+          body = open('build.log').read()[-55000:]
+          payload = {
+              'title': 'Build report: Gradle/compile failure',
+              'body': '```\n' + body + '\n```',
+          }
+          token = os.environ['GITHUB_TOKEN']
+          repo = os.environ['GITHUB_REPOSITORY']
+          req = urllib.request.Request(
+              'https://api.github.com/repos/%s/issues' % repo,
+              data=json.dumps(payload).encode(),
+              headers={
+                  'Authorization': 'Bearer ' + token,
+                  'Accept': 'application/vnd.github+json',
+                  'Content-Type': 'application/json',
+              },
+              method='POST',
+          )
+          try:
+              urllib.request.urlopen(req)
+          except Exception as exc:
+              print('could not open issue:', exc)
+          PY
+            exit $status
+          fi
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Rename artifact
         run: |
