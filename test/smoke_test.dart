@@ -7,6 +7,7 @@ import 'package:moneyman/core/theme/app_theme.dart';
 import 'package:moneyman/core/utils/calc_parser.dart';
 import 'package:moneyman/core/utils/money.dart';
 import 'package:moneyman/widgets/app_card.dart';
+import 'package:moneyman/widgets/category_icon.dart';
 import 'package:moneyman/widgets/amount_text.dart';
 import 'package:moneyman/widgets/progress_widgets.dart';
 
@@ -32,10 +33,10 @@ void main() {
   });
 
   test('calculator parser respects operator precedence', () {
-    expect(CalcParser.evaluateToPaise('1200+300'), 1500_00);
-    expect(CalcParser.evaluateToPaise('200*3'), 600_00);
-    expect(CalcParser.evaluateToPaise('1000-250'), 750_00);
-    expect(CalcParser.evaluateToPaise('(100+50)/3'), 50_00);
+    expect(CalcParser.evaluateToPaise('1200+300'), 150000);
+    expect(CalcParser.evaluateToPaise('200*3'), 60000);
+    expect(CalcParser.evaluateToPaise('1000-250'), 75000);
+    expect(CalcParser.evaluateToPaise('(100+50)/3'), 5000);
     expect(CalcParser.evaluate('2+*3'), isNull);
   });
 
