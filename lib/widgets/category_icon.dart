@@ -9,7 +9,7 @@ import '../data/models/models.dart';
 class CategoryIcon extends StatelessWidget {
   const CategoryIcon({
     super.key,
-    this.icon,
+    this.icon = null,
     this.color,
     this.size = 42,
     this.iconName,
