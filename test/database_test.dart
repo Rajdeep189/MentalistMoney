@@ -40,7 +40,7 @@ void main() {
     categories = CategoryRepository(db);
     budgets = BudgetRepository(db);
     goals = GoalRepository(db, transactions);
-    bills = BillRepository(db);
+    bills = BillRepository(db, transactions);
     splits = SplitRepository(db);
     stats = StatsRepository(db);
     achievements = AchievementRepository(db);
