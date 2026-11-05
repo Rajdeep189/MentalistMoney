@@ -197,22 +197,29 @@ class _NavSlot extends StatelessWidget {
             children: <Widget>[
               Icon(
                 selected ? item.activeIcon : item.icon,
-                size: 21,
+                size: 20,
                 color: selected
                     ? Colors.white
                     : (palette.isDark ? palette.tertiary : palette.sub),
               ),
-              if (selected)
-                Padding(
-                  padding: const EdgeInsets.only(top: 2),
-                  child: Text(
-                    item.label,
-                    maxLines: 1,
-                    overflow: TextOverflow.clip,
-                    style: AppTextStyles.caption(Colors.white)
-                        .copyWith(fontSize: 9.5, height: 1.0, letterSpacing: 0.1),
+              Padding(
+                padding: const EdgeInsets.only(top: 2),
+                child: Text(
+                  item.label,
+                  maxLines: 1,
+                  overflow: TextOverflow.clip,
+                  style: AppTextStyles.caption(
+                    selected
+                        ? Colors.white
+                        : (palette.isDark ? palette.tertiary : palette.sub),
+                  ).copyWith(
+                    fontSize: 8.5,
+                    height: 1.0,
+                    letterSpacing: 0.1,
+                    fontWeight: selected ? FontWeight.w600 : FontWeight.w400,
                   ),
                 ),
+              ),
             ],
           ),
         ),

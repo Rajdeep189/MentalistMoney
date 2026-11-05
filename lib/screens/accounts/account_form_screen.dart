@@ -42,6 +42,21 @@ class _AccountFormScreenState extends ConsumerState<AccountFormScreen> {
   late bool _archived = widget.account?.archived ?? false;
   bool _saving = false;
 
+  static String _defaultFinish(String type) {
+    switch (type) {
+      case kAccountCash:
+        return '#C9F24C';
+      case kAccountCredit:
+        return '#2E5BFF';
+      case kAccountInvestment:
+        return '#8B5CF6';
+      case kAccountWallet:
+        return '#C9A96A';
+      default:
+        return '#141418';
+    }
+  }
+
   @override
   void dispose() {
     _nameController.dispose();

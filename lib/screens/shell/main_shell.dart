@@ -176,7 +176,7 @@ class _MainShellState extends ConsumerState<MainShell> {
           index: index,
           items: _items,
           onMenu: _openQuickMenu,
-          bottomInset: safeBottom > 0 ? 8 : 14,
+          bottomInset: safeBottom + 6,
           onSelected: (value) {
             HapticFeedback.selectionClick();
             ref.read(navIndexProvider.notifier).state = value;
