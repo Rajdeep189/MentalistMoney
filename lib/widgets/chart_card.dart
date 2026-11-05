@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../core/theme/app_colors.dart';
 import '../core/theme/app_spacing.dart';
 import '../core/theme/app_text_styles.dart';
 import 'app_card.dart';
@@ -26,6 +27,7 @@ class ChartCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = context.c;
     return AppCard(
       padding: padding,
       child: Column(
@@ -33,6 +35,7 @@ class ChartCard extends StatelessWidget {
         children: <Widget>[
           if (title != null)
             Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
                 Expanded(
                   child: Column(
@@ -40,7 +43,12 @@ class ChartCard extends StatelessWidget {
                     children: <Widget>[
                       Row(
                         children: <Widget>[
-                          Flexible(child: Text(title!, style: context.h3)),
+                          Flexible(
+                            child: Text(
+                              title!,
+                              style: AppTextStyles.h3(palette.ink),
+                            ),
+                          ),
                           if (premium) ...<Widget>[
                             const SizedBox(width: 8),
                             const PremiumBadge(dense: true),
@@ -49,8 +57,12 @@ class ChartCard extends StatelessWidget {
                       ),
                       if (subtitle != null)
                         Padding(
-                          padding: const EdgeInsets.only(top: 2),
-                          child: Text(subtitle!, style: context.caption),
+                          padding: const EdgeInsets.only(top: 3),
+                          child: Text(
+                            subtitle!,
+                            style: AppTextStyles.caption(palette.tertiary)
+                                .copyWith(fontSize: 10.5, letterSpacing: 0.3),
+                          ),
                         ),
                     ],
                   ),

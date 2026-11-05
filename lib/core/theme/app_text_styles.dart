@@ -4,12 +4,13 @@ import 'package:flutter/material.dart';
 
 import 'app_colors.dart';
 
-/// Typography scale – Poppins (Circular-Std-like geometric sans) with
-/// tabular figures for every numeric value.
+/// Typography — an editorial serif (Prata) for display, headings and hero
+/// amounts, paired with Poppins for dense UI text and tabular numerals.
 class AppTextStyles {
   AppTextStyles._();
 
   static const String family = 'Poppins';
+  static const String serifFamily = 'Prata';
 
   static const List<FontFeature> tabular = <FontFeature>[
     FontFeature.tabularFigures(),
@@ -21,9 +22,10 @@ class AppTextStyles {
     double height = 1.35,
     double? letterSpacing,
     bool tabularFigures = false,
+    String? fontFamily,
   }) {
     return TextStyle(
-      fontFamily: family,
+      fontFamily: fontFamily ?? family,
       fontSize: size,
       fontWeight: weight,
       height: height,
@@ -32,43 +34,68 @@ class AppTextStyles {
     );
   }
 
-  // Display XL – total balance / safe to spend
-  static TextStyle displayXL(Color color) => base(
-        size: 34,
-        weight: FontWeight.w700,
-        height: 1.12,
-        letterSpacing: -0.8,
+  /// High-contrast serif used for titles and big numbers.
+  static TextStyle serif({
+    required double size,
+    required Color color,
+    double height = 1.15,
+    double? letterSpacing,
+    bool tabularFigures = false,
+  }) {
+    return base(
+      size: size,
+      weight: FontWeight.w400,
+      height: height,
+      letterSpacing: letterSpacing,
+      tabularFigures: tabularFigures,
+      fontFamily: serifFamily,
+    ).copyWith(color: color);
+  }
+
+  // Display XL – hero amounts
+  static TextStyle displayXL(Color color) => serif(
+        size: 40,
+        color: color,
+        height: 1.05,
+        letterSpacing: -0.6,
         tabularFigures: true,
-      ).copyWith(color: color);
+      );
 
   // Display L – page titles / report totals
-  static TextStyle displayL(Color color) => base(
-        size: 28,
-        weight: FontWeight.w700,
-        height: 1.15,
-        letterSpacing: -0.5,
-        tabularFigures: true,
-      ).copyWith(color: color);
-
-  static TextStyle h1(Color color) => base(
-        size: 24,
-        weight: FontWeight.w600,
-        height: 1.2,
+  static TextStyle displayL(Color color) => serif(
+        size: 30,
+        color: color,
+        height: 1.1,
         letterSpacing: -0.3,
-      ).copyWith(color: color);
+        tabularFigures: true,
+      );
 
-  static TextStyle h2(Color color) => base(
-        size: 20,
-        weight: FontWeight.w600,
-        height: 1.25,
+  static TextStyle h1(Color color) => serif(
+        size: 26,
+        color: color,
+        height: 1.18,
         letterSpacing: -0.2,
-      ).copyWith(color: color);
+      );
 
-  static TextStyle h3(Color color) => base(
+  static TextStyle h2(Color color) => serif(
+        size: 21,
+        color: color,
+        height: 1.22,
+      );
+
+  static TextStyle h3(Color color) => serif(
         size: 18,
-        weight: FontWeight.w600,
-        height: 1.3,
-      ).copyWith(color: color);
+        color: color,
+        height: 1.28,
+      );
+
+  /// Wordmark used in the home header and splash.
+  static TextStyle wordmark(Color color, {double size = 26}) => serif(
+        size: size,
+        color: color,
+        height: 1.0,
+        letterSpacing: 0.4,
+      );
 
   static TextStyle bodyLarge(Color color) => base(
         size: 16,
@@ -92,26 +119,38 @@ class AppTextStyles {
       ).copyWith(color: color);
 
   static TextStyle overline(Color color) => base(
-        size: 11,
+        size: 10.5,
         weight: FontWeight.w600,
         height: 1.2,
-        letterSpacing: 0.5,
+        letterSpacing: 1.4,
       ).copyWith(color: color);
 
-  /// Money amount with tabular figures.
+  /// Money amount. Hero sizes use the serif face, dense rows use tabular sans.
   static TextStyle money(
     double size, {
     required Color color,
     FontWeight weight = FontWeight.w600,
     double? letterSpacing,
-  }) =>
-      base(
+    bool? serifFace,
+  }) {
+    final useSerif = serifFace ?? size >= 18;
+    if (useSerif) {
+      return AppTextStyles.serif(
         size: size,
-        weight: weight,
-        height: 1.12,
-        letterSpacing: letterSpacing,
+        color: color,
+        height: 1.08,
+        letterSpacing: letterSpacing ?? -0.2,
         tabularFigures: true,
-      ).copyWith(color: color);
+      );
+    }
+    return base(
+      size: size,
+      weight: weight,
+      height: 1.12,
+      letterSpacing: letterSpacing,
+      tabularFigures: true,
+    ).copyWith(color: color);
+  }
 
   /// Builds the Material [TextTheme] wiring the scale above.
   static TextTheme textTheme(Color ink, Color sub) {
@@ -146,6 +185,7 @@ extension AppThemeContext on BuildContext {
   TextStyle get h1 => AppTextStyles.h1(c.ink);
   TextStyle get h2 => AppTextStyles.h2(c.ink);
   TextStyle get h3 => AppTextStyles.h3(c.ink);
+  TextStyle get serif => AppTextStyles.serif(size: 22, color: c.ink);
   TextStyle get bodyL => AppTextStyles.bodyLarge(c.ink);
   TextStyle get body => AppTextStyles.body(c.ink);
   TextStyle get bodyMuted => AppTextStyles.body(c.sub);

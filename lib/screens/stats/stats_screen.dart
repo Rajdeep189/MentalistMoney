@@ -13,6 +13,8 @@ import '../../widgets/app_card.dart';
 import '../../widgets/buttons.dart';
 import '../../widgets/chart_card.dart';
 import '../../widgets/fields.dart';
+import '../../widgets/luxe.dart';
+import '../../widgets/luxe_charts.dart';
 import '../../widgets/pickers.dart';
 import '../../widgets/premium_badge.dart';
 import '../../widgets/premium_gate.dart';
@@ -67,7 +69,13 @@ class StatsScreen extends ConsumerWidget {
     return Scaffold(
       backgroundColor: palette.surface,
       appBar: AppBar(
-        title: Text(tr(context, 'Stats')),
+        title: Row(
+          children: <Widget>[
+            const MetallicMark(size: 28, animated: false),
+            const SizedBox(width: 10),
+            Text(tr(context, 'Insights'), style: AppTextStyles.h2(palette.ink)),
+          ],
+        ),
         actions: <Widget>[
           IconButton(
             tooltip: 'Export',
@@ -133,6 +141,17 @@ class StatsScreen extends ConsumerWidget {
                   SegmentOption(value: 'income', label: 'Income'),
                 ],
                 onChanged: (value) => ref.read(statsTypeProvider.notifier).state = value,
+              ),
+            ),
+            const SizedBox(height: AppSpacing.x4),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.screen),
+              child: _FinancialHealthCard(
+                summary: summaryValue,
+                previous: previousValue,
+                categoryCount: categoryList.length,
+                activeDays: activeDays,
+                monthDays: range.end.difference(range.start).inDays + 1,
               ),
             ),
             const SizedBox(height: AppSpacing.x4),
@@ -220,14 +239,29 @@ class StatsScreen extends ConsumerWidget {
                     subtitle: range.label,
                     child: Column(
                       children: <Widget>[
-                        DonutChart(
-                          totals: categoryList,
-                          total: categoryList.fold<int>(0, (sum, item) => sum + item.total),
-                          onTap: (item) {
+                        PetalDonut(
+                          size: 210,
+                          centerValue: Fmt.money(
+                            categoryList.fold<int>(0, (sum, item) => sum + item.total),
+                            forceCompact: true,
+                          ),
+                          centerLabel: 'TOTAL',
+                          onSelected: (index) {
+                            if (index >= categoryList.length) return;
                             ref.read(transactionFilterProvider.notifier).state =
-                                TransactionFilter(categoryIds: <int>[item.categoryId]);
+                                TransactionFilter(
+                              categoryIds: <int>[categoryList[index].categoryId],
+                            );
                             ref.read(navIndexProvider.notifier).state = 1;
                           },
+                          slices: <PetalSlice>[
+                            for (final item in categoryList.take(8))
+                              PetalSlice(
+                                value: item.total.toDouble(),
+                                color: AppColors.fromHex(item.color),
+                                label: item.name,
+                              ),
+                          ],
                         ),
                         const SizedBox(height: AppSpacing.x3),
                         ...categoryList.take(5).map(
@@ -602,6 +636,159 @@ class StatsScreen extends ConsumerWidget {
           ],
         ),
       ],
+    );
+  }
+}
+
+/// Financial-health radar with a weighted score in the centre.
+class _FinancialHealthCard extends StatelessWidget {
+  const _FinancialHealthCard({
+    required this.summary,
+    required this.previous,
+    required this.categoryCount,
+    required this.activeDays,
+    required this.monthDays,
+  });
+
+  final PeriodSummary summary;
+  final PeriodSummary previous;
+  final int categoryCount;
+  final int activeDays;
+  final int monthDays;
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = context.c;
+    final savings = (summary.savingsRate / 40).clamp(0.0, 1.0).toDouble();
+    final consistency =
+        monthDays <= 0 ? 0.0 : (activeDays / monthDays).clamp(0.0, 1.0);
+    final diversity = (categoryCount / 8).clamp(0.0, 1.0).toDouble();
+    final stability = previous.expense <= 0
+        ? 0.55
+        : (1 -
+                (summary.expense - previous.expense).abs() /
+                    previous.expense)
+            .clamp(0.0, 1.0)
+            .toDouble();
+    final activity = (summary.count / 40).clamp(0.0, 1.0).toDouble();
+    final score = ((savings * 0.34 +
+                consistency * 0.20 +
+                diversity * 0.16 +
+                stability * 0.15 +
+                activity * 0.15) *
+            100)
+        .round();
+
+    final label = score >= 80
+        ? 'Excellent'
+        : score >= 65
+            ? 'Strong'
+            : score >= 45
+                ? 'Balanced'
+                : score >= 25
+                    ? 'Needs care'
+                    : 'At risk';
+
+    return AppCard(
+      padding: const EdgeInsets.fromLTRB(
+        AppSpacing.x5,
+        AppSpacing.x5,
+        AppSpacing.x5,
+        AppSpacing.x4,
+      ),
+      child: Column(
+        children: <Widget>[
+          Row(
+            children: <Widget>[
+              const Eyebrow('Financial health'),
+              const Spacer(),
+              Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                decoration: BoxDecoration(
+                  color: palette.accentSoft,
+                  borderRadius: BorderRadius.circular(99),
+                ),
+                child: Text(
+                  label,
+                  style: AppTextStyles.caption(palette.ink)
+                      .copyWith(fontSize: 10.5, fontWeight: FontWeight.w600),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: AppSpacing.x2),
+          HealthRadar(
+            size: 258,
+            score: score,
+            labels: const <String>[
+              'Savings',
+              'Consistency',
+              'Diversity',
+              'Stability',
+              'Activity',
+            ],
+            values: <double>[
+              savings,
+              consistency,
+              diversity,
+              stability,
+              activity,
+            ],
+          ),
+          const SizedBox(height: AppSpacing.x2),
+          Row(
+            children: <Widget>[
+              _HealthNote(
+                icon: Icons.calendar_month_rounded,
+                label: 'Active days',
+                value: '$activeDays',
+              ),
+              _HealthNote(
+                icon: Icons.savings_outlined,
+                label: 'Savings rate',
+                value: '${summary.savingsRate.toStringAsFixed(0)}%',
+              ),
+              _HealthNote(
+                icon: Icons.receipt_long_rounded,
+                label: 'Entries',
+                value: '${summary.count}',
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _HealthNote extends StatelessWidget {
+  const _HealthNote({
+    required this.icon,
+    required this.label,
+    required this.value,
+  });
+
+  final IconData icon;
+  final String label;
+  final String value;
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = context.c;
+    return Expanded(
+      child: Column(
+        children: <Widget>[
+          Icon(icon, size: 14, color: palette.tertiary),
+          const SizedBox(height: 4),
+          Text(value, style: AppTextStyles.serif(size: 15, color: palette.ink)),
+          Text(
+            label,
+            style: AppTextStyles.caption(palette.tertiary)
+                .copyWith(fontSize: 9.5),
+          ),
+        ],
+      ),
     );
   }
 }

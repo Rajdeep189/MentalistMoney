@@ -26,15 +26,15 @@ class MoneyManApp extends ConsumerWidget {
       data: (value) {
         applyFormatting(value);
         SecureScreenService.instance.setSecure(value.blockScreenshots);
-        final accent = value.accentColor;
         final pack = value.pack;
+        final accent = pack.id == 'default' ? value.accentColor : pack.accent;
 
         return MaterialApp(
           title: 'MoneyMan',
           debugShowCheckedModeBanner: false,
           themeMode: value.themeMode,
           theme: AppTheme.light(accent: accent, pack: pack),
-          darkTheme: AppTheme.dark(accent: pack.premium || pack.id != 'default' ? pack.accent : accent, pack: pack),
+          darkTheme: AppTheme.dark(accent: accent, pack: pack),
           themeAnimationDuration: const Duration(milliseconds: 240),
           builder: (context, child) {
             final media = MediaQuery.of(context);

@@ -31,6 +31,7 @@ class PrimaryButton extends StatelessWidget {
     final palette = context.c;
     final enabled = onPressed != null && !loading;
     final bg = background ?? palette.accent;
+    final fg = background != null ? Colors.white : palette.onAccent;
 
     return SizedBox(
       height: height,
@@ -39,7 +40,7 @@ class PrimaryButton extends StatelessWidget {
         onPressed: enabled ? onPressed : null,
         style: ElevatedButton.styleFrom(
           backgroundColor: bg,
-          foregroundColor: Colors.white,
+          foregroundColor: fg,
           disabledBackgroundColor: palette.isDark ? palette.cardAlt : palette.divider,
           disabledForegroundColor: palette.tertiary,
           elevation: 0,
@@ -47,25 +48,25 @@ class PrimaryButton extends StatelessWidget {
             borderRadius: BorderRadius.circular(AppRadius.button),
           ),
           padding: const EdgeInsets.symmetric(horizontal: AppSpacing.x5),
-          textStyle: AppTextStyles.label(Colors.white).copyWith(fontSize: 15),
+          textStyle: AppTextStyles.label(fg).copyWith(fontSize: 15, letterSpacing: 0.2),
         ),
         child: loading
             ? const SizedBox(
                 height: 22,
                 width: 22,
-                child: CircularProgressIndicator(strokeWidth: 2.4, color: Colors.white),
+                child: CircularProgressIndicator(strokeWidth: 2.4, color: fg),
               )
             : Row(
                 mainAxisSize: MainAxisSize.min,
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: <Widget>[
                   if (icon != null) ...<Widget>[
-                    Icon(icon, size: 19, color: Colors.white),
+                    Icon(icon, size: 19, color: fg),
                     const SizedBox(width: AppSpacing.x2),
                   ],
                   Text(
                     label,
-                    style: AppTextStyles.label(Colors.white).copyWith(fontSize: 15),
+                    style: AppTextStyles.label(fg).copyWith(fontSize: 15, letterSpacing: 0.2),
                   ),
                 ],
               ),

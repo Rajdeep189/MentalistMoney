@@ -7,7 +7,8 @@ import '../core/theme/app_text_styles.dart';
 import 'amount_text.dart';
 import 'app_card.dart';
 
-/// Small metric tile (income / expense / savings).
+/// Small metric tile (income / expense / savings) in the editorial style:
+/// tinted icon chip, quiet caption, serif figure.
 class StatCard extends StatelessWidget {
   const StatCard({
     super.key,
@@ -35,7 +36,8 @@ class StatCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = context.c;
-    final accentTone = tone ?? (type == null ? palette.accent : amountColorFor(context, type));
+    final accentTone =
+        tone ?? (type == null ? palette.accent : amountColorFor(context, type));
 
     return AppCard(
       onTap: onTap,
@@ -47,11 +49,11 @@ class StatCard extends StatelessWidget {
             children: <Widget>[
               if (icon != null) ...<Widget>[
                 Container(
-                  height: 26,
-                  width: 26,
+                  height: 28,
+                  width: 28,
                   decoration: BoxDecoration(
-                    color: accentTone.withOpacity(0.12),
-                    borderRadius: BorderRadius.circular(8),
+                    color: accentTone.withOpacity(palette.isDark ? 0.24 : 0.14),
+                    shape: BoxShape.circle,
                   ),
                   child: Icon(icon, size: 15, color: accentTone),
                 ),
@@ -59,29 +61,41 @@ class StatCard extends StatelessWidget {
               ],
               Expanded(
                 child: Text(
-                  label,
+                  label.toUpperCase(),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: AppTextStyles.caption(palette.sub),
+                  style: AppTextStyles.overline(palette.tertiary)
+                      .copyWith(fontSize: 8.5, letterSpacing: 1.1),
                 ),
               ),
             ],
           ),
-          const SizedBox(height: AppSpacing.x2),
+          SizedBox(height: dense ? 8 : 12),
           if (amount != null)
-            AmountText(
-              amount!,
-              size: dense ? 17 : 19,
-              type: type,
-              color: tone,
-              weight: FontWeight.w700,
+            FittedBox(
+              fit: BoxFit.scaleDown,
+              alignment: Alignment.centerLeft,
+              child: AmountText(
+                amount!,
+                size: dense ? 18 : 21,
+                type: type,
+                color: tone,
+                weight: FontWeight.w400,
+              ),
             )
           else
-            Text(
-              value ?? '-',
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: AppTextStyles.money(dense ? 17 : 19, color: tone ?? palette.ink, weight: FontWeight.w700),
+            FittedBox(
+              fit: BoxFit.scaleDown,
+              alignment: Alignment.centerLeft,
+              child: Text(
+                value ?? '-',
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: AppTextStyles.serif(
+                  size: dense ? 18 : 21,
+                  color: tone ?? palette.ink,
+                ),
+              ),
             ),
           if (caption != null) ...<Widget>[
             const SizedBox(height: 4),
@@ -89,7 +103,8 @@ class StatCard extends StatelessWidget {
               caption!,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
-              style: AppTextStyles.caption(palette.tertiary),
+              style: AppTextStyles.caption(palette.tertiary)
+                  .copyWith(fontSize: 10.5),
             ),
           ],
         ],

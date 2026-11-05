@@ -9,6 +9,7 @@ import '../../core/theme/app_text_styles.dart';
 import '../../core/utils/money.dart';
 import '../../data/models/models.dart';
 import '../../providers/app_providers.dart';
+import '../../widgets/luxe.dart';
 import '../../widgets/app_card.dart';
 import '../../widgets/app_sheets.dart';
 import '../../widgets/buttons.dart';
@@ -43,7 +44,13 @@ class _BudgetsScreenState extends ConsumerState<BudgetsScreen> {
     return Scaffold(
       backgroundColor: palette.surface,
       appBar: AppBar(
-        title: Text(tr(context, 'Budgets')),
+        title: Row(
+          children: <Widget>[
+            const MetallicMark(size: 28, animated: false),
+            const SizedBox(width: 10),
+            Text(tr(context, 'Budgets'), style: AppTextStyles.h2(context.c.ink)),
+          ],
+        ),
         actions: <Widget>[
           PopupMenuButton<String>(
             icon: const Icon(Icons.more_vert_rounded),

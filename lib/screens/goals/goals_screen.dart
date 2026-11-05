@@ -8,6 +8,7 @@ import '../../core/theme/app_text_styles.dart';
 import '../../core/utils/money.dart';
 import '../../data/models/models.dart';
 import '../../providers/app_providers.dart';
+import '../../widgets/luxe.dart';
 import '../../widgets/app_card.dart';
 import '../../widgets/app_sheets.dart';
 import '../../widgets/buttons.dart';
@@ -31,7 +32,13 @@ class GoalsScreen extends ConsumerWidget {
     return Scaffold(
       backgroundColor: palette.surface,
       appBar: AppBar(
-        title: Text(tr(context, 'Goals')),
+        title: Row(
+          children: <Widget>[
+            const MetallicMark(size: 28, animated: false),
+            const SizedBox(width: 10),
+            Text(tr(context, 'Goals'), style: AppTextStyles.h2(context.c.ink)),
+          ],
+        ),
         actions: <Widget>[
           Padding(
             padding: const EdgeInsets.only(right: AppSpacing.x4),

@@ -7,6 +7,7 @@ import '../../core/theme/app_text_styles.dart';
 import '../../data/models/app_settings.dart';
 import '../../providers/app_providers.dart';
 import '../../widgets/app_sheets.dart';
+import '../../widgets/luxe.dart';
 import '../../widgets/settings_tiles.dart';
 import '../accounts/accounts_screen.dart';
 import '../achievements/achievements_screen.dart';
@@ -36,7 +37,15 @@ class SettingsScreen extends ConsumerWidget {
 
     return Scaffold(
       backgroundColor: palette.surface,
-      appBar: AppBar(title: const Text('Settings')),
+      appBar: AppBar(
+        title: Row(
+          children: <Widget>[
+            const MetallicMark(size: 30, animated: false),
+            const SizedBox(width: 10),
+            Text('Settings', style: AppTextStyles.h2(palette.ink)),
+          ],
+        ),
+      ),
       body: ListView(
         padding: const EdgeInsets.fromLTRB(
           AppSpacing.screen,
@@ -189,14 +198,24 @@ class SettingsScreen extends ConsumerWidget {
               ),
             ],
           ),
-          const SizedBox(height: AppSpacing.x5),
+          const SizedBox(height: AppSpacing.x6),
           Center(
             child: Text(
               'MoneyMan · Track every Money. Own your money.',
               style: AppTextStyles.caption(palette.tertiary),
             ),
           ),
-          const SizedBox(height: AppSpacing.x6),
+          const SizedBox(height: AppSpacing.x5),
+          const MadeBySuperman(),
+          const SizedBox(height: AppSpacing.x4),
+          Center(
+            child: Text(
+              'Version 1.0.0 · Built for India',
+              style: AppTextStyles.caption(palette.tertiary)
+                  .copyWith(fontSize: 10, letterSpacing: 0.6),
+            ),
+          ),
+          const SizedBox(height: AppSpacing.x8),
         ],
       ),
     );

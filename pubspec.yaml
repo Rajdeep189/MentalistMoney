@@ -65,3 +65,7 @@ flutter:
           weight: 600
         - asset: assets/fonts/Poppins-Bold.ttf
           weight: 700
+    - family: Prata
+      fonts:
+        - asset: assets/fonts/Prata-Regular.ttf
+          weight: 400

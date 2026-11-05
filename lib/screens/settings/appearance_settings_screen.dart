@@ -25,15 +25,7 @@ class AppearanceSettingsScreen extends ConsumerStatefulWidget {
 
 class _AppearanceSettingsScreenState
     extends ConsumerState<AppearanceSettingsScreen> {
-  static const Map<String, Color> _accents = <String, Color>{
-    'Violet': Color(0xFF916CFF),
-    'Indigo': Color(0xFF5B6BFF),
-    'Ocean': Color(0xFF2E90FA),
-    'Forest': Color(0xFF12B76A),
-    'Amber': Color(0xFFF79009),
-    'Rose': Color(0xFFF04438),
-    'Graphite': Color(0xFF3A3A44),
-  };
+  static final Map<String, Color> _accents = AppColors.accentPresets;
 
   Future<void> _save(String key, String value) async {
     await ref.read(settingsRepositoryProvider).set(key, value);

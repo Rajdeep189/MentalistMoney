@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_spacing.dart';
 import '../../core/theme/app_text_styles.dart';
+import '../../widgets/luxe.dart';
 
 /// Animated brand splash. Fades + scales the logo and expands the accent line.
 class SplashScreen extends StatefulWidget {
@@ -42,20 +43,26 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
     );
 
     return Scaffold(
-      backgroundColor: const Color(0xFF0B0B0F),
+      backgroundColor: const Color(0xFF08080A),
       body: Stack(
         children: <Widget>[
-          // Soft violet glow
+          const Positioned.fill(
+            child: AuroraBackground(
+              intensity: 1.2,
+              child: SizedBox.expand(),
+            ),
+          ),
+          // champagne halo
           Positioned(
-            top: -120,
+            top: -140,
             left: -60,
             right: -60,
             child: Container(
-              height: 420,
+              height: 460,
               decoration: BoxDecoration(
                 gradient: RadialGradient(
                   colors: <Color>[
-                    AppColors.accent.withOpacity(0.35),
+                    AppColors.gold.withOpacity(0.22),
                     Colors.transparent,
                   ],
                 ),
@@ -70,33 +77,16 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
                   scale: Tween<double>(begin: 0.94, end: 1).animate(logoScale),
                   child: FadeTransition(
                     opacity: logoScale,
-                    child: Container(
-                      height: 96,
-                      width: 96,
-                      decoration: BoxDecoration(
-                        gradient: const LinearGradient(
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                          colors: <Color>[Color(0xFFA78BFF), Color(0xFF7A55F0)],
+                    child: Column(
+                      children: <Widget>[
+                        const MetallicMark(size: 104),
+                        const SizedBox(height: AppSpacing.x4),
+                        Container(
+                          height: 1,
+                          width: 64,
+                          color: AppColors.gold.withOpacity(0.5),
                         ),
-                        borderRadius: BorderRadius.circular(28),
-                        boxShadow: <BoxShadow>[
-                          BoxShadow(
-                            color: AppColors.accent.withOpacity(0.45),
-                            blurRadius: 40,
-                            offset: const Offset(0, 16),
-                          ),
-                        ],
-                      ),
-                      alignment: Alignment.center,
-                      child: Text(
-                        'M',
-                        style: AppTextStyles.money(
-                          44,
-                          color: Colors.white,
-                          weight: FontWeight.w700,
-                        ).copyWith(height: 1.1),
-                      ),
+                      ],
                     ),
                   ),
                 ),
@@ -105,14 +95,23 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
                   opacity: fade,
                   child: Column(
                     children: <Widget>[
-                      Text(
-                        'MoneyMan',
-                        style: AppTextStyles.displayL(Colors.white),
+                      ShineSweep(
+                        period: const Duration(milliseconds: 4200),
+                        opacity: 0.45,
+                        child: Text(
+                          'MoneyMan',
+                          style: AppTextStyles.serif(
+                            size: 34,
+                            color: Colors.white,
+                            letterSpacing: 0.4,
+                          ),
+                        ),
                       ),
-                      const SizedBox(height: 6),
+                      const SizedBox(height: 8),
                       Text(
-                        'Track every Money. Own your money.',
-                        style: AppTextStyles.caption(AppColors.darkSub),
+                        'TRACK EVERY MONEY · OWN YOUR MONEY',
+                        style: AppTextStyles.caption(AppColors.gold)
+                            .copyWith(fontSize: 9, letterSpacing: 2.2),
                       ),
                     ],
                   ),
@@ -124,9 +123,7 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
                     height: 3,
                     width: 120 * line.value,
                     decoration: BoxDecoration(
-                      gradient: const LinearGradient(
-                        colors: <Color>[AppColors.accent, Color(0xFFA78BFF)],
-                      ),
+                      gradient: AppColors.goldGradient,
                       borderRadius: BorderRadius.circular(2),
                     ),
                   ),
@@ -152,7 +149,7 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
             child: FadeTransition(
               opacity: fade,
               child: Text(
-                'Offline-first · Private by design',
+                'Offline-first · Private by design · Made by Superman',
                 textAlign: TextAlign.center,
                 style: AppTextStyles.caption(Colors.white.withOpacity(0.35)),
               ),

@@ -8,6 +8,7 @@ import '../../core/theme/app_text_styles.dart';
 import '../../core/utils/money.dart';
 import '../../data/models/models.dart';
 import '../../providers/app_providers.dart';
+import '../../widgets/luxe.dart';
 import '../../widgets/app_sheets.dart';
 import '../../widgets/buttons.dart';
 import '../../widgets/empty_state.dart';
@@ -78,7 +79,13 @@ class _TransactionsScreenState extends ConsumerState<TransactionsScreen> {
     return Scaffold(
       backgroundColor: palette.surface,
       appBar: AppBar(
-        title: Text(tr(context, 'Transactions')),
+        title: Row(
+          children: <Widget>[
+            const MetallicMark(size: 28, animated: false),
+            const SizedBox(width: 10),
+            Text(tr(context, 'Transactions'), style: AppTextStyles.h2(context.c.ink)),
+          ],
+        ),
         actions: <Widget>[
           if (_selectionMode) ...<Widget>[
             IconButton(

@@ -14,6 +14,7 @@ import '../../widgets/app_sheets.dart';
 import '../../widgets/buttons.dart';
 import '../../widgets/category_icon.dart';
 import '../../widgets/fields.dart';
+import '../../widgets/luxe_account_card.dart';
 
 class AccountFormScreen extends ConsumerStatefulWidget {
   const AccountFormScreen({super.key, this.account});
@@ -31,7 +32,7 @@ class _AccountFormScreenState extends ConsumerState<AccountFormScreen> {
       TextEditingController(text: widget.account?.notes ?? '');
   late String _type = widget.account?.type ?? kAccountCash;
   late String _icon = widget.account?.icon ?? 'wallet';
-  late String _color = widget.account?.color ?? '#916CFF';
+  late String _color = widget.account?.color ?? '#141418';
   late int _openingBalance = widget.account?.openingBalance ?? 0;
   late int? _creditLimit = widget.account?.creditLimit;
   late int? _statementDay = widget.account?.statementDay;
@@ -108,11 +109,30 @@ class _AccountFormScreenState extends ConsumerState<AccountFormScreen> {
           AppSpacing.x10,
         ),
         children: <Widget>[
+          ValueListenableBuilder<TextEditingValue>(
+            valueListenable: _nameController,
+            builder: (context, value, _) {
+              return LiveCardPreview(
+                name: value.text,
+                type: _type,
+                hex: _color,
+                balance: _openingBalance,
+                creditLimit: _creditLimit,
+              );
+            },
+          ),
+          const SizedBox(height: AppSpacing.x4),
           AppTextField(
             controller: _nameController,
             label: 'Account name',
             hint: 'e.g. HDFC Savings',
             prefixIcon: Icons.account_balance_outlined,
+          ),
+          const SizedBox(height: 4),
+          Text(
+            'Your name appears on the card as you type.',
+            style: AppTextStyles.caption(palette.tertiary)
+                .copyWith(fontSize: 10.5),
           ),
           const SizedBox(height: AppSpacing.x4),
           Text('Account type', style: AppTextStyles.label(palette.sub)),
@@ -171,32 +191,15 @@ class _AccountFormScreenState extends ConsumerState<AccountFormScreen> {
             }).toList(),
           ),
           const SizedBox(height: AppSpacing.x4),
-          Text('Colour', style: AppTextStyles.label(palette.sub)),
-          const SizedBox(height: 8),
-          Wrap(
-            spacing: 10,
-            children: AppColors.categoryPalette.map((color) {
-              final hex = AppColors.toHex(color);
-              final selected = _color == hex;
-              return GestureDetector(
-                onTap: () => setState(() => _color = hex),
-                child: Container(
-                  height: 34,
-                  width: 34,
-                  decoration: BoxDecoration(
-                    color: color,
-                    shape: BoxShape.circle,
-                    border: Border.all(
-                      color: selected ? palette.ink : Colors.transparent,
-                      width: 2,
-                    ),
-                  ),
-                  child: selected
-                      ? const Icon(Icons.check_rounded, size: 16, color: Colors.white)
-                      : null,
-                ),
+          ValueListenableBuilder<TextEditingValue>(
+            valueListenable: _nameController,
+            builder: (context, value, _) {
+              return CardStylePicker(
+                selectedHex: _color,
+                holder: value.text,
+                onSelected: (style) => setState(() => _color = style.hex),
               );
-            }).toList(),
+            },
           ),
           if (isCredit) ...<Widget>[
             const SizedBox(height: AppSpacing.x4),

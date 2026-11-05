@@ -26,36 +26,41 @@ class ThemePack {
 
   static const List<ThemePack> packs = <ThemePack>[
     ThemePack(id: 'default', name: 'MoneyMan', accent: AppColors.accent),
-    ThemePack(id: 'mono', name: 'Mono', accent: Color(0xFF3A3A44)),
+    ThemePack(id: 'mono', name: 'Chrome', accent: Color(0xFF3A3A44)),
     ThemePack(
       id: 'midnight',
-      name: 'Midnight',
-      accent: Color(0xFF8B96FF),
-      darkOverride: Color(0xFF0C0C16),
+      name: 'Obsidian',
+      accent: Color(0xFF9C7BFF),
+      darkOverride: Color(0xFF06060A),
       premium: true,
     ),
     ThemePack(
       id: 'ocean',
       name: 'Ocean',
       accent: Color(0xFF2E90FA),
-      surfaceOverride: Color(0xFFF4F9FF),
+      surfaceOverride: Color(0xFFF1F6FC),
       premium: true,
     ),
     ThemePack(
       id: 'forest',
-      name: 'Forest',
+      name: 'Emerald',
       accent: Color(0xFF12B76A),
-      surfaceOverride: Color(0xFFF4FBF7),
+      surfaceOverride: Color(0xFFF1FAF4),
       premium: true,
     ),
     ThemePack(
       id: 'sunset',
       name: 'Sunset',
-      accent: Color(0xFFF79009),
-      surfaceOverride: Color(0xFFFFF9F2),
+      accent: Color(0xFFFF6A3D),
+      surfaceOverride: Color(0xFFFDF3EE),
       premium: true,
     ),
-    ThemePack(id: 'neon', name: 'Neon', accent: Color(0xFFE4559C), premium: true),
+    ThemePack(
+      id: 'neon',
+      name: 'Neon',
+      accent: Color(0xFFF25CA2),
+      premium: true,
+    ),
   ];
 
   static ThemePack byId(String id) =>
@@ -98,7 +103,7 @@ class AppTheme {
       colorScheme: ColorScheme(
         brightness: brightness,
         primary: p.accent,
-        onPrimary: Colors.white,
+        onPrimary: p.onAccent,
         primaryContainer: p.accentSoft,
         onPrimaryContainer: p.ink,
         secondary: p.ink,
@@ -124,11 +129,12 @@ class AppTheme {
       extensions: <ThemeExtension<dynamic>>[p],
       splashFactory: InkSparkle.splashFactory,
       appBarTheme: AppBarTheme(
-        backgroundColor: p.surface,
+        backgroundColor: Colors.transparent,
         surfaceTintColor: Colors.transparent,
         elevation: 0,
         scrolledUnderElevation: 0,
         centerTitle: false,
+        toolbarHeight: 64,
         iconTheme: IconThemeData(color: p.ink, size: 22),
         titleTextStyle: AppTextStyles.h2(p.ink),
       ),
@@ -182,7 +188,7 @@ class AppTheme {
       ),
       switchTheme: SwitchThemeData(
         thumbColor: WidgetStateProperty.resolveWith(
-          (states) => states.contains(WidgetState.selected) ? Colors.white : p.card,
+          (states) => states.contains(WidgetState.selected) ? p.onAccent : p.card,
         ),
         trackColor: WidgetStateProperty.resolveWith(
           (states) => states.contains(WidgetState.selected) ? p.accent : p.divider,
@@ -201,12 +207,11 @@ class AppTheme {
         circularTrackColor: p.divider,
       ),
       floatingActionButtonTheme: FloatingActionButtonThemeData(
-        backgroundColor: p.accent,
-        foregroundColor: Colors.white,
-        elevation: 2,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(AppRadius.button + 4),
-        ),
+        backgroundColor: p.isDark ? p.cardAlt : p.ink,
+        foregroundColor: p.isDark ? p.accent : Colors.white,
+        elevation: 6,
+        highlightElevation: 10,
+        shape: const CircleBorder(),
       ),
       navigationBarTheme: NavigationBarThemeData(
         backgroundColor: p.navBar,
@@ -228,8 +233,8 @@ class AppTheme {
       datePickerTheme: DatePickerThemeData(
         backgroundColor: p.card,
         surfaceTintColor: Colors.transparent,
-        headerBackgroundColor: p.accent,
-        headerForegroundColor: Colors.white,
+        headerBackgroundColor: p.ink,
+        headerForegroundColor: p.surface,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(AppRadius.cardLarge),
         ),
@@ -260,7 +265,7 @@ class AppTheme {
       ),
       pageTransitionsTheme: const PageTransitionsTheme(
         builders: <TargetPlatform, PageTransitionsBuilder>{
-          TargetPlatform.android: FadeUpwardsPageTransitionsBuilder(),
+          TargetPlatform.android: CupertinoPageTransitionsBuilder(),
           TargetPlatform.iOS: CupertinoPageTransitionsBuilder(),
         },
       ),

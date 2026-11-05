@@ -12,6 +12,8 @@ import '../../data/models/models.dart';
 import '../../providers/app_providers.dart';
 import '../../widgets/app_sheets.dart';
 import '../../widgets/buttons.dart';
+import '../../widgets/luxe.dart';
+import '../../widgets/luxe_account_card.dart';
 import '../../widgets/shimmer.dart';
 import '../accounts/accounts_screen.dart';
 import '../accounts/transfer_screen.dart';
@@ -76,7 +78,9 @@ class HomeScreen extends ConsumerWidget {
             ),
             children: <Widget>[
               _HomeHeader(settings: settings),
-              const SizedBox(height: AppSpacing.x4),
+              const SizedBox(height: AppSpacing.x5),
+              const _AccountsCarousel(),
+              const SizedBox(height: AppSpacing.x5),
 
               // Visible cards, in the user's order.
               for (final id in cards) ...<Widget>[
@@ -198,16 +202,31 @@ class HomeScreen extends ConsumerWidget {
                   onStats: () => ref.read(navIndexProvider.notifier).state = 4,
                 ),
               const SizedBox(height: AppSpacing.x5),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[
-                  Icon(Icons.lock_outline_rounded, size: 12, color: palette.tertiary),
-                  const SizedBox(width: 4),
-                  Text(
-                    'Offline-first · your data never leaves this device',
-                    style: AppTextStyles.caption(palette.tertiary).copyWith(fontSize: 10.5),
-                  ),
-                ],
+              Center(
+                child: Column(
+                  children: <Widget>[
+                    const MetallicMark(size: 34, animated: false),
+                    const SizedBox(height: 8),
+                    Text(
+                      'MoneyMan',
+                      style: AppTextStyles.wordmark(palette.tertiary, size: 15),
+                    ),
+                    const SizedBox(height: 4),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: <Widget>[
+                        Icon(Icons.lock_outline_rounded,
+                            size: 11, color: palette.tertiary),
+                        const SizedBox(width: 4),
+                        Text(
+                          'Offline-first · your data never leaves this device',
+                          style: AppTextStyles.caption(palette.tertiary)
+                              .copyWith(fontSize: 10),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
               ),
             ],
           ),
@@ -246,58 +265,92 @@ class _HomeHeader extends ConsumerWidget {
     final palette = context.c;
     final name = settings.userName;
     final initial = name.trim().isEmpty ? 'M' : name.trim()[0].toUpperCase();
+    final display = name.trim().isEmpty || name == 'there' ? 'Welcome back' : name;
 
-    return Row(
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+        LuxeWordmark(
+          subtitle: 'Track every Money. Own your money.',
+          trailing: Row(
+            mainAxisSize: MainAxisSize.min,
             children: <Widget>[
-              Text(
-                '${tr(context, DateX.greeting())},',
-                style: AppTextStyles.caption(palette.sub),
+              CircleIconButton(
+                icon: Icons.search_rounded,
+                tooltip: 'Search',
+                onPressed: () => Navigator.of(context).push(
+                  MaterialPageRoute<void>(builder: (_) => const SearchScreen()),
+                ),
               ),
-              const SizedBox(height: 2),
-              Text(
-                name.trim().isEmpty || name == 'there' ? 'Welcome back' : name,
-                style: context.h1,
+              const SizedBox(width: 6),
+              CircleIconButton(
+                icon: Icons.notifications_none_rounded,
+                tooltip: 'Reminders',
+                onPressed: () => Navigator.of(context).push(
+                  MaterialPageRoute<void>(
+                      builder: (_) => const NotificationsScreen()),
+                ),
               ),
             ],
           ),
         ),
-        CircleIconButton(
-          icon: Icons.search_rounded,
-          tooltip: 'Search',
-          onPressed: () => Navigator.of(context).push(
-            MaterialPageRoute<void>(builder: (_) => const SearchScreen()),
-          ),
-        ),
-        const SizedBox(width: 8),
-        CircleIconButton(
-          icon: Icons.notifications_none_rounded,
-          tooltip: 'Reminders',
-          onPressed: () => Navigator.of(context).push(
-            MaterialPageRoute<void>(builder: (_) => const NotificationsScreen()),
-          ),
-        ),
-        const SizedBox(width: 8),
-        GestureDetector(
-          onTap: () => _showMainMenu(context, ref),
-          child: Container(
-            height: 42,
-            width: 42,
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: <Color>[palette.accent, palette.accentPressed],
+        const SizedBox(height: AppSpacing.x5),
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: <Widget>[
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  Eyebrow('${tr(context, DateX.greeting())} · ${_monthLabel()}'),
+                  const SizedBox(height: 6),
+                  ShineSweep(
+                    period: const Duration(milliseconds: 6000),
+                    opacity: 0.35,
+                    child: Text(
+                      display,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: AppTextStyles.displayL(palette.ink),
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    'Here is how your money is moving.',
+                    style: AppTextStyles.caption(palette.tertiary)
+                        .copyWith(fontSize: 11.5),
+                  ),
+                ],
               ),
-              shape: BoxShape.circle,
             ),
-            alignment: Alignment.center,
-            child: Text(
-              initial,
-              style: AppTextStyles.money(16, color: Colors.white, weight: FontWeight.w600),
+            GestureDetector(
+              onTap: () => _showMainMenu(context, ref),
+              child: Container(
+                height: 46,
+                width: 46,
+                decoration: BoxDecoration(
+                  gradient: AppColors.metalGradient,
+                  shape: BoxShape.circle,
+                  boxShadow: <BoxShadow>[
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.25),
+                      blurRadius: 16,
+                      offset: const Offset(0, 8),
+                    ),
+                  ],
+                ),
+                child: Center(
+                  child: Text(
+                    initial,
+                    style: AppTextStyles.serif(
+                      size: 18,
+                      color: AppColors.ink,
+                    ),
+                  ),
+                ),
+              ),
             ),
-          ),
+          ],
         ),
       ],
     );
@@ -370,4 +423,109 @@ class _ErrorCard extends StatelessWidget {
       child: Text(message, style: AppTextStyles.caption(context.c.expense)),
     );
   }
+}
+
+
+/// Horizontally paged wallet of account cards.
+class _AccountsCarousel extends ConsumerWidget {
+  const _AccountsCarousel();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final palette = context.c;
+    final accountsAsync = ref.watch(allAccountsProvider);
+    return accountsAsync.when(
+      loading: () => const SizedBox(height: 212),
+      error: (error, _) => const SizedBox(height: 212),
+      data: (accounts) {
+        final active = accounts.where((a) => !a.archived).toList();
+        if (active.isEmpty) {
+          return GestureDetector(
+            onTap: () => Navigator.of(context).push(
+              MaterialPageRoute<void>(builder: (_) => const AccountsScreen()),
+            ),
+            child: Container(
+              height: 168,
+              padding: const EdgeInsets.all(AppSpacing.x5),
+              decoration: BoxDecoration(
+                gradient: AppColors.graphiteGradient,
+                borderRadius: BorderRadius.circular(24),
+                boxShadow: <BoxShadow>[
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.25),
+                    blurRadius: 24,
+                    offset: const Offset(0, 12),
+                  ),
+                ],
+              ),
+              child: Row(
+                children: <Widget>[
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: <Widget>[
+                        const Eyebrow('Your wallet', color: Color(0xFF9C9CA6)),
+                        const SizedBox(height: 8),
+                        Text(
+                          'Add your first account',
+                          style: AppTextStyles.h3(Colors.white),
+                        ),
+                        const SizedBox(height: 6),
+                        Text(
+                          'Cash, bank, cards and wallets — all in one place.',
+                          style: AppTextStyles.caption(const Color(0xFF9C9CA6)),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Container(
+                    height: 46,
+                    width: 46,
+                    decoration: const BoxDecoration(
+                      gradient: AppColors.limeGradient,
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(Icons.add_rounded,
+                        size: 24, color: AppColors.ink),
+                  ),
+                ],
+              ),
+            ),
+          );
+        }
+        return SizedBox(
+          height: 224,
+          child: PageView.builder(
+            controller: PageController(viewportFraction: 0.94),
+            padEnds: false,
+            physics: const BouncingScrollPhysics(),
+            itemCount: active.length,
+            itemBuilder: (context, i) {
+              return Padding(
+                padding: const EdgeInsets.only(right: 10),
+                child: LuxeAccountCard(
+                  account: active[i],
+                  onTap: () => Navigator.of(context).push(
+                    MaterialPageRoute<void>(
+                        builder: (_) => const AccountsScreen()),
+                  ),
+                ),
+              );
+            },
+          ),
+        );
+      },
+    );
+  }
+}
+
+
+String _monthLabel() {
+  const months = <String>[
+    'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+    'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',
+  ];
+  final now = DateTime.now();
+  return '${months[now.month - 1]} ${now.year}';
 }

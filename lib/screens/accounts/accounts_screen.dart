@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/theme/app_colors.dart';
+import '../../core/theme/app_radius.dart';
 import '../../core/theme/app_spacing.dart';
 import '../../core/theme/app_text_styles.dart';
 import '../../core/utils/money.dart';
@@ -13,6 +14,8 @@ import '../../widgets/app_sheets.dart';
 import '../../widgets/category_icon.dart';
 import '../../widgets/empty_state.dart';
 import '../../widgets/illustration.dart';
+import '../../widgets/luxe.dart';
+import '../../widgets/luxe_account_card.dart';
 import '../../widgets/progress_widgets.dart';
 import 'account_detail_screen.dart';
 import 'account_form_screen.dart';
@@ -31,7 +34,13 @@ class AccountsScreen extends ConsumerWidget {
     return Scaffold(
       backgroundColor: palette.surface,
       appBar: AppBar(
-        title: const Text('Accounts'),
+        title: Row(
+          children: <Widget>[
+            const MetallicMark(size: 30, animated: false),
+            const SizedBox(width: 10),
+            Text('Accounts', style: AppTextStyles.h2(palette.ink)),
+          ],
+        ),
         actions: <Widget>[
           IconButton(
             tooltip: 'Transfer money',
@@ -86,10 +95,20 @@ class AccountsScreen extends ConsumerWidget {
               const SizedBox(height: AppSpacing.x5),
               for (final entry in groups.entries) ...<Widget>[
                 Padding(
-                  padding: const EdgeInsets.only(bottom: 8),
-                  child: Text(
-                    accountTypeLabel(entry.key).toUpperCase(),
-                    style: context.overline,
+                  padding: const EdgeInsets.only(bottom: 10, top: 4),
+                  child: Row(
+                    children: <Widget>[
+                      Text(
+                        accountTypeLabel(entry.key),
+                        style: AppTextStyles.h3(palette.ink),
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        '${entry.value.length.toString().padLeft(2, '0')}',
+                        style: AppTextStyles.caption(palette.tertiary)
+                            .copyWith(fontSize: 10),
+                      ),
+                    ],
                   ),
                 ),
                 ...entry.value.map(
@@ -106,8 +125,8 @@ class AccountsScreen extends ConsumerWidget {
               ],
               if (archived.isNotEmpty) ...<Widget>[
                 Padding(
-                  padding: const EdgeInsets.only(bottom: 8),
-                  child: Text('ARCHIVED', style: context.overline),
+                  padding: const EdgeInsets.only(bottom: 10, top: 4),
+                  child: Text('Archived', style: AppTextStyles.h3(palette.ink)),
                 ),
                 ...archived.map(
                   (account) => AccountCard(
@@ -137,169 +156,76 @@ class _NetWorthHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = context.c;
-    return DarkCard(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          Text('Net worth', style: AppTextStyles.label(palette.sub)),
-          const SizedBox(height: 4),
-          AmountText(assets - liabilities, size: 30, color: Colors.white,
-              weight: FontWeight.w700),
-          const SizedBox(height: AppSpacing.x4),
-          Row(
-            children: <Widget>[
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: <Widget>[
-                    Text('Assets', style: AppTextStyles.caption(palette.sub)),
-                    const SizedBox(height: 2),
-                    AmountText(assets, size: 15, color: palette.income),
-                  ],
-                ),
-              ),
-              Container(width: 1, height: 30, color: palette.divider),
-              const SizedBox(width: AppSpacing.x4),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: <Widget>[
-                    Text('Liabilities', style: AppTextStyles.caption(palette.sub)),
-                    const SizedBox(height: 2),
-                    AmountText(liabilities, size: 15, color: palette.expense),
-                  ],
-                ),
-              ),
-            ],
+    return Container(
+      padding: const EdgeInsets.all(AppSpacing.x5),
+      decoration: BoxDecoration(
+        gradient: AppColors.graphiteGradient,
+        borderRadius: BorderRadius.circular(AppRadius.cardLarge + 2),
+        border: Border.all(color: Colors.white.withOpacity(0.08)),
+        boxShadow: <BoxShadow>[
+          BoxShadow(
+            color: Colors.black.withOpacity(palette.isDark ? 0.5 : 0.22),
+            blurRadius: 28,
+            offset: const Offset(0, 14),
           ),
         ],
       ),
-    );
-  }
-}
-
-/// Credit cards get the premium dark treatment; other accounts use white cards.
-class AccountCard extends StatelessWidget {
-  const AccountCard({super.key, required this.account, this.onTap});
-
-  final Account account;
-  final VoidCallback? onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final palette = context.c;
-
-    if (account.type == kAccountCredit) {
-      return Padding(
-        padding: const EdgeInsets.only(bottom: AppSpacing.x3),
-        child: DarkCard(
-          onTap: onTap,
-          accent: _parse(account.color),
-          padding: const EdgeInsets.all(AppSpacing.x5),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              Row(
-                children: <Widget>[
-                  Icon(Icons.credit_card_rounded, size: 18, color: palette.sub),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Text(
-                      account.name,
-                      style: AppTextStyles.label(Colors.white),
-                    ),
+      child: ShineSweep(
+        period: const Duration(milliseconds: 4600),
+        opacity: 0.22,
+        borderRadius: BorderRadius.circular(AppRadius.cardLarge + 2),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            Row(
+              children: <Widget>[
+                const Eyebrow('Net worth', color: Color(0xFF9C9CA6)),
+                const Spacer(),
+                Container(
+                  height: 30,
+                  width: 30,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    border: Border.all(color: Colors.white.withOpacity(0.18)),
                   ),
-                  if (account.archived)
-                    Text('Archived', style: AppTextStyles.caption(palette.sub)),
-                ],
-              ),
-              const SizedBox(height: AppSpacing.x4),
-              AmountText(account.balance, size: 24, color: Colors.white,
-                  weight: FontWeight.w700),
-              const SizedBox(height: 4),
-              Text(
-                account.creditLimit == null
-                    ? 'Outstanding balance'
-                    : 'Outstanding · limit ${Fmt.money(account.creditLimit!, forceCompact: true)}',
-                style: AppTextStyles.caption(palette.sub),
-              ),
-              if (account.creditLimit != null) ...<Widget>[
-                const SizedBox(height: AppSpacing.x3),
-                ProgressBar(
-                  value: account.creditLimit == 0
-                      ? 0
-                      : (account.balance.abs() / account.creditLimit!),
-                  color: _parse(account.color),
-                  trackColor: palette.divider,
-                  height: 6,
-                ),
-                const SizedBox(height: 6),
-                Text(
-                  'Available ${Fmt.money(account.availableCredit, forceCompact: true)}',
-                  style: AppTextStyles.caption(palette.sub),
+                  child: const Icon(Icons.diamond_outlined,
+                      size: 14, color: AppColors.gold),
                 ),
               ],
-            ],
-          ),
-        ),
-      );
-    }
-
-    return Padding(
-      padding: const EdgeInsets.only(bottom: AppSpacing.x3),
-      child: AppCard(
-        onTap: onTap,
-        child: Row(
-          children: <Widget>[
-            CategoryIcon(
-              iconName: account.icon,
-              color: _parse(account.color),
-              size: 46,
-              rounded: true,
             ),
-            const SizedBox(width: AppSpacing.x3),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: <Widget>[
-                  Row(
-                    children: <Widget>[
-                      Flexible(
-                        child: Text(
-                          account.name,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: AppTextStyles.label(palette.ink),
-                        ),
-                      ),
-                      if (account.archived) ...<Widget>[
-                        const SizedBox(width: 6),
-                        Text('· archived',
-                            style: AppTextStyles.caption(palette.tertiary)
-                                .copyWith(fontSize: 10)),
-                      ],
-                    ],
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    accountTypeLabel(account.type),
-                    style: AppTextStyles.caption(palette.tertiary),
-                  ),
-                ],
+            const SizedBox(height: 8),
+            FittedBox(
+              fit: BoxFit.scaleDown,
+              alignment: Alignment.centerLeft,
+              child: Text(
+                Fmt.money(assets - liabilities),
+                style: AppTextStyles.serif(size: 34, color: Colors.white),
               ),
             ),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.end,
+            const SizedBox(height: AppSpacing.x4),
+            Row(
               children: <Widget>[
-                AmountText(
-                  account.balance,
-                  size: 16,
-                  color: account.balance < 0 ? palette.expense : palette.ink,
-                  weight: FontWeight.w600,
+                Expanded(
+                  child: _NetStat(
+                    label: 'Assets',
+                    value: assets,
+                    color: AppColors.darkIncome,
+                    icon: Icons.trending_up_rounded,
+                  ),
                 ),
-                Text(
-                  account.includeInNetWorth ? 'in net worth' : 'excluded',
-                  style: AppTextStyles.caption(palette.tertiary).copyWith(fontSize: 10),
+                Container(
+                  width: 1,
+                  height: 30,
+                  color: Colors.white.withOpacity(0.10),
+                ),
+                const SizedBox(width: AppSpacing.x4),
+                Expanded(
+                  child: _NetStat(
+                    label: 'Liabilities',
+                    value: liabilities,
+                    color: AppColors.darkExpense,
+                    icon: Icons.trending_down_rounded,
+                  ),
                 ),
               ],
             ),
@@ -308,10 +234,62 @@ class AccountCard extends StatelessWidget {
       ),
     );
   }
+}
 
-  Color _parse(String hex) {
-    var value = hex.replaceAll('#', '');
-    if (value.length == 6) value = 'FF$value';
-    return Color(int.tryParse(value, radix: 16) ?? 0xFF916CFF);
+class _NetStat extends StatelessWidget {
+  const _NetStat({
+    required this.label,
+    required this.value,
+    required this.color,
+    required this.icon,
+  });
+
+  final String label;
+  final int value;
+  final Color color;
+  final IconData icon;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: <Widget>[
+        Row(
+          children: <Widget>[
+            Icon(icon, size: 12, color: color),
+            const SizedBox(width: 4),
+            Text(
+              label.toUpperCase(),
+              style: AppTextStyles.overline(const Color(0xFF7C7C86))
+                  .copyWith(fontSize: 8.5, letterSpacing: 1.1),
+            ),
+          ],
+        ),
+        const SizedBox(height: 4),
+        FittedBox(
+          fit: BoxFit.scaleDown,
+          alignment: Alignment.centerLeft,
+          child: Text(
+            Fmt.money(value),
+            style: AppTextStyles.serif(size: 15, color: Colors.white),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+/// Every account renders as a real payment-card surface: credit cards get a
+/// network badge and expiry, banks read as debit cards, cash as a currency
+/// card and wallets as metal.
+class AccountCard extends StatelessWidget {
+  const AccountCard({super.key, required this.account, this.onTap});
+
+  final Account account;
+  final VoidCallback? onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return LuxeAccountCard(account: account, onTap: onTap);
   }
 }

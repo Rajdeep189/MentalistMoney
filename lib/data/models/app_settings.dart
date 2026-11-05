@@ -170,7 +170,7 @@ class AppSettings {
 
   ThemePack get pack => ThemePack.byId(themePack);
 
-  Color get accentColor => AppColors.fromHex(str(SettingsKeys.accentColor, '#916CFF'));
+  Color get accentColor => AppColors.fromHex(str(SettingsKeys.accentColor, '#C9F24C'));
 
   double get fontScale => dbl(SettingsKeys.fontScale, 1.0);
 
