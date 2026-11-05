@@ -501,8 +501,7 @@ class _CardPatternPainter extends CustomPainter {
           canvas.drawCircle(center, size.width * 0.16 * i, line);
         }
         canvas.drawCircle(
-          size.width * 0.08,
-          size.height * 0.95,
+          Offset(size.width * 0.08, size.height * 0.95),
           size.width * 0.34,
           Paint()..color = style.ink.withOpacity(0.05),
         );

@@ -51,7 +51,7 @@ class PrimaryButton extends StatelessWidget {
           textStyle: AppTextStyles.label(fg).copyWith(fontSize: 15, letterSpacing: 0.2),
         ),
         child: loading
-            ? const SizedBox(
+            ? SizedBox(
                 height: 22,
                 width: 22,
                 child: CircularProgressIndicator(strokeWidth: 2.4, color: fg),

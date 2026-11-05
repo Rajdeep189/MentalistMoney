@@ -79,7 +79,7 @@ class GoalsScreen extends ConsumerWidget {
             ),
             children: <Widget>[
               if (active.isNotEmpty) ...<Widget>[
-                Text('ACTIVE', style: context.overline),
+                Text('Active', style: AppTextStyles.h3(palette.ink)),
                 const SizedBox(height: AppSpacing.x2),
                 ...active.map((goal) => Padding(
                       padding: const EdgeInsets.only(bottom: AppSpacing.x3),
@@ -95,7 +95,7 @@ class GoalsScreen extends ConsumerWidget {
               ],
               if (paused.isNotEmpty) ...<Widget>[
                 const SizedBox(height: AppSpacing.x3),
-                Text('PAUSED', style: context.overline),
+                Text('Paused', style: AppTextStyles.h3(palette.ink)),
                 const SizedBox(height: AppSpacing.x2),
                 ...paused.map((goal) => Padding(
                       padding: const EdgeInsets.only(bottom: AppSpacing.x3),
@@ -111,7 +111,7 @@ class GoalsScreen extends ConsumerWidget {
               ],
               if (completed.isNotEmpty) ...<Widget>[
                 const SizedBox(height: AppSpacing.x3),
-                Text('COMPLETED', style: context.overline),
+                Text('Achieved', style: AppTextStyles.h3(palette.ink)),
                 const SizedBox(height: AppSpacing.x2),
                 ...completed.map((goal) => Padding(
                       padding: const EdgeInsets.only(bottom: AppSpacing.x3),
@@ -175,56 +175,100 @@ class GoalCard extends StatelessWidget {
 
     return AppCard(
       onTap: onTap,
-      child: Row(
+      padding: const EdgeInsets.all(AppSpacing.x4),
+      child: Column(
         children: <Widget>[
-          ProgressRing(
-            value: goal.progress,
-            size: 64,
-            strokeWidth: 7,
-            color: completed ? palette.income : tone,
-            child: Icon(
-              completed ? Icons.check_rounded : Icons.flag_rounded,
-              size: 18,
-              color: completed ? palette.income : tone,
-            ),
-          ),
-          const SizedBox(width: AppSpacing.x4),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                Text(
-                  goal.name,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: AppTextStyles.label(palette.ink).copyWith(fontSize: 15),
+          Row(
+            children: <Widget>[
+              ProgressRing(
+                value: goal.progress,
+                size: 64,
+                strokeWidth: 7,
+                color: completed ? palette.income : tone,
+                child: Icon(
+                  completed ? Icons.check_rounded : Icons.flag_rounded,
+                  size: 18,
+                  color: completed ? palette.income : tone,
                 ),
-                const SizedBox(height: 3),
-                Text(
-                  '${Fmt.money(goal.savedAmount, forceCompact: true)} of ${Fmt.money(goal.targetAmount, forceCompact: true)}',
-                  style: context.caption,
+              ),
+              const SizedBox(width: AppSpacing.x4),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    Text(
+                      goal.name,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: AppTextStyles.h3(palette.ink),
+                    ),
+                    const SizedBox(height: 3),
+                    Text(
+                      '${Fmt.money(goal.savedAmount, forceCompact: true)} of ${Fmt.money(goal.targetAmount, forceCompact: true)}',
+                      style: context.caption,
+                    ),
+                    const SizedBox(height: 6),
+                    if (completed)
+                      Text('Goal completed',
+                          style: AppTextStyles.caption(palette.income))
+                    else if (goal.deadline != null)
+                      Text(
+                        goal.daysLeft != null && goal.daysLeft! >= 0
+                            ? '${goal.daysLeft} days left'
+                            : 'Deadline passed',
+                        style: AppTextStyles.caption(
+                          goal.daysLeft != null && goal.daysLeft! < 0
+                              ? palette.expense
+                              : palette.tertiary,
+                        ),
+                      ),
+                  ],
                 ),
-                const SizedBox(height: 6),
-                if (completed)
-                  Text('Goal completed 🎉',
-                      style: AppTextStyles.caption(palette.income))
-                else if (goal.deadline != null)
+              ),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: <Widget>[
                   Text(
-                    goal.daysLeft != null && goal.daysLeft! >= 0
-                        ? '${goal.daysLeft} days left'
-                        : 'Deadline passed',
-                    style: AppTextStyles.caption(
-                      goal.daysLeft != null && goal.daysLeft! < 0
-                          ? palette.expense
-                          : palette.tertiary,
+                    '${(goal.progress * 100).toStringAsFixed(0)}%',
+                    style: AppTextStyles.serif(
+                      size: 20,
+                      color: completed ? palette.income : tone,
                     ),
                   ),
+                  Text(
+                    'saved',
+                    style: AppTextStyles.caption(palette.tertiary)
+                        .copyWith(fontSize: 9),
+                  ),
+                ],
+              ),
+            ],
+          ),
+          const SizedBox(height: AppSpacing.x3),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(99),
+            child: Stack(
+              children: <Widget>[
+                Container(
+                  height: 7,
+                  color: palette.isDark ? palette.cardAlt : palette.surfaceAlt,
+                ),
+                FractionallySizedBox(
+                  widthFactor: goal.progress.clamp(0.0, 1.0),
+                  child: Container(
+                    height: 7,
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: <Color>[tone.withOpacity(0.55), tone],
+                      ),
+                      boxShadow: <BoxShadow>[
+                        BoxShadow(color: tone.withOpacity(0.55), blurRadius: 9),
+                      ],
+                    ),
+                  ),
+                ),
               ],
             ),
-          ),
-          Text(
-            '${(goal.progress * 100).toStringAsFixed(0)}%',
-            style: AppTextStyles.money(15, color: tone, weight: FontWeight.w700),
           ),
         ],
       ),

@@ -236,7 +236,7 @@ class BudgetCard extends StatelessWidget {
             children: <Widget>[
               Text(
                 Fmt.money(progress.spent),
-                style: AppTextStyles.money(22, color: palette.ink, weight: FontWeight.w700),
+                style: AppTextStyles.serif(size: 24, color: palette.ink),
               ),
               Padding(
                 padding: const EdgeInsets.only(bottom: 3, left: 6),
@@ -247,20 +247,45 @@ class BudgetCard extends StatelessWidget {
               ),
               const Spacer(),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                 decoration: BoxDecoration(
-                  color: tone.withOpacity(0.12),
+                  color: tone.withOpacity(0.14),
                   borderRadius: BorderRadius.circular(AppRadius.pill),
+                  border: Border.all(color: tone.withOpacity(0.32)),
                 ),
                 child: Text(
                   '${progress.percent.toStringAsFixed(0)}%',
-                  style: AppTextStyles.caption(tone).copyWith(fontWeight: FontWeight.w600),
+                  style: AppTextStyles.serif(size: 13, color: tone),
                 ),
               ),
             ],
           ),
-          const SizedBox(height: AppSpacing.x2),
-          ProgressBar(value: progress.ratio, color: tone, height: 9),
+          const SizedBox(height: AppSpacing.x3),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(99),
+            child: Stack(
+              children: <Widget>[
+                Container(
+                  height: 9,
+                  color: palette.isDark ? palette.cardAlt : palette.surfaceAlt,
+                ),
+                FractionallySizedBox(
+                  widthFactor: progress.ratio.clamp(0.0, 1.0),
+                  child: Container(
+                    height: 9,
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: <Color>[tone.withOpacity(0.65), tone],
+                      ),
+                      boxShadow: <BoxShadow>[
+                        BoxShadow(color: tone.withOpacity(0.55), blurRadius: 10),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
           const SizedBox(height: 8),
           Row(
             children: <Widget>[

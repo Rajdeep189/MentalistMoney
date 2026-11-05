@@ -467,79 +467,87 @@ class CalendarHeatmap extends StatelessWidget {
     final totals = <int, int>{
       for (final day in days) day.day.day: day.total,
     };
-    final maxValue = days.isEmpty ? 0 : days.map((d) => d.total).reduce(math.max);
+    final maxValue =
+        days.isEmpty ? 0 : days.map((d) => d.total).reduce(math.max);
     final firstOfMonth = DateTime(month.year, month.month, 1);
     final daysInMonth = DateTime(month.year, month.month + 1, 0).day;
-    final leading = (firstOfMonth.weekday + 6) % 7; // Monday-first grid
+    final leading = (firstOfMonth.weekday + 6) % 7; // Monday-first
+    final cells = leading + daysInMonth;
+    final weeks = (cells / 7).ceil();
 
-    const weekLabels = <String>['M', 'T', 'W', 'T', 'F', 'S', 'S'];
+    const weekdayLabels = <String>['M', 'T', 'W', 'T', 'F', 'S', 'S'];
 
     return Column(
       children: <Widget>[
         Row(
-          children: weekLabels
-              .map((label) => Expanded(
+          children: <Widget>[
+            const SizedBox(width: 14),
+            for (var w = 0; w < weeks; w++)
+              Expanded(
+                child: Center(
+                  child: Text(
+                    '${w + 1}',
+                    style: AppTextStyles.caption(palette.tertiary)
+                        .copyWith(fontSize: 8.5),
+                  ),
+                ),
+              ),
+          ],
+        ),
+        const SizedBox(height: 4),
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            Column(
+              children: <Widget>[
+                for (final label in weekdayLabels)
+                  SizedBox(
+                    height: 26,
+                    width: 14,
                     child: Center(
                       child: Text(
                         label,
                         style: AppTextStyles.caption(palette.tertiary)
-                            .copyWith(fontSize: 10),
+                            .copyWith(fontSize: 8),
                       ),
                     ),
-                  ))
-              .toList(),
-        ),
-        const SizedBox(height: 6),
-        GridView.builder(
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          itemCount: leading + daysInMonth,
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 7,
-            mainAxisSpacing: 5,
-            crossAxisSpacing: 5,
-            childAspectRatio: 1,
-          ),
-          itemBuilder: (context, index) {
-            if (index < leading) return const SizedBox.shrink();
-            final dayNumber = index - leading + 1;
-            final value = totals[dayNumber] ?? 0;
-            final intensity = maxValue == 0 ? 0.0 : value / maxValue;
-            final date = DateTime(month.year, month.month, dayNumber);
-            return TweenAnimationBuilder<double>(
-              tween: Tween<double>(begin: 0, end: 1),
-              duration: Duration(milliseconds: 220 + index * 12),
-              builder: (context, animated, _) => GestureDetector(
-                onTap: onTapDay == null ? null : () => onTapDay!(date),
-                child: Opacity(
-                  opacity: animated.clamp(0.0, 1.0).toDouble(),
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: value == 0
-                          ? (palette.isDark ? palette.cardAlt : palette.surfaceAlt)
-                          : palette.accent.withOpacity(0.15 + intensity * 0.75),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    alignment: Alignment.center,
-                    child: Text(
-                      '$dayNumber',
-                      style: AppTextStyles.caption(
-                        intensity > 0.55 ? Colors.white : palette.sub,
-                      ).copyWith(fontSize: 10.5),
-                    ),
                   ),
-                ),
+              ],
+            ),
+            Expanded(
+              child: Row(
+                children: <Widget>[
+                  for (var w = 0; w < weeks; w++)
+                    Expanded(
+                      child: Column(
+                        children: <Widget>[
+                          for (var d = 0; d < 7; d++)
+                            _cell(
+                              context,
+                              week: w,
+                              weekday: d,
+                              leading: leading,
+                              daysInMonth: daysInMonth,
+                              totals: totals,
+                              maxValue: maxValue,
+                            ),
+                        ],
+                      ),
+                    ),
+                ],
               ),
-            );
-          },
+            ),
+          ],
         ),
         const SizedBox(height: 10),
         Row(
           mainAxisAlignment: MainAxisAlignment.end,
           children: <Widget>[
-            Text('Less', style: AppTextStyles.caption(palette.tertiary).copyWith(fontSize: 9)),
+            Text('Less',
+                style: AppTextStyles.caption(palette.tertiary)
+                    .copyWith(fontSize: 9)),
             const SizedBox(width: 6),
-            for (final opacity in <double>[0.15, 0.35, 0.55, 0.75, 0.95])
+            for (final opacity in <double>[0.12, 0.32, 0.52, 0.72, 0.95])
               Padding(
                 padding: const EdgeInsets.only(right: 3),
                 child: Container(
@@ -552,10 +560,50 @@ class CalendarHeatmap extends StatelessWidget {
                 ),
               ),
             const SizedBox(width: 6),
-            Text('More', style: AppTextStyles.caption(palette.tertiary).copyWith(fontSize: 9)),
+            Text('More',
+                style: AppTextStyles.caption(palette.tertiary)
+                    .copyWith(fontSize: 9)),
           ],
         ),
       ],
+    );
+  }
+
+  Widget _cell(
+    BuildContext context, {
+    required int week,
+    required int weekday,
+    required int leading,
+    required int daysInMonth,
+    required Map<int, int> totals,
+    required int maxValue,
+  }) {
+    final palette = context.c;
+    final index = week * 7 + weekday;
+    final dayNumber = index - leading + 1;
+    final valid = dayNumber >= 1 && dayNumber <= daysInMonth;
+    if (!valid) {
+      return const SizedBox(height: 26);
+    }
+    final value = totals[dayNumber] ?? 0;
+    final intensity = maxValue == 0 ? 0.0 : value / maxValue;
+    final date = DateTime(month.year, month.month, dayNumber);
+    return GestureDetector(
+      onTap: onTapDay == null ? null : () => onTapDay!(date),
+      child: Container(
+        height: 22,
+        margin: const EdgeInsets.only(right: 3, bottom: 4),
+        decoration: BoxDecoration(
+          color: value == 0
+              ? (palette.isDark ? palette.cardAlt : palette.surfaceAlt)
+              : Color.lerp(
+                  palette.accent.withOpacity(0.28),
+                  palette.accent,
+                  intensity.clamp(0.0, 1.0),
+                ),
+          borderRadius: BorderRadius.circular(6),
+        ),
+      ),
     );
   }
 }
