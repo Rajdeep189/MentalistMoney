@@ -117,6 +117,12 @@ class LuxeCardStyle {
 
   static LuxeCardStyle forAccount(Account account) {
     final hex = account.color.toUpperCase();
+    // Legacy cash accounts stored the old violet default — cash reads best as
+    // the currency card unless a different finish was chosen explicitly.
+    if (account.type == kAccountCash &&
+        (hex == '#916CFF' || hex == '#141418')) {
+      return lime;
+    }
     for (final style in presets) {
       if (style.hex.toUpperCase() == hex) return style;
     }

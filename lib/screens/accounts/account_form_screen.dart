@@ -32,7 +32,8 @@ class _AccountFormScreenState extends ConsumerState<AccountFormScreen> {
       TextEditingController(text: widget.account?.notes ?? '');
   late String _type = widget.account?.type ?? kAccountCash;
   late String _icon = widget.account?.icon ?? 'wallet';
-  late String _color = widget.account?.color ?? '#141418';
+  late String _color =
+      widget.account?.color ?? _defaultFinish(widget.account?.type ?? kAccountCash);
   late int _openingBalance = widget.account?.openingBalance ?? 0;
   late int? _creditLimit = widget.account?.creditLimit;
   late int? _statementDay = widget.account?.statementDay;
@@ -152,7 +153,10 @@ class _AccountFormScreenState extends ConsumerState<AccountFormScreen> {
               return AppChip(
                 label: accountTypeLabel(type),
                 selected: _type == type,
-                onTap: () => setState(() => _type = type),
+                onTap: () => setState(() {
+                  _type = type;
+                  if (widget.account == null) _color = _defaultFinish(type);
+                }),
               );
             }).toList(),
           ),

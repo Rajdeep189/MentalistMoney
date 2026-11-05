@@ -462,21 +462,46 @@ class AppChip extends StatelessWidget {
         duration: const Duration(milliseconds: 150),
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
         decoration: BoxDecoration(
-          color: selected ? tone.withOpacity(0.14) : (palette.isDark ? palette.cardAlt : Colors.white),
+          color: selected
+              ? (palette.isDark ? palette.accent : palette.ink)
+              : (palette.isDark ? palette.cardAlt : Colors.white),
           borderRadius: BorderRadius.circular(AppRadius.pill),
-          border: Border.all(color: selected ? tone : palette.divider),
+          border: Border.all(
+            color: selected
+                ? (palette.isDark ? palette.accent : palette.ink)
+                : palette.divider,
+          ),
+          boxShadow: selected
+              ? <BoxShadow>[
+                  BoxShadow(
+                    color: (palette.isDark ? palette.accent : palette.ink)
+                        .withOpacity(0.22),
+                    blurRadius: 12,
+                    offset: const Offset(0, 4),
+                  ),
+                ]
+              : null,
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: <Widget>[
             if (icon != null) ...<Widget>[
-              Icon(icon, size: 14, color: selected ? tone : palette.sub),
+              Icon(
+                icon,
+                size: 14,
+                color: selected
+                    ? (palette.isDark ? palette.onAccent : Colors.white)
+                    : palette.sub,
+              ),
               const SizedBox(width: 5),
             ],
             Text(
               label,
-              style: AppTextStyles.label(selected ? tone : palette.sub)
-                  .copyWith(fontSize: 12.5),
+              style: AppTextStyles.label(
+                selected
+                    ? (palette.isDark ? palette.onAccent : Colors.white)
+                    : palette.sub,
+              ).copyWith(fontSize: 12.5),
             ),
           ],
         ),

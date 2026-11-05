@@ -10,9 +10,26 @@ never leaves your phone.
   <img alt="Flutter" src="https://img.shields.io/badge/Flutter-3.24-02569B?logo=flutter&logoColor=white">
   <img alt="Dart" src="https://img.shields.io/badge/Dart-3.5-0175C2?logo=dart&logoColor=white">
   <img alt="Platform" src="https://img.shields.io/badge/Android-6.0%2B-3DDC84?logo=android&logoColor=white">
-  <img alt="Offline" src="https://img.shields.io/badge/offline--first-SQLite-916CFF">
+  <img alt="Offline" src="https://img.shields.io/badge/offline--first-SQLite-C9A96A">
   <img alt="License" src="https://img.shields.io/badge/license-MIT-black">
 </p>
+
+---
+
+## Design language
+
+MoneyMan v1.1 is a full visual overhaul — an editorial, metallic, "quiet luxury" interface:
+
+- **Prata serif** for the wordmark, headlines, hero amounts and cardholders, paired with Poppins for dense UI text.
+- **Bone-paper light theme** (`#F4F2ED`) and **obsidian dark theme** (`#08080A`), metallic card finishes and a liquid-lime accent (`#C9F24C`) with champagne gold and a sunset gradient for active states.
+- **Floating glass navigation** — a translucent capsule with an animated glowing sunset pill for the active tab, a slow light sweep across the glass and a detached `⋯` shortcut orb.
+- **Live payment cards** — eight preloaded finishes (Obsidian, Champagne, Lime Pulse, Azurite, Aurora, Sunset, Copper, Bone Metal). Typing an account name writes it onto the card in real time; cash accounts render as currency cards, banks as debit cards, credit as card-holder cards with expiry.
+- **New chart vocabulary** — financial-health radar with a serif score, petal-flower donut, stacked "money in, money out" bars with a legend, glowing activity line + bars with a draggable cursor, budget gauge with a dotted arc, consistency heatmap and month-by-month bars.
+- **Motion everywhere** — aurora washes, metallic sheen sweeps, glowing progress rings, animated theme transitions, a metallic splash and a shimmering "**Made by Superman**" signature at the end of Settings.
+- **New app icon** — a brushed-obsidian square with a polished chrome serif `M`, champagne ring and lime rim light.
+
+Serif face: [Prata](https://github.com/cyrealtype/Prata) by Cyreal, licensed under the SIL Open Font License 1.1
+(see `assets/fonts/OFL-Prata.txt`).
 
 ---
 
@@ -21,7 +38,7 @@ never leaves your phone.
 **Direct link:** https://github.com/Rajdeep189/MentalistMoney/releases/download/v1.0.0/MoneyMan-1.0.0.apk
 
 1. Open **[Releases](../../releases/latest)** (or the direct link above).
-2. Download `MoneyMan-1.0.0.apk` (~63 MB, universal APK for arm64 / armv7 / x86_64).
+2. Download `MoneyMan-1.0.0.apk` (~65 MB, universal APK for arm64 / armv7 / x86_64).
 3. On your phone allow **Install unknown apps** for the browser or file manager you used.
 4. Open the downloaded file → **Install**.
 
