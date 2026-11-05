@@ -55,7 +55,7 @@ class _RecurringScreenState extends ConsumerState<RecurringScreen> {
   double _monthlyEquivalent(RecurringRule rule) {
     switch (rule.frequency) {
       case 'daily':
-        return rule.amount * 30 * rule.interval;
+        return (rule.amount * 30 * rule.interval).toDouble();
       case 'weekly':
         return rule.amount * 4.33 * rule.interval;
       case 'quarterly':

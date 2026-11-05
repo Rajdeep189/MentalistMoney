@@ -931,12 +931,13 @@ class _PhonePreview extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
           Text(title,
-              style: const TextStyle(fontSize: 6.5, color: sub)),
+              style: const TextStyle(
+                  fontSize: 6.5, color: Color(0xFF8A7266))),
           const SizedBox(height: 2),
           Text(value,
               style: const TextStyle(
                   fontSize: 7.5,
-                  color: ink,
+                  color: Color(0xFF2A1B16),
                   fontWeight: FontWeight.w600)),
         ],
       ),
