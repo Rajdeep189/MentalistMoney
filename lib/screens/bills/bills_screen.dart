@@ -14,6 +14,7 @@ import '../../widgets/buttons.dart';
 import '../../widgets/category_icon.dart';
 import '../../widgets/empty_state.dart';
 import '../../widgets/illustration.dart';
+import '../../widgets/luxe.dart';
 import '../../widgets/progress_widgets.dart';
 import '../../widgets/section_header.dart';
 import 'bill_calendar_screen.dart';
@@ -36,7 +37,13 @@ class _BillsScreenState extends ConsumerState<BillsScreen> {
     return Scaffold(
       backgroundColor: palette.surface,
       appBar: AppBar(
-        title: const Text('Bills & reminders'),
+        title: Row(
+          children: <Widget>[
+            const MetallicMark(size: 28, animated: false),
+            const SizedBox(width: 10),
+            Text('Bills', style: AppTextStyles.h2(palette.ink)),
+          ],
+        ),
         actions: <Widget>[
           IconButton(
             tooltip: 'Calendar',
@@ -86,36 +93,64 @@ class _BillsScreenState extends ConsumerState<BillsScreen> {
               120,
             ),
             children: <Widget>[
-              AppCard(
-                child: Row(
+              Container(
+                padding: const EdgeInsets.all(AppSpacing.x5),
+                decoration: BoxDecoration(
+                  gradient: AppColors.graphiteGradient,
+                  borderRadius: BorderRadius.circular(AppRadius.cardLarge),
+                  border: Border.all(color: Colors.white.withOpacity(0.08)),
+                  boxShadow: <BoxShadow>[
+                    BoxShadow(
+                      color: Colors.black.withOpacity(palette.isDark ? 0.5 : 0.2),
+                      blurRadius: 26,
+                      offset: const Offset(0, 12),
+                    ),
+                  ],
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[
-                    CategoryIcon(
-                      icon: Icons.calendar_month_rounded,
-                      color: palette.accent,
-                      size: 44,
-                      rounded: true,
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: <Widget>[
-                          Text('Monthly commitments', style: context.caption),
-                          AmountText(monthlyTotal, size: 19, weight: FontWeight.w700),
-                        ],
-                      ),
-                    ),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.end,
+                    Row(
                       children: <Widget>[
-                        Text('${bills.length} bills', style: context.caption),
-                        Text(
-                          overdue.isEmpty ? 'All on track' : '${overdue.length} overdue',
-                          style: AppTextStyles.caption(
-                            overdue.isEmpty ? palette.income : palette.expense,
+                        const Eyebrow('Monthly commitments',
+                            color: Color(0xFF9C9CA6)),
+                        const Spacer(),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 10, vertical: 4),
+                          decoration: BoxDecoration(
+                            color: (overdue.isEmpty
+                                    ? AppColors.limeB
+                                    : AppColors.sunset)
+                                .withOpacity(0.16),
+                            borderRadius: BorderRadius.circular(99),
+                          ),
+                          child: Text(
+                            overdue.isEmpty
+                                ? 'All on track'
+                                : '${overdue.length} overdue',
+                            style: AppTextStyles.caption(
+                              overdue.isEmpty
+                                  ? AppColors.limeA
+                                  : AppColors.darkExpense,
+                            ).copyWith(fontSize: 10.5),
                           ),
                         ),
                       ],
+                    ),
+                    const SizedBox(height: 8),
+                    FittedBox(
+                      fit: BoxFit.scaleDown,
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        Fmt.money(monthlyTotal),
+                        style: AppTextStyles.serif(size: 30, color: Colors.white),
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                    Text(
+                      '${bills.length} bills tracked · ${upcoming.length} upcoming',
+                      style: AppTextStyles.caption(const Color(0xFF9C9CA6)),
                     ),
                   ],
                 ),

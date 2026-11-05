@@ -28,20 +28,35 @@ class SectionHeader extends StatelessWidget {
       child: Row(
         children: <Widget>[
           if (icon != null) ...<Widget>[
-            Icon(icon, size: 17, color: palette.accent),
-            const SizedBox(width: 6),
+            Icon(icon, size: 15, color: palette.tertiary),
+            const SizedBox(width: 7),
           ],
-          Expanded(child: Text(title, style: context.h3)),
+          Expanded(
+            child: Text(
+              title,
+              style: AppTextStyles.h3(palette.ink),
+            ),
+          ),
           if (action != null)
             TextButton(
               onPressed: onAction,
               style: TextButton.styleFrom(
-                foregroundColor: palette.accent,
+                foregroundColor: palette.ink,
                 padding: const EdgeInsets.symmetric(horizontal: 8),
-                minimumSize: const Size(0, 36),
+                minimumSize: const Size(0, 34),
                 tapTargetSize: MaterialTapTargetSize.shrinkWrap,
               ),
-              child: Text(action!, style: AppTextStyles.label(palette.accent)),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: <Widget>[
+                  Text(action!,
+                      style: AppTextStyles.label(palette.sub)
+                          .copyWith(fontSize: 12)),
+                  const SizedBox(width: 2),
+                  Icon(Icons.arrow_forward_rounded,
+                      size: 13, color: palette.sub),
+                ],
+              ),
             ),
         ],
       ),
