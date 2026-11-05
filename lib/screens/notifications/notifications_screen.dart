@@ -294,7 +294,7 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
                                       onTap: () => alert.onAction!(context),
                                       child: Text(
                                         alert.actionLabel ?? 'Open',
-                                        style: AppTextStyles.caption(palette.accent),
+                                        style: AppTextStyles.caption(palette.onSoft),
                                       ),
                                     ),
                                   ),

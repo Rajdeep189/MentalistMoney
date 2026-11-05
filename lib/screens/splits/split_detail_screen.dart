@@ -172,7 +172,7 @@ class SplitDetailScreen extends ConsumerWidget {
                                     padding: const EdgeInsets.symmetric(horizontal: 8),
                                   ),
                                   child: Text('Settle',
-                                      style: AppTextStyles.caption(palette.accent)),
+                                      style: AppTextStyles.caption(palette.onSoft)),
                                 ),
                               ],
                             ),

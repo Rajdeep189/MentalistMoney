@@ -231,7 +231,7 @@ class _SecuritySettingsScreenState extends ConsumerState<SecuritySettingsScreen>
                 Expanded(
                   child: Text(
                     'Your database never leaves this device unless you explicitly export it. Locking the app adds a second layer on top of Android\'s own screen lock.',
-                    style: AppTextStyles.caption(palette.accent).copyWith(height: 1.45),
+                    style: AppTextStyles.caption(palette.onSoft).copyWith(height: 1.45),
                   ),
                 ),
               ],

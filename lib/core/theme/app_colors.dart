@@ -223,6 +223,9 @@ class AppPalette extends ThemeExtension<AppPalette> {
   final Color heroTop;
   final Color heroBottom;
 
+  /// Readable foreground for accent-tinted surfaces.
+  Color get onSoft => isDark ? accent : ink;
+
   LinearGradient get accentGradient => LinearGradient(
         begin: Alignment.topLeft,
         end: Alignment.bottomRight,

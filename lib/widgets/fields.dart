@@ -713,7 +713,7 @@ class _CategorySelectorGridState extends State<CategorySelectorGrid> {
                   padding: const EdgeInsets.symmetric(horizontal: 8),
                   tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                 ),
-                child: Text('Manage', style: AppTextStyles.caption(palette.accent)),
+                child: Text('Manage', style: AppTextStyles.caption(palette.onSoft)),
               ),
           ],
         ),
@@ -879,7 +879,7 @@ class AppSearchField extends StatelessWidget {
                         alignment: Alignment.center,
                         child: Text(
                           '$filterCount',
-                          style: AppTextStyles.overline(palette.accent)
+                          style: AppTextStyles.overline(palette.onSoft)
                               .copyWith(fontSize: 8, letterSpacing: 0),
                         ),
                       ),

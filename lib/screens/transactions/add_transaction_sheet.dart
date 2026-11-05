@@ -491,7 +491,7 @@ class _AddTransactionSheetState extends ConsumerState<AddTransactionSheet> {
                     ),
                     ActionChip(
                       avatar: Icon(Icons.add_rounded, size: 16, color: palette.accent),
-                      label: Text('Add tag', style: AppTextStyles.caption(palette.accent)),
+                      label: Text('Add tag', style: AppTextStyles.caption(palette.onSoft)),
                       onPressed: _addTagDialog,
                     ),
                   ],

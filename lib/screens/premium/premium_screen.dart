@@ -335,7 +335,7 @@ class _PremiumScreenState extends ConsumerState<PremiumScreen> {
           SizedBox(
             width: 84,
             child: Text('Premium',
-                style: AppTextStyles.overline(palette.accent),
+                style: AppTextStyles.overline(palette.onSoft),
                 textAlign: TextAlign.center),
           ),
         ],
@@ -362,7 +362,7 @@ class _PremiumScreenState extends ConsumerState<PremiumScreen> {
           SizedBox(
             width: 84,
             child: Text(premium,
-                style: AppTextStyles.caption(palette.accent),
+                style: AppTextStyles.caption(palette.onSoft),
                 textAlign: TextAlign.center),
           ),
         ],

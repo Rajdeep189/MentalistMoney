@@ -44,16 +44,21 @@ class AppCard extends StatelessWidget {
         color: gradient == null ? surface : null,
         gradient: gradient,
         borderRadius: BorderRadius.circular(radius),
-        border: border ?? Border.all(color: palette.isDark ? palette.divider : Colors.transparent),
-        boxShadow: elevated
-            ? <BoxShadow>[
-                BoxShadow(
-                  color: palette.shadow,
-                  blurRadius: 18,
-                  offset: const Offset(0, 6),
-                ),
-              ]
-            : null,
+        border: border ??
+            Border.all(
+              color: palette.isDark
+                  ? palette.divider
+                  : palette.divider.withOpacity(0.75),
+            ),
+        boxShadow: <BoxShadow>[
+          BoxShadow(
+            color: palette.isDark
+                ? Colors.black.withOpacity(0.35)
+                : Colors.black.withOpacity(elevated ? 0.08 : 0.045),
+            blurRadius: elevated ? 24 : 18,
+            offset: Offset(0, elevated ? 10 : 8),
+          ),
+        ],
       ),
       child: Material(
         color: Colors.transparent,
@@ -137,16 +142,23 @@ class DarkCard extends StatelessWidget {
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: <Color>[
-            const Color(0xFF1B1B23),
-            Color.lerp(const Color(0xFF121218), highlight, 0.22)!,
+            const Color(0xFF23242A),
+            const Color(0xFF121216),
+            Color.lerp(const Color(0xFF0B0B0E), highlight, 0.16)!,
           ],
         ),
         borderRadius: BorderRadius.circular(AppRadius.cardLarge),
+        border: Border.all(color: Colors.white.withOpacity(0.08)),
         boxShadow: <BoxShadow>[
           BoxShadow(
-            color: highlight.withOpacity(0.18),
-            blurRadius: 24,
-            offset: const Offset(0, 10),
+            color: Colors.black.withOpacity(0.30),
+            blurRadius: 26,
+            offset: const Offset(0, 12),
+          ),
+          BoxShadow(
+            color: highlight.withOpacity(0.16),
+            blurRadius: 26,
+            spreadRadius: -6,
           ),
         ],
       ),

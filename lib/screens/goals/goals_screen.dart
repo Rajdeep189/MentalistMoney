@@ -45,7 +45,7 @@ class GoalsScreen extends ConsumerWidget {
             child: Center(
               child: Text(
                 Fmt.money(totalSaved, forceCompact: true),
-                style: AppTextStyles.label(palette.accent),
+                style: AppTextStyles.label(palette.onSoft),
               ),
             ),
           ),

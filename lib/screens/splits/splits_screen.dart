@@ -68,7 +68,7 @@ class SplitsScreen extends ConsumerWidget {
                         Expanded(
                           child: Text(
                             'Free plan supports 1 split group. Go Premium for unlimited groups.',
-                            style: AppTextStyles.caption(palette.accent),
+                            style: AppTextStyles.caption(palette.onSoft),
                           ),
                         ),
                       ],

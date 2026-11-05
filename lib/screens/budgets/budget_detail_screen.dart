@@ -302,7 +302,7 @@ class BudgetDetailScreen extends ConsumerWidget {
                         progress.projectedSpend > progress.amount
                             ? 'At this pace you will spend ${Fmt.money(progress.projectedSpend)} by ${Fmt.date(budget.endDate)} — ${Fmt.money(progress.projectedSpend - progress.amount)} over budget.'
                             : 'At this pace you will spend ${Fmt.money(progress.projectedSpend)} by ${Fmt.date(budget.endDate)}, staying within budget.',
-                        style: AppTextStyles.caption(palette.accent).copyWith(height: 1.4),
+                        style: AppTextStyles.caption(palette.onSoft).copyWith(height: 1.4),
                       ),
                     ),
                   ],

@@ -259,7 +259,7 @@ class _BillTile extends ConsumerWidget {
                       tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                     ),
                     child: Text('Mark paid',
-                        style: AppTextStyles.caption(palette.accent)),
+                        style: AppTextStyles.caption(palette.onSoft)),
                   ),
               ],
             ),

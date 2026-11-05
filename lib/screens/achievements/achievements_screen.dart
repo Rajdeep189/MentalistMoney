@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/theme/app_colors.dart';
+import '../../core/theme/app_radius.dart';
 import '../../core/theme/app_spacing.dart';
 import '../../core/theme/app_text_styles.dart';
 import '../../core/utils/money.dart';
@@ -35,7 +36,7 @@ class AchievementsScreen extends ConsumerWidget {
     return Scaffold(
       backgroundColor: palette.surface,
       appBar: AppBar(
-        title: const Text('Achievements'),
+        title: Text('Trophy room', style: AppTextStyles.h2(palette.ink)),
         actions: <Widget>[
           if (!premium)
             Padding(
@@ -52,16 +53,23 @@ class AchievementsScreen extends ConsumerWidget {
           AppSpacing.x10,
         ),
         children: <Widget>[
-          AppCard(
+          Container(
+            padding: const EdgeInsets.all(AppSpacing.x5),
+            decoration: BoxDecoration(
+              gradient: AppColors.graphiteGradient,
+              borderRadius: BorderRadius.circular(AppRadius.cardLarge),
+              border: Border.all(color: AppColors.gold.withOpacity(0.30)),
+            ),
             child: Row(
               children: <Widget>[
                 ProgressRing(
                   value: completion,
-                  size: 74,
+                  size: 76,
                   strokeWidth: 7,
+                  color: AppColors.gold,
                   child: Text(
                     '${unlocked.length}',
-                    style: AppTextStyles.money(17, color: palette.ink, weight: FontWeight.w700),
+                    style: AppTextStyles.serif(size: 20, color: Colors.white),
                   ),
                 ),
                 const SizedBox(width: AppSpacing.x4),
@@ -69,18 +77,22 @@ class AchievementsScreen extends ConsumerWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: <Widget>[
-                      Text('Your trophy case', style: context.h3),
-                      const SizedBox(height: 2),
+                      Text(
+                        'Your trophy case',
+                        style: AppTextStyles.h3(Colors.white),
+                      ),
+                      const SizedBox(height: 3),
                       Text(
                         '${unlocked.length} of ${achievements.length} unlocked',
-                        style: context.bodyMuted,
+                        style: AppTextStyles.caption(const Color(0xFF9C9CA6)),
                       ),
                       const SizedBox(height: 6),
                       Text(
                         completion >= 1
                             ? 'Every milestone complete. Legendary.'
                             : 'Keep logging — the next badge is close.',
-                        style: context.caption,
+                        style: AppTextStyles.caption(AppColors.gold)
+                            .copyWith(fontSize: 10.5),
                       ),
                     ],
                   ),
@@ -180,14 +192,14 @@ class AchievementsScreen extends ConsumerWidget {
                       const SizedBox(width: 8),
                       Expanded(
                         child: Text('Full trophy cabinet',
-                            style: AppTextStyles.label(palette.accent)),
+                            style: AppTextStyles.label(palette.onSoft)),
                       ),
                     ],
                   ),
                   const SizedBox(height: 6),
                   Text(
                     'Premium unlocks milestone history, streak analytics and celebration animations.',
-                    style: AppTextStyles.caption(palette.accent).copyWith(height: 1.4),
+                    style: AppTextStyles.caption(palette.onSoft).copyWith(height: 1.4),
                   ),
                 ],
               ),

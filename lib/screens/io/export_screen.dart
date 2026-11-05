@@ -97,7 +97,7 @@ class _ExportScreenState extends ConsumerState<ExportScreen> {
                   Expanded(
                     child: Text(
                       '${budgets.length} budgets will be included with a spent vs limit breakdown.',
-                      style: AppTextStyles.caption(palette.accent),
+                      style: AppTextStyles.caption(palette.onSoft),
                     ),
                   ),
                 ],

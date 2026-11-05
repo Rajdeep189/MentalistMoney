@@ -286,7 +286,16 @@ class StatsScreen extends ConsumerWidget {
                     subtitle: highestDay == null
                         ? 'No spending yet'
                         : 'Highest on ${Fmt.date(highestDay.day.millisecondsSinceEpoch)} · ${Fmt.money(highestDay.total, forceCompact: true)}',
-                    child: DailyBarChart(days: dailyList),
+                    child: GlowActivityChart(
+                      height: 190,
+                      accent: AppColors.sunset,
+                      values: <double>[
+                        for (final day in dailyList) day.total.toDouble(),
+                      ],
+                      labels: <String>[
+                        for (final day in dailyList) '${day.day.day}',
+                      ],
+                    ),
                   ),
                   const SizedBox(height: AppSpacing.cardGap),
 

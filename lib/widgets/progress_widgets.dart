@@ -181,6 +181,19 @@ class _RingPainter extends CustomPainter {
           : null
       ..color = color;
 
+    // soft outer glow
+    canvas.drawArc(
+      rect,
+      -math.pi / 2,
+      2 * math.pi * ratio,
+      false,
+      Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = strokeWidth
+        ..strokeCap = StrokeCap.round
+        ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 5)
+        ..color = color.withOpacity(0.45),
+    );
     canvas.drawArc(
       rect,
       -math.pi / 2,
@@ -188,6 +201,11 @@ class _RingPainter extends CustomPainter {
       false,
       progressPaint,
     );
+    // leading spark
+    final angle = -math.pi / 2 + 2 * math.pi * ratio;
+    final tip = centre +
+        Offset(math.cos(angle) * radius, math.sin(angle) * radius);
+    canvas.drawCircle(tip, strokeWidth * 0.42, Paint()..color = Colors.white);
   }
 
   @override

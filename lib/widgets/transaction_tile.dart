@@ -118,7 +118,7 @@ class TransactionTile extends StatelessWidget {
                               .take(3)
                               .map((tag) => Text(
                                     '#$tag',
-                                    style: AppTextStyles.caption(palette.accent)
+                                    style: AppTextStyles.caption(palette.onSoft)
                                         .copyWith(fontSize: 10.5),
                                   ))
                               .toList(),

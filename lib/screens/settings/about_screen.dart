@@ -121,7 +121,7 @@ class AboutScreen extends ConsumerWidget {
           Center(
             child: Text(
               settings.isPremium ? 'Premium unlocked — thank you!' : 'Free plan',
-              style: AppTextStyles.caption(palette.accent),
+              style: AppTextStyles.caption(palette.onSoft),
             ),
           ),
           const SizedBox(height: AppSpacing.x6),

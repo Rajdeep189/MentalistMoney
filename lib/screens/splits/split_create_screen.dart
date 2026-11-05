@@ -144,7 +144,7 @@ class _SplitCreateScreenState extends ConsumerState<SplitCreateScreen> {
                 Expanded(
                   child: Text(
                     'Splits are tracked separately from your accounts, so they never affect your budgets.',
-                    style: AppTextStyles.caption(palette.accent).copyWith(height: 1.4),
+                    style: AppTextStyles.caption(palette.onSoft).copyWith(height: 1.4),
                   ),
                 ),
               ],
