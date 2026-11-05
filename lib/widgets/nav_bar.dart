@@ -80,14 +80,10 @@ class _LuxeNavBarState extends State<LuxeNavBar>
                   duration: const Duration(milliseconds: 280),
                   height: 68,
                   decoration: BoxDecoration(
-                    color: isDark
-                        ? Colors.black.withOpacity(0.62)
-                        : Colors.white.withOpacity(0.72),
+                    color: Colors.black.withOpacity(isDark ? 0.66 : 0.84),
                     borderRadius: BorderRadius.circular(999),
                     border: Border.all(
-                      color: isDark
-                          ? Colors.white.withOpacity(0.10)
-                          : Colors.white.withOpacity(0.9),
+                      color: Colors.white.withOpacity(0.10),
                     ),
                     boxShadow: <BoxShadow>[
                       BoxShadow(
@@ -116,7 +112,7 @@ class _LuxeNavBarState extends State<LuxeNavBar>
                                       end: Alignment.bottomRight,
                                       colors: <Color>[
                                         Colors.white.withOpacity(0),
-                                        Colors.white.withOpacity(isDark ? 0.10 : 0.55),
+                                        Colors.white.withOpacity(0.16),
                                         Colors.white.withOpacity(0),
                                       ],
                                     ),
@@ -200,7 +196,7 @@ class _NavSlot extends StatelessWidget {
                 size: 20,
                 color: selected
                     ? Colors.white
-                    : (palette.isDark ? palette.tertiary : palette.sub),
+                    : Colors.white.withOpacity(0.55),
               ),
               Padding(
                 padding: const EdgeInsets.only(top: 2),
@@ -209,9 +205,7 @@ class _NavSlot extends StatelessWidget {
                   maxLines: 1,
                   overflow: TextOverflow.clip,
                   style: AppTextStyles.caption(
-                    selected
-                        ? Colors.white
-                        : (palette.isDark ? palette.tertiary : palette.sub),
+                    selected ? Colors.white : Colors.white.withOpacity(0.55),
                   ).copyWith(
                     fontSize: 8.5,
                     height: 1.0,
@@ -258,15 +252,9 @@ class _MenuOrbState extends State<_MenuOrb> with SingleTickerProviderStateMixin 
         height: 68,
         width: 68,
         decoration: BoxDecoration(
-          color: palette.isDark
-              ? Colors.black.withOpacity(0.62)
-              : Colors.white.withOpacity(0.78),
+          color: Colors.black.withOpacity(palette.isDark ? 0.66 : 0.84),
           shape: BoxShape.circle,
-          border: Border.all(
-            color: palette.isDark
-                ? Colors.white.withOpacity(0.10)
-                : Colors.white.withOpacity(0.9),
-          ),
+          border: Border.all(color: Colors.white.withOpacity(0.10)),
           boxShadow: <BoxShadow>[
             BoxShadow(
               color: Colors.black.withOpacity(palette.isDark ? 0.55 : 0.08),
@@ -301,10 +289,10 @@ class _MenuOrbState extends State<_MenuOrb> with SingleTickerProviderStateMixin 
                 );
               },
             ),
-            Icon(
+            const Icon(
               Icons.more_horiz_rounded,
               size: 24,
-              color: palette.ink,
+              color: Colors.white,
             ),
           ],
         ),
