@@ -218,8 +218,11 @@ class SettingsChoiceRow<T> extends StatelessWidget {
               child: Text(
                 labelOf?.call(option) ?? '$option',
                 style: AppTextStyles.caption(
-                  selected ? palette.onAccent : palette.sub,
+                  selected
+                      ? (palette.isDark ? palette.onAccent : Colors.white)
+                      : palette.sub,
                 ).copyWith(fontWeight: FontWeight.w500),
+              ),
             ),
           );
         }).toList(),
