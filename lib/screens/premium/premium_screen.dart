@@ -117,7 +117,7 @@ class _PremiumScreenState extends ConsumerState<PremiumScreen> {
     return Scaffold(
       backgroundColor: palette.surface,
       appBar: AppBar(
-        title: const Text('Premium'),
+        title: Text('MoneyMan Pro', style: AppTextStyles.h2(palette.ink)),
         actions: <Widget>[
           if (premium)
             TextButton(
@@ -139,12 +139,16 @@ class _PremiumScreenState extends ConsumerState<PremiumScreen> {
           Container(
             padding: const EdgeInsets.all(AppSpacing.x5),
             decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: <Color>[palette.accent, palette.accentPressed],
-              ),
+              gradient: AppColors.graphiteGradient,
               borderRadius: BorderRadius.circular(AppRadius.card + 4),
+              border: Border.all(color: AppColors.gold.withOpacity(0.35)),
+              boxShadow: <BoxShadow>[
+                BoxShadow(
+                  color: Colors.black.withOpacity(palette.isDark ? 0.5 : 0.22),
+                  blurRadius: 28,
+                  offset: const Offset(0, 14),
+                ),
+              ],
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,

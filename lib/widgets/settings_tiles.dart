@@ -25,7 +25,24 @@ class SettingsSectionTitle extends StatelessWidget {
       ),
       child: Row(
         children: <Widget>[
-          Expanded(child: Text(title.toUpperCase(), style: context.overline)),
+          Expanded(
+            child: Row(
+              children: <Widget>[
+                Text(
+                  title.toUpperCase(),
+                  style: AppTextStyles.overline(context.c.tertiary)
+                      .copyWith(letterSpacing: 1.8, fontSize: 9.5),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Container(
+                    height: 1,
+                    color: context.c.divider,
+                  ),
+                ),
+              ],
+            ),
+          ),
           if (trailing != null) trailing!,
         ],
       ),
@@ -98,10 +115,22 @@ class SettingsTile extends StatelessWidget {
         child: Row(
           children: <Widget>[
             if (icon != null)
-              CategoryIcon(
-                icon: icon,
-                color: iconColor ?? palette.accent,
-                size: dense ? 30 : 34,
+              Container(
+                height: dense ? 30 : 34,
+                width: dense ? 30 : 34,
+                decoration: BoxDecoration(
+                  color: (iconColor ?? (palette.isDark
+                          ? palette.accent
+                          : palette.ink))
+                      .withOpacity(palette.isDark ? 0.20 : 0.08),
+                  borderRadius: BorderRadius.circular(11),
+                ),
+                child: Icon(
+                  icon,
+                  size: dense ? 15 : 17,
+                  color: iconColor ??
+                      (palette.isDark ? palette.accent : palette.ink),
+                ),
               ),
             if (icon != null) const SizedBox(width: AppSpacing.x3),
             Expanded(
@@ -113,7 +142,8 @@ class SettingsTile extends StatelessWidget {
                       Flexible(
                         child: Text(
                           title,
-                          style: AppTextStyles.body(palette.ink),
+                          style: AppTextStyles.label(palette.ink)
+                              .copyWith(fontSize: 13.5, fontWeight: FontWeight.w500),
                         ),
                       ),
                       if (premium) ...<Widget>[
@@ -175,16 +205,21 @@ class SettingsChoiceRow<T> extends StatelessWidget {
               duration: const Duration(milliseconds: 150),
               padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
               decoration: BoxDecoration(
-                color: selected ? palette.accent : Colors.transparent,
+                color: selected
+                    ? (palette.isDark ? palette.accent : palette.ink)
+                    : Colors.transparent,
                 borderRadius: BorderRadius.circular(AppRadius.pill),
                 border: Border.all(
-                  color: selected ? palette.accent : palette.divider,
+                  color: selected
+                      ? (palette.isDark ? palette.accent : palette.ink)
+                      : palette.divider,
                 ),
               ),
               child: Text(
                 labelOf?.call(option) ?? '$option',
-                style: AppTextStyles.caption(selected ? Colors.white : palette.sub),
-              ),
+                style: AppTextStyles.caption(
+                  selected ? palette.onAccent : palette.sub,
+                ).copyWith(fontWeight: FontWeight.w500),
             ),
           );
         }).toList(),
@@ -221,18 +256,32 @@ class AccentSwatches extends StatelessWidget {
             child: Column(
               children: <Widget>[
                 Container(
-                  height: 36,
-                  width: 36,
+                  height: 40,
+                  width: 40,
                   decoration: BoxDecoration(
                     color: entry.value,
                     shape: BoxShape.circle,
                     border: Border.all(
-                      color: selected ? theme.ink : Colors.transparent,
-                      width: 2,
+                      color: selected ? theme.ink : theme.divider,
+                      width: selected ? 2.2 : 1,
                     ),
+                    boxShadow: selected
+                        ? <BoxShadow>[
+                            BoxShadow(
+                              color: entry.value.withOpacity(0.45),
+                              blurRadius: 12,
+                            ),
+                          ]
+                        : null,
                   ),
                   child: selected
-                      ? const Icon(Icons.check_rounded, size: 16, color: Colors.white)
+                      ? Icon(
+                          Icons.check_rounded,
+                          size: 18,
+                          color: entry.value.computeLuminance() > 0.6
+                              ? theme.ink
+                              : Colors.white,
+                        )
                       : null,
                 ),
                 const SizedBox(height: 4),

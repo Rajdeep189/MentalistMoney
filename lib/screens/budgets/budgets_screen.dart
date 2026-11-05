@@ -10,6 +10,7 @@ import '../../core/utils/money.dart';
 import '../../data/models/models.dart';
 import '../../providers/app_providers.dart';
 import '../../widgets/luxe.dart';
+import '../../widgets/luxe_charts.dart';
 import '../../widgets/app_card.dart';
 import '../../widgets/app_sheets.dart';
 import '../../widgets/buttons.dart';
@@ -110,6 +111,8 @@ class _BudgetsScreenState extends ConsumerState<BudgetsScreen> {
                     120,
                   ),
                   children: <Widget>[
+                    _BudgetPulse(budgets: list),
+                    const SizedBox(height: AppSpacing.x3),
                     for (final progress in list) ...<Widget>[
                       BudgetCard(
                         progress: progress,
@@ -313,6 +316,109 @@ class BudgetCard extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+/// Editorial gauge summarising every active budget at once.
+class _BudgetPulse extends StatelessWidget {
+  const _BudgetPulse({required this.budgets});
+
+  final List<BudgetProgress> budgets;
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = context.c;
+    final total = budgets.fold<int>(0, (a, b) => a + b.amount);
+    final spent = budgets.fold<int>(0, (a, b) => a + b.spent);
+    final ratio = total <= 0 ? 0.0 : (spent / total).clamp(0.0, 1.0);
+    final over = spent > total;
+
+    return Container(
+      padding: const EdgeInsets.fromLTRB(18, 16, 18, 6),
+      decoration: BoxDecoration(
+        color: palette.isDark ? palette.card : Colors.white,
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: palette.divider),
+      ),
+      child: Column(
+        children: <Widget>[
+          Row(
+            children: <Widget>[
+              const Eyebrow('Budget pulse'),
+              const Spacer(),
+              Text(
+                '${budgets.length} active',
+                style: AppTextStyles.caption(palette.tertiary)
+                    .copyWith(fontSize: 10.5),
+              ),
+            ],
+          ),
+          ArcGauge(
+            size: 210,
+            value: ratio,
+            accent: over ? AppColors.sunset : AppColors.limeB,
+            centerText: '${(ratio * 100).round()}%',
+            label: 'of ${Fmt.money(total, forceCompact: true)} used',
+          ),
+          Row(
+            children: <Widget>[
+              Expanded(
+                child: _PulseStat(label: 'Planned', value: total),
+              ),
+              Container(
+                width: 1,
+                height: 26,
+                color: palette.divider,
+              ),
+              Expanded(
+                child: _PulseStat(label: 'Spent', value: spent),
+              ),
+              Container(
+                width: 1,
+                height: 26,
+                color: palette.divider,
+              ),
+              Expanded(
+                child: _PulseStat(
+                  label: over ? 'Over' : 'Left',
+                  value: over ? spent - total : total - spent,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: AppSpacing.x2),
+        ],
+      ),
+    );
+  }
+}
+
+class _PulseStat extends StatelessWidget {
+  const _PulseStat({required this.label, required this.value});
+
+  final String label;
+  final int value;
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = context.c;
+    return Column(
+      children: <Widget>[
+        Text(
+          label.toUpperCase(),
+          style: AppTextStyles.overline(palette.tertiary)
+              .copyWith(fontSize: 8, letterSpacing: 1.1),
+        ),
+        const SizedBox(height: 3),
+        FittedBox(
+          fit: BoxFit.scaleDown,
+          child: Text(
+            Fmt.money(value, forceCompact: true),
+            style: AppTextStyles.serif(size: 15, color: palette.ink),
+          ),
+        ),
+      ],
     );
   }
 }

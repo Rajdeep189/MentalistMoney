@@ -35,7 +35,8 @@ class MoneyManApp extends ConsumerWidget {
           themeMode: value.themeMode,
           theme: AppTheme.light(accent: accent, pack: pack),
           darkTheme: AppTheme.dark(accent: accent, pack: pack),
-          themeAnimationDuration: const Duration(milliseconds: 240),
+          themeAnimationDuration: const Duration(milliseconds: 420),
+          themeAnimationCurve: Curves.easeInOutCubic,
           builder: (context, child) {
             final media = MediaQuery.of(context);
             final scale = value.fontScale;

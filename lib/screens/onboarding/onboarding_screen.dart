@@ -5,6 +5,7 @@ import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_radius.dart';
 import '../../core/theme/app_spacing.dart';
 import '../../core/theme/app_text_styles.dart';
+import '../../widgets/luxe.dart';
 import '../../data/models/app_settings.dart';
 import '../../providers/app_providers.dart';
 import '../../widgets/buttons.dart';
@@ -118,21 +119,12 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
               ),
               child: Row(
                 children: <Widget>[
-                  Container(
-                    height: 34,
-                    width: 34,
-                    decoration: BoxDecoration(
-                      color: palette.accent,
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    alignment: Alignment.center,
-                    child: Text(
-                      'M',
-                      style: AppTextStyles.money(16, color: Colors.white, weight: FontWeight.w700),
-                    ),
-                  ),
+                  const MetallicMark(size: 36),
                   const SizedBox(width: 10),
-                  Text('MoneyMan', style: context.h3),
+                  Text(
+                    'MoneyMan',
+                    style: AppTextStyles.wordmark(palette.ink, size: 20),
+                  ),
                   const Spacer(),
                   if (!isLast)
                     TextButton(

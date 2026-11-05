@@ -169,6 +169,11 @@ class _TransactionsScreenState extends ConsumerState<TransactionsScreen> {
             ),
             child: Column(
               children: <Widget>[
+                _FlowStrip(
+                  income: ref.watch(monthSummaryProvider).valueOrNull?.income ?? 0,
+                  expense: ref.watch(monthSummaryProvider).valueOrNull?.expense ?? 0,
+                ),
+                const SizedBox(height: AppSpacing.x3),
                 AppSearchField(
                   hint: 'Search notes, categories, tags…',
                   onChanged: (value) {
@@ -447,4 +452,97 @@ class _Group {
   final List<Txn> items = <Txn>[];
   int income = 0;
   int expense = 0;
+}
+
+/// Compact month cash-flow strip at the top of the ledger.
+class _FlowStrip extends StatelessWidget {
+  const _FlowStrip({required this.income, required this.expense});
+
+  final int income;
+  final int expense;
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = context.c;
+    final net = income - expense;
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      decoration: BoxDecoration(
+        gradient: AppColors.graphiteGradient,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: Colors.white.withOpacity(0.08)),
+      ),
+      child: Row(
+        children: <Widget>[
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              Text(
+                'NET THIS MONTH',
+                style: AppTextStyles.overline(const Color(0xFF8A8A94))
+                    .copyWith(fontSize: 8, letterSpacing: 1.2),
+              ),
+              Text(
+                Fmt.money(net),
+                style: AppTextStyles.serif(
+                  size: 20,
+                  color: net >= 0 ? AppColors.limeA : AppColors.darkExpense,
+                ),
+              ),
+            ],
+          ),
+          const Spacer(),
+          _FlowPill(
+            label: 'In',
+            amount: income,
+            color: AppColors.darkIncome,
+            icon: Icons.south_west_rounded,
+          ),
+          const SizedBox(width: 8),
+          _FlowPill(
+            label: 'Out',
+            amount: expense,
+            color: AppColors.darkExpense,
+            icon: Icons.north_east_rounded,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _FlowPill extends StatelessWidget {
+  const _FlowPill({
+    required this.label,
+    required this.amount,
+    required this.color,
+    required this.icon,
+  });
+
+  final String label;
+  final int amount;
+  final Color color;
+  final IconData icon;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.14),
+        borderRadius: BorderRadius.circular(99),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: <Widget>[
+          Icon(icon, size: 12, color: color),
+          const SizedBox(width: 5),
+          Text(
+            '${label} ${Fmt.money(amount, forceCompact: true)}',
+            style: AppTextStyles.caption(color).copyWith(fontSize: 10),
+          ),
+        ],
+      ),
+    );
+  }
 }

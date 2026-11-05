@@ -65,6 +65,9 @@ class StatsScreen extends ConsumerWidget {
     final highestDay = dailyList.isEmpty
         ? null
         : dailyList.reduce((a, b) => a.total >= b.total ? a : b);
+    final monthList = monthly.valueOrNull ?? const <MonthTotal>[];
+    final monthIncome = monthList.fold<int>(0, (a, m) => a + m.income);
+    final monthExpense = monthList.fold<int>(0, (a, m) => a + m.expense);
 
     return Scaffold(
       backgroundColor: palette.surface,
@@ -289,28 +292,49 @@ class StatsScreen extends ConsumerWidget {
 
                   // 3. Trend line + legend
                   ChartCard(
-                    title: 'Income vs expense trend',
-                    subtitle: 'Last 6 months',
+                    title: 'Money in, money out',
+                    subtitle: 'Last 6 months · stacked',
                     child: Column(
                       children: <Widget>[
-                        TrendLineChart(
-                          income: (monthly.valueOrNull ?? const <MonthTotal>[])
-                              .map((m) => m.income)
-                              .toList(),
-                          expense: (monthly.valueOrNull ?? const <MonthTotal>[])
-                              .map((m) => m.expense)
-                              .toList(),
-                          labels: (monthly.valueOrNull ?? const <MonthTotal>[])
-                              .map((m) => DateXShort.month(m.month))
-                              .toList(),
+                        StackedBarChart(
+                          height: 200,
+                          valuePrefix: Fmt.symbol,
+                          barWidth: 24,
+                          colors: const <Color>[
+                            AppColors.limeB,
+                            AppColors.sunset,
+                          ],
+                          data: <StackedBarDatum>[
+                            for (final m in monthList)
+                              StackedBarDatum(
+                                label: DateXShort.month(m.month),
+                                segments: <double>[
+                                  m.income.toDouble(),
+                                  m.expense.toDouble(),
+                                ],
+                              ),
+                          ],
                         ),
-                        const SizedBox(height: 8),
+                        const SizedBox(height: AppSpacing.x3),
                         Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
                           children: <Widget>[
-                            LegendDot(color: palette.income, label: 'Income'),
-                            const SizedBox(width: 14),
-                            LegendDot(color: palette.expense, label: 'Expense'),
+                            Expanded(
+                              child: _FlowLegend(
+                                color: AppColors.limeB,
+                                label: 'Income',
+                                amount: monthIncome,
+                                total: monthIncome + monthExpense,
+                              ),
+                            ),
+                            const SizedBox(width: AppSpacing.x3),
+                            Expanded(
+                              child: _FlowLegend(
+                                color: AppColors.sunset,
+                                label: 'Expense',
+                                amount: monthExpense,
+                                total: monthIncome + monthExpense,
+                              ),
+                            ),
                           ],
                         ),
                       ],
@@ -804,6 +828,61 @@ class OverlineLabelCenter extends StatelessWidget {
       child: Text(
         text,
         style: AppTextStyles.caption(context.c.tertiary).copyWith(fontSize: 10.5),
+      ),
+    );
+  }
+}
+
+/// Two-column stacked-bar legend with percentage and coloured tick.
+class _FlowLegend extends StatelessWidget {
+  const _FlowLegend({
+    required this.color,
+    required this.label,
+    required this.amount,
+    required this.total,
+  });
+
+  final Color color;
+  final String label;
+  final int amount;
+  final int total;
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = context.c;
+    final pct = total == 0 ? 0 : (amount / total * 100).round();
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+      decoration: BoxDecoration(
+        color: palette.isDark ? palette.cardAlt : palette.surfaceAlt,
+        borderRadius: BorderRadius.circular(14),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          Row(
+            children: <Widget>[
+              Container(
+                height: 8,
+                width: 8,
+                decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+              ),
+              const SizedBox(width: 6),
+              Text(label, style: AppTextStyles.caption(palette.sub)),
+              const Spacer(),
+              Text(
+                '$pct%',
+                style: AppTextStyles.caption(palette.tertiary)
+                    .copyWith(fontSize: 10),
+              ),
+            ],
+          ),
+          const SizedBox(height: 4),
+          Text(
+            Fmt.money(amount, forceCompact: true),
+            style: AppTextStyles.serif(size: 15, color: palette.ink),
+          ),
+        ],
       ),
     );
   }
