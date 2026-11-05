@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_spacing.dart';
-import '../../core/theme/app_text_styles.dart';
 import '../../data/models/models.dart';
 import '../../providers/app_providers.dart';
 import '../../widgets/amount_text.dart';
@@ -13,6 +12,7 @@ import '../../widgets/category_icon.dart';
 import '../../widgets/section_header.dart';
 import '../../widgets/stat_card.dart';
 import '../../widgets/transaction_tile.dart';
+import '../budgets/budgets_screen.dart';
 import '../transactions/add_transaction_sheet.dart';
 import '../transactions/transaction_detail_screen.dart';
 import 'category_form_screen.dart';
@@ -133,7 +133,11 @@ class CategoryDetailScreen extends ConsumerWidget {
                       label: 'Create budget',
                       icon: Icons.pie_chart_outline_rounded,
                       height: 48,
-                      onPressed: () => ref.read(navIndexProvider.notifier).state = 2,
+                      onPressed: () => Navigator.of(context).push(
+                        MaterialPageRoute<void>(
+                          builder: (_) => const BudgetsScreen(),
+                        ),
+                      ),
                     ),
                   ),
                 ],

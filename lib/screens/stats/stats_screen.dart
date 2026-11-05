@@ -19,11 +19,11 @@ import '../../widgets/pickers.dart';
 import '../../widgets/premium_badge.dart';
 import '../../widgets/premium_gate.dart';
 import '../../widgets/progress_widgets.dart';
-import '../../widgets/section_header.dart';
 import '../../widgets/stat_card.dart';
 import '../../widgets/transaction_tile.dart';
 import '../io/export_screen.dart';
 import '../transactions/transaction_detail_screen.dart';
+import '../transactions/transactions_screen.dart';
 import 'custom_report_screen.dart';
 import 'stats_charts.dart';
 
@@ -255,7 +255,7 @@ class StatsScreen extends ConsumerWidget {
                                 TransactionFilter(
                               categoryIds: <int>[categoryList[index].categoryId],
                             );
-                            ref.read(navIndexProvider.notifier).state = 1;
+                            Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => const TransactionsScreen()));
                           },
                           slices: <PetalSlice>[
                             for (final item in categoryList.take(8))
@@ -370,7 +370,7 @@ class StatsScreen extends ConsumerWidget {
                       onTap: (item) {
                         ref.read(transactionFilterProvider.notifier).state =
                             TransactionFilter(categoryIds: <int>[item.categoryId]);
-                        ref.read(navIndexProvider.notifier).state = 1;
+                        Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => const TransactionsScreen()));
                       },
                     ),
                   ),
@@ -386,7 +386,7 @@ class StatsScreen extends ConsumerWidget {
                       onTapDay: (date) {
                         ref.read(transactionFilterProvider.notifier).state =
                             TransactionFilter(startDate: date, endDate: date);
-                        ref.read(navIndexProvider.notifier).state = 1;
+                        Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => const TransactionsScreen()));
                       },
                     ),
                   ),

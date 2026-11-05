@@ -1,30 +1,32 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../core/l10n/l10n.dart';
 import '../../core/theme/app_colors.dart';
-import '../../core/theme/app_radius.dart';
 import '../../core/theme/app_spacing.dart';
 import '../../core/theme/app_text_styles.dart';
+import '../../core/utils/app_icons.dart';
 import '../../core/utils/money.dart';
 import '../../data/models/models.dart';
 import '../../providers/app_providers.dart';
-import '../../widgets/luxe.dart';
-import '../../widgets/luxe_charts.dart';
-import '../../widgets/app_card.dart';
-import '../../widgets/app_sheets.dart';
-import '../../widgets/buttons.dart';
-import '../../widgets/category_icon.dart';
 import '../../widgets/empty_state.dart';
 import '../../widgets/illustration.dart';
-import '../../widgets/pickers.dart';
+import '../../widgets/paisa.dart';
 import '../../widgets/premium_gate.dart';
-import '../../widgets/progress_widgets.dart';
 import '../io/export_screen.dart';
 import '../premium/premium_screen.dart';
 import '../transactions/add_transaction_sheet.dart';
 import 'budget_detail_screen.dart';
 import 'budget_form_screen.dart';
+
+/// Pastel tones cycled through budget cards, matching the reference art.
+const List<Color> kBudgetTints = <Color>[
+  AppColors.blush,
+  AppColors.mint,
+  AppColors.periwinkle,
+  AppColors.butter,
+  AppColors.lilac,
+  AppColors.tan,
+];
 
 class BudgetsScreen extends ConsumerStatefulWidget {
   const BudgetsScreen({super.key});
@@ -45,16 +47,16 @@ class _BudgetsScreenState extends ConsumerState<BudgetsScreen> {
     return Scaffold(
       backgroundColor: palette.surface,
       appBar: AppBar(
-        title: Row(
-          children: <Widget>[
-            const MetallicMark(size: 28, animated: false),
-            const SizedBox(width: 10),
-            Text(tr(context, 'Budgets'), style: AppTextStyles.h2(context.c.ink)),
-          ],
-        ),
+        titleSpacing: 0,
+        title: Text('Budgets', style: AppTextStyles.h2(palette.ink)),
         actions: <Widget>[
+          IconButton(
+            onPressed: () => _openForm(context, ref),
+            icon: Icon(Icons.add_circle_outline_rounded,
+                color: palette.onSoft),
+          ),
           PopupMenuButton<String>(
-            icon: const Icon(Icons.more_vert_rounded),
+            icon: Icon(Icons.more_vert_rounded, color: palette.sub),
             onSelected: (value) {
               switch (value) {
                 case 'export':
@@ -65,101 +67,114 @@ class _BudgetsScreenState extends ConsumerState<BudgetsScreen> {
                   );
                   break;
                 case 'premium':
-                  Navigator.of(context).push(
-                    MaterialPageRoute<void>(builder: (_) => const PremiumScreen()),
-                  );
+                  Navigator.of(context)
+                      .push(MaterialPageRoute<void>(
+                        builder: (_) => const PremiumScreen(),
+                      ))
+                      .then((_) {});
                   break;
               }
             },
             itemBuilder: (context) => const <PopupMenuEntry<String>>[
-              PopupMenuItem<String>(value: 'export', child: Text('Export budget report')),
-              PopupMenuItem<String>(value: 'premium', child: Text('Premium plans')),
+              PopupMenuItem<String>(
+                  value: 'export', child: Text('Export budget report')),
+              PopupMenuItem<String>(
+                  value: 'premium', child: Text('Premium plans')),
             ],
           ),
         ],
       ),
-      body: Column(
-        children: <Widget>[
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.screen),
-            child: PeriodSelector(
-              value: _period,
-              onChanged: (value) => setState(() => _period = value),
+      body: budgetsAsync.when(
+        loading: () => const Center(child: CircularProgressIndicator()),
+        error: (error, _) => Center(child: Text('$error')),
+        data: (all) {
+          final list = all
+              .where((progress) => progress.budget.period == _period)
+              .toList();
+          final visible = list.isEmpty ? all : list;
+          final total = visible.fold<int>(0, (a, b) => a + b.amount);
+          final spent = visible.fold<int>(0, (a, b) => a + b.spent);
+          final remaining = total - spent;
+
+          if (all.isEmpty) {
+            return EmptyState(
+              title: 'No budgets yet',
+              message:
+                  'Set a spending limit and Paisa will track it automatically, with alerts before you overspend.',
+              illustration: IllustrationKind.target,
+              actionLabel: 'Create your first budget',
+              onAction: () => _openForm(context, ref),
+            );
+          }
+
+          return ListView(
+            padding: const EdgeInsets.fromLTRB(
+              AppSpacing.screen,
+              4,
+              AppSpacing.screen,
+              120,
             ),
-          ),
-          const SizedBox(height: AppSpacing.x3),
-          Expanded(
-            child: budgetsAsync.when(
-              loading: () => const Center(child: CircularProgressIndicator()),
-              error: (error, _) => Center(child: Text('$error')),
-              data: (list) {
-                if (list.isEmpty) {
-                  return EmptyState(
-                    title: 'No budgets yet',
-                    message:
-                        'Set a monthly limit and MoneyMan will track it automatically, with alerts before you overspend.',
-                    illustration: IllustrationKind.target,
-                    actionLabel: 'Create your first budget',
-                    onAction: () => _openForm(context, ref),
-                  );
-                }
-                return ListView(
-                  padding: const EdgeInsets.fromLTRB(
-                    AppSpacing.screen,
-                    0,
-                    AppSpacing.screen,
-                    120,
-                  ),
-                  children: <Widget>[
-                    _BudgetPulse(budgets: list),
-                    const SizedBox(height: AppSpacing.x3),
-                    for (final progress in list) ...<Widget>[
-                      BudgetCard(
-                        progress: progress,
-                        onTap: () => Navigator.of(context).push(
-                          MaterialPageRoute<void>(
-                            builder: (_) => BudgetDetailScreen(
-                              budgetId: progress.budget.id!,
-                            ),
-                          ),
-                        ),
-                        onAddExpense: () => showAddTransactionSheet(
-                          context,
-                          ref,
-                          initialType: kTypeExpense,
-                          initialCategoryId: progress.budget.categoryIds.isEmpty
-                              ? null
-                              : progress.budget.categoryIds.first,
-                        ),
+            children: <Widget>[
+              PaisaSegment<String>(
+                options: const <String>['weekly', 'monthly', 'yearly'],
+                value: _period,
+                labelOf: (period) =>
+                    period[0].toUpperCase() + period.substring(1),
+                onChanged: (value) => setState(() => _period = value),
+              ),
+              const SizedBox(height: AppSpacing.x4),
+              _BudgetTotals(
+                count: visible.length,
+                total: total,
+                spent: spent,
+                remaining: remaining,
+              ),
+              const SizedBox(height: AppSpacing.x4),
+              for (var i = 0; i < visible.length; i++) ...<Widget>[
+                BudgetCard(
+                  progress: visible[i],
+                  tint: kBudgetTints[i % kBudgetTints.length],
+                  onTap: () => Navigator.of(context).push(
+                    MaterialPageRoute<void>(
+                      builder: (_) => BudgetDetailScreen(
+                        budgetId: visible[i].budget.id!,
                       ),
-                      const SizedBox(height: AppSpacing.x3),
-                    ],
-                    const SizedBox(height: AppSpacing.x2),
-                    SecondaryButton(
-                      label: 'New budget',
-                      icon: Icons.add_rounded,
-                      onPressed: () => _openForm(context, ref),
                     ),
-                    const SizedBox(height: AppSpacing.x3),
-                    Text(
-                      premium
-                          ? 'You have unlimited budgets with Premium.'
-                          : 'Free plan includes 3 active budgets. Upgrade for unlimited.',
-                      style: AppTextStyles.caption(palette.tertiary),
-                      textAlign: TextAlign.center,
-                    ),
-                  ],
-                );
-              },
-            ),
-          ),
-        ],
+                  ),
+                  onAddExpense: () => showAddTransactionSheet(
+                    context,
+                    ref,
+                    initialType: kTypeExpense,
+                    initialCategoryId: visible[i].budget.categoryIds.isEmpty
+                        ? null
+                        : visible[i].budget.categoryIds.first,
+                  ),
+                ),
+                const SizedBox(height: AppSpacing.x3),
+              ],
+              PeachButton(
+                label: 'New budget',
+                icon: Icons.add_rounded,
+                onPressed: () => _openForm(context, ref),
+              ),
+              const SizedBox(height: AppSpacing.x3),
+              Text(
+                premium
+                    ? 'You have unlimited budgets with Premium.'
+                    : 'Free plan includes 3 active budgets. Upgrade for unlimited.',
+                style: AppTextStyles.caption(palette.tertiary),
+                textAlign: TextAlign.center,
+              ),
+            ],
+          );
+        },
       ),
     );
   }
 
   Future<void> _openForm(BuildContext context, WidgetRef ref) async {
-    final count = (ref.read(budgetsProvider).valueOrNull ?? <BudgetProgress>[]).length;
+    final count =
+        (ref.read(budgetsProvider).valueOrNull ?? <BudgetProgress>[]).length;
     if (count >= 3) {
       final allowed = await ensurePremium(
         context,
@@ -177,245 +192,250 @@ class _BudgetsScreenState extends ConsumerState<BudgetsScreen> {
   }
 }
 
-/// Large budget progress card.
+class _BudgetTotals extends StatelessWidget {
+  const _BudgetTotals({
+    required this.count,
+    required this.total,
+    required this.spent,
+    required this.remaining,
+  });
+
+  final int count;
+  final int total;
+  final int spent;
+  final int remaining;
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = context.c;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: <Widget>[
+        Row(
+          children: <Widget>[
+            Expanded(
+              child: PaisaStatTile(
+                label: '$count Budgets',
+                value: Fmt.money(total, forceCompact: true),
+                icon: Icons.pie_chart_outline_rounded,
+                background: AppColors.periwinkle,
+                foreground: AppColors.periwinkleDeep,
+              ),
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: PaisaStatTile(
+                label: 'Spent',
+                value: Fmt.money(spent, forceCompact: true),
+                icon: Icons.shopping_bag_outlined,
+                background: AppColors.blush,
+                foreground: AppColors.blushDeep,
+              ),
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: PaisaStatTile(
+                label: 'Remaining',
+                value: Fmt.money(remaining, forceCompact: true),
+                icon: Icons.savings_outlined,
+                background: AppColors.mint,
+                foreground: AppColors.mintDeep,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 12),
+        WavyProgress(
+          value: total == 0 ? 0 : spent / total,
+          height: 22,
+          color: palette.isDark ? palette.accent : palette.ink,
+          trackColor: palette.divider,
+          waves: 9,
+        ),
+      ],
+    );
+  }
+}
+
+/// Pastel budget card with a wavy progress line and three figure columns.
 class BudgetCard extends StatelessWidget {
   const BudgetCard({
     super.key,
     required this.progress,
     this.onTap,
     this.onAddExpense,
+    this.tint = AppColors.blush,
   });
 
   final BudgetProgress progress;
   final VoidCallback? onTap;
   final VoidCallback? onAddExpense;
+  final Color tint;
 
   @override
   Widget build(BuildContext context) {
-    final palette = context.c;
-    final tone = ProgressBar.colorForRatio(context, progress.ratio);
-
-    return AppCard(
+    final ink = PaisaIconBadge.inkOn(tint);
+    final budget = progress.budget;
+    return GestureDetector(
       onTap: onTap,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          Row(
-            children: <Widget>[
-              CategoryIcon(
-                iconName: progress.budget.icon,
-                color: AppColors.fromHex(progress.budget.color),
-                size: 40,
-                rounded: true,
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: <Widget>[
-                    Text(progress.budget.name,
-                        style: AppTextStyles.label(palette.ink).copyWith(fontSize: 15)),
-                    Text(
-                      progress.budget.period[0].toUpperCase() +
-                          progress.budget.period.substring(1) +
-                          (progress.budget.type == 'overall' ? ' · all spending' : ''),
-                      style: AppTextStyles.caption(palette.tertiary),
-                    ),
-                  ],
-                ),
-              ),
-              if (onAddExpense != null)
-                IconButton(
-                  tooltip: 'Add expense',
-                  onPressed: onAddExpense,
-                  icon: Icon(Icons.add_circle_outline_rounded,
-                      size: 20, color: palette.accent),
-                ),
-            ],
-          ),
-          const SizedBox(height: AppSpacing.x3),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: <Widget>[
-              Text(
-                Fmt.money(progress.spent),
-                style: AppTextStyles.serif(size: 24, color: palette.ink),
-              ),
-              Padding(
-                padding: const EdgeInsets.only(bottom: 3, left: 6),
-                child: Text(
-                  'of ${Fmt.money(progress.amount, forceCompact: true)}',
-                  style: AppTextStyles.caption(palette.tertiary),
-                ),
-              ),
-              const Spacer(),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                decoration: BoxDecoration(
-                  color: tone.withOpacity(0.14),
-                  borderRadius: BorderRadius.circular(AppRadius.pill),
-                  border: Border.all(color: tone.withOpacity(0.32)),
-                ),
-                child: Text(
-                  '${progress.percent.toStringAsFixed(0)}%',
-                  style: AppTextStyles.serif(size: 13, color: tone),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: AppSpacing.x3),
-          ClipRRect(
-            borderRadius: BorderRadius.circular(99),
-            child: Stack(
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: tint,
+          borderRadius: BorderRadius.circular(26),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            Row(
               children: <Widget>[
                 Container(
-                  height: 9,
-                  color: palette.isDark ? palette.cardAlt : palette.surfaceAlt,
+                  height: 44,
+                  width: 44,
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.55),
+                    borderRadius: BorderRadius.circular(14),
+                  ),
+                  child: Icon(
+                    AppIcons.byName(budget.icon),
+                    size: 21,
+                    color: ink,
+                  ),
                 ),
-                FractionallySizedBox(
-                  widthFactor: progress.ratio.clamp(0.0, 1.0),
-                  child: Container(
-                    height: 9,
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: <Color>[tone.withOpacity(0.65), tone],
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
+                      Text(
+                        budget.name,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: AppTextStyles.base(
+                          size: 16,
+                          weight: FontWeight.w700,
+                          height: 1.15,
+                        ).copyWith(color: ink),
                       ),
-                      boxShadow: <BoxShadow>[
-                        BoxShadow(color: tone.withOpacity(0.55), blurRadius: 10),
-                      ],
+                      const SizedBox(height: 5),
+                      Row(
+                        children: <Widget>[
+                          PaisaChip(
+                            label: budget.period[0].toUpperCase() +
+                                budget.period.substring(1),
+                            background: Colors.white.withOpacity(0.5),
+                            color: ink,
+                          ),
+                          const SizedBox(width: 6),
+                          PaisaChip(
+                            label:
+                                budget.type == 'overall' ? 'Auto' : 'Category',
+                            background: Colors.white.withOpacity(0.5),
+                            color: ink,
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+                if (onAddExpense != null)
+                  GestureDetector(
+                    onTap: onAddExpense,
+                    child: Container(
+                      height: 32,
+                      width: 32,
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.5),
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(Icons.add_rounded, size: 18, color: ink),
                     ),
+                  ),
+              ],
+            ),
+            const SizedBox(height: 14),
+            Row(
+              children: <Widget>[
+                Expanded(
+                  child: _Figure(
+                    label: 'Spent',
+                    value: Fmt.money(progress.spent, forceCompact: true),
+                    ink: ink,
+                  ),
+                ),
+                Expanded(
+                  child: _Figure(
+                    label: 'Budget',
+                    value: Fmt.money(progress.amount, forceCompact: true),
+                    ink: ink,
+                  ),
+                ),
+                Expanded(
+                  child: _Figure(
+                    label: 'Remaining',
+                    value: Fmt.money(progress.remaining, forceCompact: true),
+                    ink: ink,
                   ),
                 ),
               ],
             ),
-          ),
-          const SizedBox(height: 8),
-          Row(
-            children: <Widget>[
-              Icon(
-                progress.isOver ? Icons.warning_amber_rounded : Icons.savings_outlined,
-                size: 13,
-                color: progress.isOver ? palette.expense : palette.tertiary,
-              ),
-              const SizedBox(width: 4),
-              Expanded(
-                child: Text(
+            const SizedBox(height: 8),
+            WavyProgress(
+              value: progress.ratio,
+              height: 20,
+              color: ink,
+              trackColor: Colors.white.withOpacity(0.55),
+              waves: 8,
+            ),
+            const SizedBox(height: 8),
+            Row(
+              children: <Widget>[
+                Text(
                   progress.isOver
-                      ? 'Over budget by ${Fmt.money(progress.spent - progress.amount)}'
-                      : '${Fmt.money(progress.remaining)} remaining',
-                  style: AppTextStyles.caption(
-                    progress.isOver ? palette.expense : palette.tertiary,
-                  ),
+                      ? 'Over by ${Fmt.money(progress.spent - progress.amount, forceCompact: true)}'
+                      : '${progress.percent.toStringAsFixed(0)}% used',
+                  style: AppTextStyles.caption(ink)
+                      .copyWith(fontSize: 11.5, fontWeight: FontWeight.w600),
                 ),
-              ),
-              Text(
-                '${progress.daysLeft} days left',
-                style: AppTextStyles.caption(palette.tertiary),
-              ),
-            ],
-          ),
-        ],
+                const Spacer(),
+                Text(
+                  '${progress.daysLeft} days left',
+                  style: AppTextStyles.caption(ink.withOpacity(0.75))
+                      .copyWith(fontSize: 11),
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }
 }
 
-/// Editorial gauge summarising every active budget at once.
-class _BudgetPulse extends StatelessWidget {
-  const _BudgetPulse({required this.budgets});
-
-  final List<BudgetProgress> budgets;
-
-  @override
-  Widget build(BuildContext context) {
-    final palette = context.c;
-    final total = budgets.fold<int>(0, (a, b) => a + b.amount);
-    final spent = budgets.fold<int>(0, (a, b) => a + b.spent);
-    final ratio = total <= 0 ? 0.0 : (spent / total).clamp(0.0, 1.0);
-    final over = spent > total;
-
-    return Container(
-      padding: const EdgeInsets.fromLTRB(18, 16, 18, 6),
-      decoration: BoxDecoration(
-        color: palette.isDark ? palette.card : Colors.white,
-        borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: palette.divider),
-      ),
-      child: Column(
-        children: <Widget>[
-          Row(
-            children: <Widget>[
-              const Eyebrow('Budget pulse'),
-              const Spacer(),
-              Text(
-                '${budgets.length} active',
-                style: AppTextStyles.caption(palette.tertiary)
-                    .copyWith(fontSize: 10.5),
-              ),
-            ],
-          ),
-          ArcGauge(
-            size: 210,
-            value: ratio,
-            accent: over ? AppColors.sunset : AppColors.limeB,
-            centerText: '${(ratio * 100).round()}%',
-            label: 'of ${Fmt.money(total, forceCompact: true)} used',
-          ),
-          Row(
-            children: <Widget>[
-              Expanded(
-                child: _PulseStat(label: 'Planned', value: total),
-              ),
-              Container(
-                width: 1,
-                height: 26,
-                color: palette.divider,
-              ),
-              Expanded(
-                child: _PulseStat(label: 'Spent', value: spent),
-              ),
-              Container(
-                width: 1,
-                height: 26,
-                color: palette.divider,
-              ),
-              Expanded(
-                child: _PulseStat(
-                  label: over ? 'Over' : 'Left',
-                  value: over ? spent - total : total - spent,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: AppSpacing.x2),
-        ],
-      ),
-    );
-  }
-}
-
-class _PulseStat extends StatelessWidget {
-  const _PulseStat({required this.label, required this.value});
+class _Figure extends StatelessWidget {
+  const _Figure({required this.label, required this.value, required this.ink});
 
   final String label;
-  final int value;
+  final String value;
+  final Color ink;
 
   @override
   Widget build(BuildContext context) {
-    final palette = context.c;
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
         Text(
-          label.toUpperCase(),
-          style: AppTextStyles.overline(palette.tertiary)
-              .copyWith(fontSize: 8, letterSpacing: 1.1),
+          label,
+          style: AppTextStyles.caption(ink.withOpacity(0.72))
+              .copyWith(fontSize: 11),
         ),
-        const SizedBox(height: 3),
+        const SizedBox(height: 2),
         FittedBox(
           fit: BoxFit.scaleDown,
+          alignment: Alignment.centerLeft,
           child: Text(
-            Fmt.money(value, forceCompact: true),
-            style: AppTextStyles.serif(size: 15, color: palette.ink),
+            value,
+            style: AppTextStyles.serif(size: 16, color: ink),
           ),
         ),
       ],

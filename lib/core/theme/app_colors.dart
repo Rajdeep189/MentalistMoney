@@ -1,151 +1,170 @@
 import 'package:flutter/material.dart';
 
-/// Raw colour tokens for MoneyMan — a warm, metallic, editorial palette:
-/// bone-white paper, graphite ink, liquid lime accent, champagne gold and a
-/// sunset gradient reserved for the navigation pill.
+/// Paisa-inspired palette: warm espresso paper, toasted cocoa cards, peach
+/// accents and soft pastel tints — with a cream-and-peach light mode.
 class AppColors {
   AppColors._();
 
   // Brand
-  static const Color accent = Color(0xFFC9F24C);
-  static const Color accentPressed = Color(0xFFB4E02F);
-  static const Color accentShift = Color(0xFF88E15A);
-  static const Color accentLight = Color(0xFFF0FBD2);
-  static const Color accentOnDark = Color(0xFFD8FF6E);
+  static const Color accent = Color(0xFFFFB49B);
+  static const Color accentPressed = Color(0xFFFF9C7D);
+  static const Color accentShift = Color(0xFFFFD3C2);
+  static const Color accentLight = Color(0xFFFFE7DD);
+  static const Color accentOnDark = Color(0xFFFFC6AE);
+  static const Color espresso = Color(0xFF1B110E);
 
-  // Metallics
-  static const Color gold = Color(0xFFC9A96A);
-  static const Color goldSoft = Color(0xFFF3E4C4);
-  static const Color silver = Color(0xFFC7C9D1);
-  static const Color chrome = Color(0xFFE9EAEE);
-  static const Color graphite = Color(0xFF23242A);
+  // Metallics / decorative
+  static const Color gold = Color(0xFFE0B27A);
+  static const Color goldSoft = Color(0xFFF6E3CD);
+  static const Color silver = Color(0xFFD9CFC9);
+  static const Color chrome = Color(0xFFF3ECE7);
+  static const Color graphite = Color(0xFF2A1B16);
 
-  // Neutrals (light) — warm paper
-  static const Color ink = Color(0xFF0C0C0E);
-  static const Color sub = Color(0xFF55555C);
-  static const Color tertiary = Color(0xFF8B8B92);
-  static const Color divider = Color(0xFFE7E3DA);
-  static const Color surface = Color(0xFFF4F2ED);
-  static const Color surfaceAlt = Color(0xFFEBE8E1);
-  static const Color card = Color(0xFFFFFFFF);
-  static const Color cardAlt = Color(0xFFF7F5F0);
+  // Neutrals (dark) — chocolate
+  static const Color ink = Color(0xFFF8EEE8);
+  static const Color sub = Color(0xFFCDB6AA);
+  static const Color tertiary = Color(0xFF9C8579);
+  static const Color divider = Color(0xFF3A2A24);
+  static const Color surface = Color(0xFF1B110E);
+  static const Color surfaceAlt = Color(0xFF241713);
+  static const Color card = Color(0xFF2A1B16);
+  static const Color cardAlt = Color(0xFF33221C);
 
-  // Neutrals (dark) — obsidian
-  static const Color darkSurface = Color(0xFF08080A);
-  static const Color darkSurfaceAlt = Color(0xFF0E0E11);
-  static const Color darkCard = Color(0xFF131317);
-  static const Color darkCardAlt = Color(0xFF1A1A1F);
-  static const Color darkDivider = Color(0xFF26262D);
-  static const Color darkSub = Color(0xFFA8A8B0);
-  static const Color darkTertiary = Color(0xFF74747D);
+  // Neutrals (light) — cream
+  static const Color lightSurface = Color(0xFFFFF7F2);
+  static const Color lightSurfaceAlt = Color(0xFFFDEDE4);
+  static const Color lightCard = Color(0xFFFFFFFF);
+  static const Color lightCardAlt = Color(0xFFFFF1E9);
+  static const Color darkSurface = Color(0xFF1B110E);
+  static const Color darkSurfaceAlt = Color(0xFF241713);
+  static const Color darkCard = Color(0xFF2A1B16);
+  static const Color darkCardAlt = Color(0xFF33221C);
+  static const Color darkDivider = Color(0xFF3A2A24);
+  static const Color darkSub = Color(0xFFCDB6AA);
+  static const Color darkTertiary = Color(0xFF9C8579);
 
   // Semantic
-  static const Color income = Color(0xFF1FB573);
-  static const Color expense = Color(0xFFE8483C);
-  static const Color transfer = Color(0xFF4C7DF0);
-  static const Color warning = Color(0xFFE0A03A);
+  static const Color income = Color(0xFF3DDC97);
+  static const Color expense = Color(0xFFFB6B6B);
+  static const Color transfer = Color(0xFF8E9BFF);
+  static const Color warning = Color(0xFFF2C14E);
 
-  static const Color incomeBg = Color(0xFFE4F7ED);
-  static const Color expenseBg = Color(0xFFFCEAE7);
-  static const Color warningBg = Color(0xFFFBF1DF);
-  static const Color infoBg = Color(0xFFE8EFFD);
+  static const Color incomeBg = Color(0xFF123A28);
+  static const Color expenseBg = Color(0xFF3D1A18);
+  static const Color warningBg = Color(0xFF3A2F13);
+  static const Color infoBg = Color(0xFF1E2340);
 
-  static const Color darkIncome = Color(0xFF3EDC93);
-  static const Color darkExpense = Color(0xFFFF6F61);
-  static const Color darkTransfer = Color(0xFF7FA2FF);
-  static const Color darkWarning = Color(0xFFF5C066);
+  static const Color lightIncome = Color(0xFF0F8A57);
+  static const Color lightExpense = Color(0xFFC2372F);
+  static const Color lightTransfer = Color(0xFF5B6BF0);
+  static const Color lightWarning = Color(0xFFB07A12);
 
-  // Signature gradient stops
-  static const Color limeA = Color(0xFFD9FF63);
-  static const Color limeB = Color(0xFF8EE04F);
-  static const Color tangerine = Color(0xFFFF8A45);
-  static const Color sunset = Color(0xFFFF3B30);
-  static const Color violet = Color(0xFF8B5CF6);
-  static const Color violetSoft = Color(0xFFB79CFF);
-  static const Color sky = Color(0xFF5AA9FF);
-  static const Color cyan = Color(0xFF4FD6D0);
-  static const Color pink = Color(0xFFF25CA2);
+  static const Color darkIncome = Color(0xFF3DDC97);
+  static const Color darkExpense = Color(0xFFFF7A75);
+  static const Color darkTransfer = Color(0xFF9AA5FF);
+  static const Color darkWarning = Color(0xFFF2C14E);
 
-  // Gradients used by hero cards, charts and the navigation bar.
+  // Pastel tints used by summary tiles, budget cards and goal cards.
+  static const Color periwinkle = Color(0xFFDCDCFB);
+  static const Color periwinkleDeep = Color(0xFF4C4C9E);
+  static const Color mint = Color(0xFFCBEBD9);
+  static const Color mintDeep = Color(0xFF1F6B4A);
+  static const Color tan = Color(0xFFF0D6B8);
+  static const Color tanDeep = Color(0xFF7A4A1E);
+  static const Color lilac = Color(0xFFE7D3F2);
+  static const Color lilacDeep = Color(0xFF67398A);
+  static const Color blush = Color(0xFFF9DDD5);
+  static const Color blushDeep = Color(0xFF9A4A32);
+  static const Color butter = Color(0xFFF6EAB9);
+  static const Color butterDeep = Color(0xFF7C6516);
+
+  // Legacy aliases kept so older widgets keep the warm palette.
+  static const Color limeA = Color(0xFFFFC6AE);
+  static const Color limeB = Color(0xFFFFB49B);
+  static const Color sunset = Color(0xFFFB6B6B);
+  static const Color sky = Color(0xFF8E9BFF);
+  static const Color violet = Color(0xFFB6A6F0);
+  static const Color tangerine = Color(0xFFF2C14E);
+
+  // Signature gradients
   static const LinearGradient sunsetGradient = LinearGradient(
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
-    colors: <Color>[Color(0xFFFFA14D), Color(0xFFFF6A3D), Color(0xFFFF2D55)],
+    colors: <Color>[Color(0xFFFFC3A6), Color(0xFFFF9C7D)],
   );
 
   static const LinearGradient limeGradient = LinearGradient(
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
-    colors: <Color>[limeA, limeB],
-  );
-
-  static const LinearGradient auroraGradient = LinearGradient(
-    begin: Alignment.topLeft,
-    end: Alignment.bottomRight,
-    colors: <Color>[limeB, cyan, sky, violetSoft],
-  );
-
-  static const LinearGradient metalGradient = LinearGradient(
-    begin: Alignment.topLeft,
-    end: Alignment.bottomRight,
-    colors: <Color>[Color(0xFFFDFDFF), Color(0xFFD9DBE3), Color(0xFFA9ADB8), Color(0xFFF2F3F6)],
+    colors: <Color>[Color(0xFFBFF3D7), Color(0xFF7FE0B4)],
   );
 
   static const LinearGradient goldGradient = LinearGradient(
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
-    colors: <Color>[Color(0xFFF6E3B8), Color(0xFFC9A96A), Color(0xFF8A6E3D)],
+    colors: <Color>[Color(0xFFF6E3CD), Color(0xFFE0B27A)],
+  );
+
+  static const LinearGradient auroraGradient = LinearGradient(
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+    colors: <Color>[Color(0xFFFFC3A6), Color(0xFFE7D3F2), Color(0xFF8E9BFF)],
+  );
+
+  static const LinearGradient metalGradient = LinearGradient(
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+    colors: <Color>[Color(0xFFFFF3EC), Color(0xFFF3D8C8), Color(0xFFE7B79C)],
   );
 
   static const LinearGradient graphiteGradient = LinearGradient(
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
-    colors: <Color>[Color(0xFF2B2C33), Color(0xFF141418), Color(0xFF08080A)],
+    colors: <Color>[Color(0xFF6B3B26), Color(0xFF4A2718), Color(0xFF33190F)],
   );
 
   /// Accent presets shown in Appearance settings.
   static const Map<String, Color> accentPresets = <String, Color>{
-    'Lime': accent,
-    'Gold': gold,
-    'Violet': Color(0xFF8B5CF6),
-    'Indigo': Color(0xFF5B67F1),
-    'Ocean': Color(0xFF2E90FA),
-    'Mint': Color(0xFF11B4A0),
-    'Sunset': Color(0xFFFF5A3C),
-    'Rose': Color(0xFFE4559C),
-    'Graphite': Color(0xFF3A3A44),
+    'Peach': accent,
+    'Terracotta': Color(0xFFE0785A),
+    'Rose': Color(0xFFF08AA8),
+    'Sand': Color(0xFFE8C9A0),
+    'Sage': Color(0xFF9CC5A1),
+    'Sky': Color(0xFF8FBBE8),
+    'Lavender': Color(0xFFB6A6F0),
+    'Cocoa': Color(0xFFB07A5A),
   };
 
-  /// Chart palette — lime, gold, violet, ocean, coral.
+  /// Chart palette — peach, sage, lavender, sky, butter, rose.
   static const List<Color> chartPalette = <Color>[
-    Color(0xFFC9F24C),
-    Color(0xFFC9A96A),
-    Color(0xFF8B5CF6),
-    Color(0xFF2E90FA),
-    Color(0xFFFF6A3D),
-    Color(0xFF11B4A0),
-    Color(0xFFF25CA2),
-    Color(0xFF8B8B98),
+    Color(0xFFFFB49B),
+    Color(0xFF9CD9B4),
+    Color(0xFFB6A6F0),
+    Color(0xFF8FBBE8),
+    Color(0xFFF2D785),
+    Color(0xFFF08AA8),
+    Color(0xFFE0B27A),
+    Color(0xFF9C8579),
   ];
 
   static const List<Color> categoryPalette = <Color>[
-    Color(0xFFC9F24C),
-    Color(0xFFFF8A45),
-    Color(0xFF8B5CF6),
-    Color(0xFF2E90FA),
-    Color(0xFF11B4A0),
-    Color(0xFFF25CA2),
-    Color(0xFFC9A96A),
-    Color(0xFFE8483C),
-    Color(0xFF4FD6D0),
-    Color(0xFF8B8B98),
+    Color(0xFFFFB49B),
+    Color(0xFF9CD9B4),
+    Color(0xFFB6A6F0),
+    Color(0xFF8FBBE8),
+    Color(0xFFF2D785),
+    Color(0xFFF08AA8),
+    Color(0xFFE0B27A),
+    Color(0xFF6FD3C7),
+    Color(0xFFE8887A),
+    Color(0xFF9C8579),
   ];
 
   static Color fromHex(String hex) {
     var value = hex.replaceAll('#', '').trim();
     if (value.length == 6) value = 'FF$value';
     final parsed = int.tryParse(value, radix: 16);
-    return Color(parsed ?? 0xFFC9F24C);
+    return Color(parsed ?? 0xFFFFB49B);
   }
 
   static String toHex(Color color) {
@@ -213,23 +232,26 @@ class AppPalette extends ThemeExtension<AppPalette> {
   final Color shadow;
   final Color navBar;
 
-  /// Translucent surface used by the floating navigation capsule.
+  /// Translucent surface used by the floating navigation bar.
   final Color glass;
   final Color glassBorder;
   final Color violet;
   final Color gold;
 
-  /// Dark metallic hero card gradient endpoints.
+  /// Warm hero card gradient endpoints.
   final Color heroTop;
   final Color heroBottom;
 
   /// Readable foreground for accent-tinted surfaces.
   Color get onSoft => isDark ? accent : ink;
 
+  /// Neutral text tone that works on both pastel and dark tiles.
+  Color get pastelInk => isDark ? AppColors.ink : AppColors.espresso;
+
   LinearGradient get accentGradient => LinearGradient(
         begin: Alignment.topLeft,
         end: Alignment.bottomRight,
-        colors: <Color>[accent, Color.lerp(accent, AppColors.accentShift, 0.65)!],
+        colors: <Color>[accent, Color.lerp(accent, AppColors.accentShift, 0.55)!],
       );
 
   LinearGradient get heroGradient => LinearGradient(
@@ -240,67 +262,58 @@ class AppPalette extends ThemeExtension<AppPalette> {
 
   LinearGradient get sunsetGradient => AppColors.sunsetGradient;
 
-  LinearGradient get auroraGradient => LinearGradient(
-        begin: Alignment.topLeft,
-        end: Alignment.bottomRight,
-        colors: <Color>[accent, AppColors.cyan, AppColors.sky, violet],
-      );
+  LinearGradient get auroraGradient => AppColors.auroraGradient;
 
-  LinearGradient get metalGradient => isDark
-      ? const LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: <Color>[Color(0xFF3A3B42), Color(0xFF1B1C21), Color(0xFF2E2F36)],
-        )
-      : AppColors.metalGradient;
+  LinearGradient get metalGradient => AppColors.metalGradient;
 
   factory AppPalette.light(Color accent) {
+    final ink = AppColors.espresso;
     return AppPalette(
       isDark: false,
       accent: accent,
-      accentPressed: _darken(accent, 0.10),
-      accentSoft: _tint(accent, 0.92),
-      onAccent: _isLight(accent) ? AppColors.ink : Colors.white,
-      surface: AppColors.surface,
-      surfaceAlt: AppColors.surfaceAlt,
-      card: AppColors.card,
-      cardAlt: AppColors.cardAlt,
-      ink: AppColors.ink,
-      sub: AppColors.sub,
-      tertiary: AppColors.tertiary,
-      divider: AppColors.divider,
-      income: AppColors.income,
-      expense: AppColors.expense,
-      transfer: AppColors.transfer,
-      warning: AppColors.warning,
-      incomeBg: AppColors.incomeBg,
-      expenseBg: AppColors.expenseBg,
-      warningBg: AppColors.warningBg,
-      infoBg: AppColors.infoBg,
-      shadow: const Color(0x120C0C0E),
-      navBar: const Color(0xFFFFFFFF),
-      glass: const Color(0xF2FFFFFF),
-      glassBorder: const Color(0x1A0C0C0E),
-      violet: AppColors.violet,
+      accentPressed: _darken(accent, 0.06),
+      accentSoft: _tint(accent, 0.62),
+      onAccent: _isLight(accent) ? const Color(0xFF3A1B0E) : Colors.white,
+      surface: AppColors.lightSurface,
+      surfaceAlt: AppColors.lightSurfaceAlt,
+      card: AppColors.lightCard,
+      cardAlt: AppColors.lightCardAlt,
+      ink: ink,
+      sub: const Color(0xFF7A5F52),
+      tertiary: const Color(0xFFA4877A),
+      divider: const Color(0xFFF1E2D8),
+      income: AppColors.lightIncome,
+      expense: AppColors.lightExpense,
+      transfer: AppColors.lightTransfer,
+      warning: AppColors.lightWarning,
+      incomeBg: const Color(0xFFE7F6EE),
+      expenseBg: const Color(0xFFFDECEA),
+      warningBg: const Color(0xFFFCF3DD),
+      infoBg: const Color(0xFFEDF0FE),
+      shadow: const Color(0x14583220),
+      navBar: const Color(0xFFFFF6F0),
+      glass: const Color(0xF7FFF6F0),
+      glassBorder: const Color(0x1A3A1B0E),
+      violet: const Color(0xFF8E80E8),
       gold: AppColors.gold,
-      heroTop: const Color(0xFF22232A),
-      heroBottom: const Color(0xFF0B0B0E),
+      heroTop: const Color(0xFFFFD8C5),
+      heroBottom: const Color(0xFFFFC2A8),
     );
   }
 
   factory AppPalette.dark(Color accent) {
-    final bright = _isLight(accent) ? accent : _lighten(accent, 0.22);
+    final bright = _isLight(accent) ? accent : _lighten(accent, 0.20);
     return AppPalette(
       isDark: true,
       accent: bright,
-      accentPressed: _lighten(accent, 0.32),
-      accentSoft: _tint(accent, 0.16),
-      onAccent: _isLight(bright) ? AppColors.ink : Colors.white,
+      accentPressed: _lighten(accent, 0.26),
+      accentSoft: _tint(accent, 0.18),
+      onAccent: _isLight(bright) ? const Color(0xFF3A1B0E) : Colors.white,
       surface: AppColors.darkSurface,
       surfaceAlt: AppColors.darkSurfaceAlt,
       card: AppColors.darkCard,
       cardAlt: AppColors.darkCardAlt,
-      ink: const Color(0xFFF7F7F9),
+      ink: AppColors.ink,
       sub: AppColors.darkSub,
       tertiary: AppColors.darkTertiary,
       divider: AppColors.darkDivider,
@@ -308,62 +321,40 @@ class AppPalette extends ThemeExtension<AppPalette> {
       expense: AppColors.darkExpense,
       transfer: AppColors.darkTransfer,
       warning: AppColors.darkWarning,
-      incomeBg: const Color(0xFF10281F),
-      expenseBg: const Color(0xFF2A1616),
-      warningBg: const Color(0xFF2A2213),
-      infoBg: const Color(0xFF14243A),
+      incomeBg: AppColors.incomeBg,
+      expenseBg: AppColors.expenseBg,
+      warningBg: AppColors.warningBg,
+      infoBg: AppColors.infoBg,
       shadow: const Color(0x66000000),
-      navBar: const Color(0xFF111115),
-      glass: const Color(0xE617171C),
-      glassBorder: const Color(0x14FFFFFF),
-      violet: AppColors.violetSoft,
-      gold: const Color(0xFFDCC28C),
-      heroTop: const Color(0xFF1C1D23),
-      heroBottom: const Color(0xFF060608),
+      navBar: const Color(0xFF1F1512),
+      glass: const Color(0xF21F1512),
+      glassBorder: const Color(0x1AFFFFFF),
+      violet: const Color(0xFFB6A6F0),
+      gold: AppColors.gold,
+      heroTop: const Color(0xFF6B3B26),
+      heroBottom: const Color(0xFF3F2115),
     );
   }
 
-  static bool _isLight(Color c) => c.computeLuminance() > 0.55;
-
-  static Color _darken(Color c, double amount) {
-    final hsl = HSLColor.fromColor(c);
-    return hsl.withLightness((hsl.lightness - amount).clamp(0.0, 1.0).toDouble()).toColor();
+  static Color _tint(Color color, double amount) {
+    return Color.lerp(color, const Color(0xFFFFF7F2), amount)!;
   }
 
-  static Color _lighten(Color c, double amount) {
-    final hsl = HSLColor.fromColor(c);
-    return hsl.withLightness((hsl.lightness + amount).clamp(0.0, 1.0).toDouble()).toColor();
-  }
-
-  static Color _tint(Color c, double lightness) {
-    final hsl = HSLColor.fromColor(c);
+  static Color _darken(Color color, double amount) {
+    final hsl = HSLColor.fromColor(color);
     return hsl
-        .withLightness(lightness)
-        .withSaturation((hsl.saturation * 0.55).clamp(0.0, 1.0).toDouble())
+        .withLightness((hsl.lightness - amount).clamp(0.0, 1.0).toDouble())
         .toColor();
   }
 
-  Color toneFor(String type) {
-    switch (type) {
-      case 'income':
-        return income;
-      case 'transfer':
-        return transfer;
-      default:
-        return expense;
-    }
+  static Color _lighten(Color color, double amount) {
+    final hsl = HSLColor.fromColor(color);
+    return hsl
+        .withLightness((hsl.lightness + amount).clamp(0.0, 1.0).toDouble())
+        .toColor();
   }
 
-  Color toneBgFor(String type) {
-    switch (type) {
-      case 'income':
-        return incomeBg;
-      case 'transfer':
-        return infoBg;
-      default:
-        return expenseBg;
-    }
-  }
+  static bool _isLight(Color color) => color.computeLuminance() > 0.55;
 
   @override
   AppPalette copyWith({
@@ -433,13 +424,13 @@ class AppPalette extends ThemeExtension<AppPalette> {
   @override
   AppPalette lerp(ThemeExtension<AppPalette>? other, double t) {
     if (other is! AppPalette) return this;
-    Color mix(Color a, Color b) => Color.lerp(a, b, t) ?? b;
+    Color mix(Color a, Color b) => Color.lerp(a, b, t)!;
     return AppPalette(
       isDark: t < 0.5 ? isDark : other.isDark,
       accent: mix(accent, other.accent),
       accentPressed: mix(accentPressed, other.accentPressed),
       accentSoft: mix(accentSoft, other.accentSoft),
-      onAccent: t < 0.5 ? onAccent : other.onAccent,
+      onAccent: mix(onAccent, other.onAccent),
       surface: mix(surface, other.surface),
       surfaceAlt: mix(surfaceAlt, other.surfaceAlt),
       card: mix(card, other.card),

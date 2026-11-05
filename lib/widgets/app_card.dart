@@ -50,15 +50,15 @@ class AppCard extends StatelessWidget {
                   ? palette.divider
                   : palette.divider.withOpacity(0.75),
             ),
-        boxShadow: <BoxShadow>[
-          BoxShadow(
-            color: palette.isDark
-                ? Colors.black.withOpacity(0.35)
-                : Colors.black.withOpacity(elevated ? 0.08 : 0.045),
-            blurRadius: elevated ? 24 : 18,
-            offset: Offset(0, elevated ? 10 : 8),
-          ),
-        ],
+        boxShadow: elevated
+            ? <BoxShadow>[
+                BoxShadow(
+                  color: Colors.black.withOpacity(palette.isDark ? 0.28 : 0.06),
+                  blurRadius: 24,
+                  offset: const Offset(0, 12),
+                ),
+              ]
+            : null,
       ),
       child: Material(
         color: Colors.transparent,

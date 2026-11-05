@@ -2,29 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_radius.dart';
-import '../../core/theme/app_spacing.dart';
 import '../../core/theme/app_text_styles.dart';
 import '../../providers/app_providers.dart';
-import '../../widgets/amount_text.dart';
-import '../../widgets/app_sheets.dart';
-import '../../widgets/luxe.dart';
-import '../../widgets/nav_bar.dart';
-import '../achievements/achievements_screen.dart';
+import '../../widgets/paisa_nav.dart';
 import '../accounts/accounts_screen.dart';
-import '../bills/bills_screen.dart';
-import '../budgets/budgets_screen.dart';
 import '../common/lock_gate.dart';
-import '../goals/goals_screen.dart';
 import '../home/home_screen.dart';
-import '../notifications/notifications_screen.dart';
-import '../premium/premium_screen.dart';
-import '../settings/settings_screen.dart';
-import '../splits/splits_screen.dart';
 import '../stats/stats_screen.dart';
 import '../transactions/add_transaction_sheet.dart';
-import '../transactions/transactions_screen.dart';
+import '../transactions/search_screen.dart';
 
 class MainShell extends ConsumerStatefulWidget {
   const MainShell({super.key});
@@ -34,149 +21,74 @@ class MainShell extends ConsumerStatefulWidget {
 }
 
 class _MainShellState extends ConsumerState<MainShell> {
-  final List<Widget> _screens = const <Widget>[
+  static const List<Widget> _screens = <Widget>[
     HomeScreen(),
-    TransactionsScreen(),
-    BudgetsScreen(),
-    GoalsScreen(),
+    AccountsScreen(),
     StatsScreen(),
+    SearchScreen(),
   ];
 
-  static const List<LuxeNavItem> _items = <LuxeNavItem>[
-    LuxeNavItem(icon: Icons.home_outlined, activeIcon: Icons.home_rounded, label: 'Home'),
-    LuxeNavItem(icon: Icons.receipt_long_outlined, activeIcon: Icons.receipt_long_rounded, label: 'Ledger'),
-    LuxeNavItem(icon: Icons.pie_chart_outline_rounded, activeIcon: Icons.pie_chart_rounded, label: 'Budget'),
-    LuxeNavItem(icon: Icons.flag_outlined, activeIcon: Icons.flag_rounded, label: 'Goals'),
-    LuxeNavItem(icon: Icons.insights_outlined, activeIcon: Icons.insights_rounded, label: 'Insights'),
+  static const List<PaisaNavItem> _items = <PaisaNavItem>[
+    PaisaNavItem(
+      icon: Icons.home_outlined,
+      activeIcon: Icons.home_rounded,
+      label: 'Home',
+    ),
+    PaisaNavItem(
+      icon: Icons.account_balance_wallet_outlined,
+      activeIcon: Icons.account_balance_wallet_rounded,
+      label: 'Accounts',
+    ),
+    PaisaNavItem(
+      icon: Icons.pie_chart_outline_rounded,
+      activeIcon: Icons.pie_chart_rounded,
+      label: 'Reports',
+    ),
+    PaisaNavItem(
+      icon: Icons.search_rounded,
+      activeIcon: Icons.search_rounded,
+      label: 'Search',
+    ),
   ];
 
   Future<void> _openAddTransaction() async {
     await showAddTransactionSheet(context, ref);
   }
 
-  void _openQuickMenu() {
-    final palette = context.c;
-    final entries = <MapEntry<String, IconData>>[
-      const MapEntry<String, IconData>('Accounts', Icons.account_balance_wallet_outlined),
-      const MapEntry<String, IconData>('Bills & reminders', Icons.event_note_outlined),
-      const MapEntry<String, IconData>('Split expenses', Icons.call_split_rounded),
-      const MapEntry<String, IconData>('Notifications', Icons.notifications_none_rounded),
-      const MapEntry<String, IconData>('Achievements', Icons.emoji_events_outlined),
-      const MapEntry<String, IconData>('MoneyMan Pro', Icons.workspace_premium_outlined),
-      const MapEntry<String, IconData>('Settings', Icons.tune_rounded),
-    ];
-    final routes = <Widget Function()>[
-      () => const AccountsScreen(),
-      () => const BillsScreen(),
-      () => const SplitsScreen(),
-      () => const NotificationsScreen(),
-      () => const AchievementsScreen(),
-      () => const PremiumScreen(),
-      () => const SettingsScreen(),
-    ];
-    showModalBottomSheet<void>(
-      context: context,
-      backgroundColor: Colors.transparent,
-      builder: (sheetContext) {
-        return Padding(
-          padding: const EdgeInsets.all(AppSpacing.x4),
-          child: GlassPanel(
-            radius: AppRadius.cardLarge,
-            padding: const EdgeInsets.fromLTRB(18, 18, 18, 8),
-            tint: palette.isDark
-                ? palette.card.withOpacity(0.96)
-                : Colors.white.withOpacity(0.94),
-            child: SafeArea(
-              top: false,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: <Widget>[
-                  Row(
-                    children: <Widget>[
-                      const MetallicMark(size: 34, animated: false),
-                      const SizedBox(width: 10),
-                      Text('Shortcuts', style: AppTextStyles.h3(palette.ink)),
-                      const Spacer(),
-                      Icon(Icons.keyboard_arrow_down_rounded,
-                          color: palette.tertiary),
-                    ],
-                  ),
-                  const SizedBox(height: AppSpacing.x2),
-                  for (var i = 0; i < entries.length; i++)
-                    ListTile(
-                      contentPadding: EdgeInsets.zero,
-                      leading: Container(
-                        height: 36,
-                        width: 36,
-                        decoration: BoxDecoration(
-                          color: palette.isDark
-                              ? palette.cardAlt
-                              : palette.surfaceAlt,
-                          shape: BoxShape.circle,
-                        ),
-                        child: Icon(entries[i].value,
-                            size: 18, color: palette.ink),
-                      ),
-                      title: Text(entries[i].key,
-                          style: AppTextStyles.label(palette.ink)
-                              .copyWith(fontWeight: FontWeight.w500)),
-                      trailing: Icon(Icons.arrow_outward_rounded,
-                          size: 16, color: palette.tertiary),
-                      onTap: () {
-                        Navigator.of(sheetContext).pop();
-                        Navigator.of(context).push(
-                          MaterialPageRoute<void>(builder: (_) => routes[i]()),
-                        );
-                      },
-                    ),
-                ],
-              ),
-            ),
-          ),
-        );
-      },
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     final index = ref.watch(navIndexProvider);
     final palette = context.c;
-
     final safeBottom = MediaQuery.of(context).padding.bottom;
+
     return LockGate(
       child: Scaffold(
         backgroundColor: palette.surface,
         extendBody: true,
         body: IndexedStack(index: index, children: _screens),
-        floatingActionButton: index <= 3
+        floatingActionButton: index == 0
             ? Padding(
-                padding: const EdgeInsets.only(bottom: 92),
+                padding: const EdgeInsets.only(bottom: 84),
                 child: SizedBox(
-                  height: AppSpacing.fabSize,
-                  width: AppSpacing.fabSize,
+                  height: 58,
+                  width: 58,
                   child: FloatingActionButton(
                     onPressed: _openAddTransaction,
-                    elevation: 8,
-                    backgroundColor: palette.ink,
+                    elevation: 6,
+                    backgroundColor: palette.isDark
+                        ? const Color(0xFF7A452C)
+                        : palette.ink,
                     shape: const CircleBorder(),
-                    child: ShineSweep(
-                      period: const Duration(milliseconds: 2600),
-                      opacity: 0.35,
-                      borderRadius: BorderRadius.circular(999),
-                      child: Icon(Icons.add_rounded,
-                          size: 30,
-                          color: palette.isDark ? palette.accent : Colors.white),
-                    ),
+                    child: const Icon(Icons.add_rounded,
+                        size: 30, color: Colors.white),
                   ),
                 ),
               )
             : null,
-        bottomNavigationBar: LuxeNavBar(
-          index: index,
+        bottomNavigationBar: PaisaNavBar(
+          index: index.clamp(0, _items.length - 1),
           items: _items,
-          onMenu: _openQuickMenu,
-          bottomInset: safeBottom + 6,
+          bottomInset: safeBottom,
           onSelected: (value) {
             HapticFeedback.selectionClick();
             ref.read(navIndexProvider.notifier).state = value;

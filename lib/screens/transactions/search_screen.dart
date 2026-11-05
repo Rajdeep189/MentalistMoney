@@ -47,7 +47,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
           padding: const EdgeInsets.only(right: AppSpacing.screen),
           child: AppSearchField(
             controller: _controller,
-            autofocus: true,
+            autofocus: false,
             hint: 'Search transactions',
             onChanged: (value) {
               ref.read(searchQueryProvider.notifier).state = value;

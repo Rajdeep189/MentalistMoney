@@ -4,13 +4,13 @@ import 'package:flutter/material.dart';
 
 import 'app_colors.dart';
 
-/// Typography — an editorial serif (Prata) for display, headings and hero
-/// amounts, paired with Poppins for dense UI text and tabular numerals.
+/// Typography — a warm geometric sans (Poppins) with a heavier display weight
+/// for headings and hero amounts, and tabular numerals for money.
 class AppTextStyles {
   AppTextStyles._();
 
   static const String family = 'Poppins';
-  static const String serifFamily = 'Prata';
+  static const String serifFamily = 'Poppins';
 
   static const List<FontFeature> tabular = <FontFeature>[
     FontFeature.tabularFigures(),
@@ -34,19 +34,20 @@ class AppTextStyles {
     );
   }
 
-  /// High-contrast serif used for titles and big numbers.
+  /// Display face used for titles and big numbers.
   static TextStyle serif({
     required double size,
     required Color color,
     double height = 1.15,
     double? letterSpacing,
     bool tabularFigures = false,
+    FontWeight weight = FontWeight.w700,
   }) {
     return base(
       size: size,
-      weight: FontWeight.w400,
+      weight: weight,
       height: height,
-      letterSpacing: letterSpacing,
+      letterSpacing: letterSpacing ?? -0.2,
       tabularFigures: tabularFigures,
       fontFamily: serifFamily,
     ).copyWith(color: color);

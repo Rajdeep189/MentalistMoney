@@ -154,7 +154,7 @@ class AppSettings {
   String get currencySymbol => str(SettingsKeys.currencySymbol, '₹');
 
   ThemeMode get themeMode {
-    switch (str(SettingsKeys.themeMode, 'system')) {
+    switch (str(SettingsKeys.themeMode, 'dark')) {
       case 'light':
         return ThemeMode.light;
       case 'dark':
@@ -164,7 +164,7 @@ class AppSettings {
     }
   }
 
-  String get themeModeName => str(SettingsKeys.themeMode, 'system');
+  String get themeModeName => str(SettingsKeys.themeMode, 'dark');
 
   String get themePack => str(SettingsKeys.themePack, 'default');
 

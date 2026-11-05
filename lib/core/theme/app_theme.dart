@@ -25,8 +25,8 @@ class ThemePack {
   final bool premium;
 
   static const List<ThemePack> packs = <ThemePack>[
-    ThemePack(id: 'default', name: 'MoneyMan', accent: AppColors.accent),
-    ThemePack(id: 'mono', name: 'Chrome', accent: Color(0xFF3A3A44)),
+    ThemePack(id: 'default', name: 'Paisa', accent: AppColors.accent),
+    ThemePack(id: 'mono', name: 'Cocoa', accent: Color(0xFFB07A5A)),
     ThemePack(
       id: 'midnight',
       name: 'Obsidian',
@@ -152,7 +152,7 @@ class AppTheme {
       ),
       snackBarTheme: SnackBarThemeData(
         behavior: SnackBarBehavior.floating,
-        backgroundColor: p.isDark ? p.cardAlt : p.ink,
+        backgroundColor: p.isDark ? p.heroTop : p.ink,
         contentTextStyle: AppTextStyles.body(p.isDark ? p.ink : Colors.white),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(AppRadius.field),
@@ -202,15 +202,15 @@ class AppTheme {
         overlayColor: p.accentSoft,
       ),
       progressIndicatorTheme: ProgressIndicatorThemeData(
-        color: p.accent,
+        color: p.isDark ? p.accent : p.ink,
         linearTrackColor: p.divider,
         circularTrackColor: p.divider,
       ),
       floatingActionButtonTheme: FloatingActionButtonThemeData(
-        backgroundColor: p.isDark ? p.cardAlt : p.ink,
-        foregroundColor: p.isDark ? p.accent : Colors.white,
-        elevation: 6,
-        highlightElevation: 10,
+        backgroundColor: p.isDark ? p.heroTop : p.accent,
+        foregroundColor: p.isDark ? Colors.white : p.onAccent,
+        elevation: 8,
+        highlightElevation: 12,
         shape: const CircleBorder(),
       ),
       navigationBarTheme: NavigationBarThemeData(
@@ -233,8 +233,8 @@ class AppTheme {
       datePickerTheme: DatePickerThemeData(
         backgroundColor: p.card,
         surfaceTintColor: Colors.transparent,
-        headerBackgroundColor: p.ink,
-        headerForegroundColor: p.surface,
+        headerBackgroundColor: p.isDark ? p.heroTop : p.accent,
+        headerForegroundColor: p.isDark ? Colors.white : p.onAccent,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(AppRadius.cardLarge),
         ),
