@@ -673,6 +673,7 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen> {
                     onTap: () => _push(context, const AnalyticsScreen()),
                   ),
                   _ReportRow(
+                    icon: Icons.monitor_heart_outlined,
                     title: 'Spending Health',
                     subtitle: 'Health score, habits and detected subscriptions',
                     onTap: () =>

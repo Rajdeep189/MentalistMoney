@@ -105,11 +105,11 @@ class _SpendingHealthScreenState extends ConsumerState<SpendingHealthScreen> {
                 subtitle: 'This month vs last month',
               ),
               const SizedBox(height: 10),
-              _CategoryHealthCard(model: model, categories: categories),
+              _CategoryHealthCard(model: model),
               const SizedBox(height: 20),
               _ProjectionCard(model: model),
               const SizedBox(height: 14),
-              _SubscriptionCard(model: model, categories: categories),
+              _SubscriptionCard(model: model),
               const SizedBox(height: 14),
               _CostPerDayCard(model: model, categories: categories),
             ],
@@ -177,7 +177,6 @@ class _HealthModel {
     required this.thisMonthExpense,
     required this.thisMonthIncome,
     required this.lastMonthExpense,
-    required this.lastMonthIncome,
     required this.streakDays,
     required this.lastStreakDays,
     required this.averageDaily,
@@ -202,7 +201,6 @@ class _HealthModel {
   final int thisMonthExpense;
   final int thisMonthIncome;
   final int lastMonthExpense;
-  final int lastMonthIncome;
   final int streakDays;
   final int lastStreakDays;
   final int averageDaily;
@@ -231,7 +229,6 @@ class _HealthModel {
   }) {
     final lastMonthStart = DateTime(now.year, now.month - 1, 1);
     final daysElapsed = now.day;
-    final daysInMonth = DateTime(now.year, now.month + 1, 0).day;
 
     int incomeOf(Iterable<Txn> items) => items
         .where((t) => t.type == kTypeIncome)
@@ -447,14 +444,12 @@ class _HealthModel {
     // Subscriptions: notes seen in two or more distinct months.
     final byNote = <String, Set<String>>{};
     final noteAmount = <String, int>{};
-    final noteCategory = <String, int>{};
     for (final txn in all.where((t) => t.type == kTypeExpense)) {
       final note = (txn.note ?? '').trim();
       if (note.length < 3) continue;
       final d = DateTime.fromMillisecondsSinceEpoch(txn.date);
       byNote.putIfAbsent(note, () => <String>{}).add('${d.year}-${d.month}');
       noteAmount[note] = (noteAmount[note] ?? 0) + txn.amount;
-      if (txn.categoryId != null) noteCategory[note] = txn.categoryId!;
     }
     final subscriptions = <_Subscription>[];
     var subscriptionTotal = 0;
@@ -469,7 +464,6 @@ class _HealthModel {
           name: entry.key,
           amount: unit,
           months: months,
-          categoryId: noteCategory[entry.key],
         ),
       );
     }
@@ -492,7 +486,6 @@ class _HealthModel {
       thisMonthExpense: thisExpense,
       thisMonthIncome: thisIncome,
       lastMonthExpense: prevExpense,
-      lastMonthIncome: prevIncome,
       streakDays: streak,
       lastStreakDays: lastStreak,
       averageDaily: averageDaily,
@@ -523,13 +516,11 @@ class _Subscription {
     required this.name,
     required this.amount,
     required this.months,
-    this.categoryId,
   });
 
   final String name;
   final int amount;
   final int months;
-  final int? categoryId;
 }
 
 class _HealthScoreCard extends StatelessWidget {
@@ -1197,13 +1188,9 @@ class _LegendDot extends StatelessWidget {
 }
 
 class _CategoryHealthCard extends StatelessWidget {
-  const _CategoryHealthCard({
-    required this.model,
-    required this.categories,
-  });
+  const _CategoryHealthCard({required this.model});
 
   final _HealthModel model;
-  final Map<int, Category> categories;
 
   @override
   Widget build(BuildContext context) {
@@ -1228,7 +1215,6 @@ class _CategoryHealthCard extends StatelessWidget {
             Builder(
               builder: (context) {
                 final entry = model.categories[i];
-                final category = categories[entry.categoryId];
                 final up = entry.change > 0.01;
                 final tone = up ? palette.expense : palette.income;
                 final label = entry.previous == 0
@@ -1251,11 +1237,11 @@ class _CategoryHealthCard extends StatelessWidget {
                         height: 38,
                         width: 38,
                         decoration: BoxDecoration(
-                          color: AppColors.fromHex(category?.color ?? '#C88A5A'),
+                          color: AppColors.fromHex(entry.color),
                           borderRadius: BorderRadius.circular(11),
                         ),
                         child: Icon(
-                          AppIcons.byName(category?.icon,
+                          AppIcons.byName(entry.icon,
                               fallback: Icons.category_rounded),
                           size: 19,
                           color: Colors.white,
@@ -1267,7 +1253,7 @@ class _CategoryHealthCard extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: <Widget>[
                             Text(
-                              category?.name ?? 'Uncategorised',
+                              entry.name,
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                               style: AppTextStyles.base(
@@ -1340,7 +1326,7 @@ class _Sparkbars extends StatelessWidget {
         for (final value in values)
           Container(
             width: 10,
-            height: math.max(3, 26 * (value / peak)),
+            height: math.max(3.0, 26 * (value / peak)),
             decoration: BoxDecoration(
               color: color.withOpacity(value == 0 ? 0.22 : 0.85),
               borderRadius: BorderRadius.circular(3),
@@ -1382,7 +1368,7 @@ class _ProjectionCard extends StatelessWidget {
           ),
           const SizedBox(height: 4),
           Text(
-            'Projected savings by year end',
+            '${Fmt.money(model.yearSaved)} saved so far this year',
             style: AppTextStyles.base(
               size: 13.5,
               weight: FontWeight.w400,
@@ -1411,13 +1397,9 @@ class _ProjectionCard extends StatelessWidget {
 }
 
 class _SubscriptionCard extends StatelessWidget {
-  const _SubscriptionCard({
-    required this.model,
-    required this.categories,
-  });
+  const _SubscriptionCard({required this.model});
 
   final _HealthModel model;
-  final Map<int, Category> categories;
 
   @override
   Widget build(BuildContext context) {
