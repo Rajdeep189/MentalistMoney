@@ -11,6 +11,7 @@ import '../../data/models/models.dart';
 import '../../providers/app_providers.dart';
 import '../../widgets/app_sheets.dart';
 import '../../widgets/paisa.dart';
+import '../../widgets/paisa_blocks.dart';
 import '../../widgets/buttons.dart';
 import '../../widgets/empty_state.dart';
 import '../../widgets/fields.dart';
@@ -957,94 +958,66 @@ class _HowItWorksSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final rows = <List<String>>[
-      <String>['1', 'Create a rule', 'Pick an amount, account and how often it repeats.'],
-      <String>['2', 'It posts itself', 'When the date arrives the transaction is added for you.'],
-      <String>['3', 'Stay ahead', 'Pause a rule any time or post it early from this screen.'],
-    ];
-    return Container(
-      decoration: BoxDecoration(
-        color: AppColors.espresso,
-        borderRadius: BorderRadius.circular(30),
-      ),
-      padding: const EdgeInsets.fromLTRB(22, 18, 22, 26),
-      child: SafeArea(
-        top: false,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            Center(
-              child: Container(
-                height: 4,
-                width: 44,
-                decoration: BoxDecoration(
-                  color: Colors.white24,
-                  borderRadius: BorderRadius.circular(99),
-                ),
-              ),
-            ),
-            const SizedBox(height: 18),
-            Text(
-              'How Recurring Works',
-              style: AppTextStyles.serif(size: 22, color: Colors.white),
-            ),
-            const SizedBox(height: 16),
-            for (final row in rows) ...<Widget>[
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: <Widget>[
-                  Container(
-                    height: 30,
-                    width: 30,
-                    alignment: Alignment.center,
-                    decoration: const BoxDecoration(
-                      color: AppColors.accent,
-                      shape: BoxShape.circle,
-                    ),
-                    child: Text(
-                      row[0],
-                      style: AppTextStyles.base(
-                        size: 13,
-                        weight: FontWeight.w700,
-                        height: 1,
-                      ).copyWith(color: AppColors.espresso),
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: <Widget>[
-                        Text(
-                          row[1],
-                          style: AppTextStyles.base(
-                            size: 14,
-                            weight: FontWeight.w700,
-                            height: 1.2,
-                          ).copyWith(color: Colors.white),
-                        ),
-                        const SizedBox(height: 2),
-                        Text(
-                          row[2],
-                          style: AppTextStyles.caption(Colors.white70)
-                              .copyWith(fontSize: 12.5),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 14),
-            ],
-            const SizedBox(height: 4),
-            PeachButton(
-              label: 'Got it',
-              onPressed: () => Navigator.of(context).pop(),
-            ),
-          ],
+    return const InfoSheet(
+      title: 'How Recurring Works',
+      intro:
+          'Recurring transactions help you track subscriptions, bills, and regular payments automatically.',
+      sections: <InfoSection>[
+        InfoSection(
+          icon: Icons.event_repeat_rounded,
+          title: 'Frequency',
+          body:
+              'Set daily, weekly, fortnightly, monthly, quarterly, biannual, or yearly intervals.',
         ),
-      ),
+        InfoSection(
+          icon: Icons.sync_rounded,
+          title: 'Auto Processing',
+          body:
+              'Due transactions are automatically created when their date arrives.',
+        ),
+        InfoSection(
+          icon: Icons.insights_rounded,
+          title: 'Statistics',
+          body:
+              'View monthly average, due this month, yearly total, and income vs expense breakdown.',
+        ),
+        InfoSection(
+          icon: Icons.schedule_rounded,
+          title: 'Due vs Active',
+          body:
+              'Active shows upcoming transactions. Due shows overdue items needing attention.',
+        ),
+        InfoSection(
+          icon: Icons.archive_outlined,
+          title: 'Archiving',
+          body:
+              'Archive recurring transactions you no longer need without deleting history.',
+        ),
+        InfoSection(
+          icon: Icons.notifications_none_rounded,
+          title: 'Reminders',
+          body:
+              'Get notified before a recurring transaction is due: choose from 1 day, 3 days, 1 week, or 2 weeks in advance.',
+        ),
+        InfoSection(
+          icon: Icons.event_busy_rounded,
+          title: 'End Date',
+          body:
+              'Set an optional end date for recurring transactions that have a known expiry, like fixed-term subscriptions.',
+        ),
+        InfoSection(
+          icon: Icons.savings_outlined,
+          title: 'Budget Linking',
+          body:
+              'Link recurring transactions to a budget to automatically track them against your spending limits.',
+        ),
+        InfoSection(
+          icon: Icons.sell_outlined,
+          title: 'Labels, Places & People',
+          body:
+              'Tag recurring transactions with labels, associate them with places, or link them to people for better organization.',
+        ),
+      ],
     );
   }
 }
