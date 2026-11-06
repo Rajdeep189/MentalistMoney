@@ -301,7 +301,7 @@ class HomeScreen extends ConsumerWidget {
                               '#$tag',
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
-                              style: AppTextStyles.caption(palette.accentShift)
+                              style: AppTextStyles.caption(AppColors.accentShift)
                                   .copyWith(fontSize: 11.5),
                             ),
                           ),

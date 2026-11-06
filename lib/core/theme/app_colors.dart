@@ -111,6 +111,18 @@ class AppColors {
     colors: <Color>[Color(0xFFFFC3A6), Color(0xFFE7D3F2), Color(0xFF8E9BFF)],
   );
 
+  static const LinearGradient accentGradient = LinearGradient(
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+    colors: <Color>[Color(0xFFFFD3C2), Color(0xFFFFB49B)],
+  );
+
+  static const LinearGradient heroGradient = LinearGradient(
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+    colors: <Color>[Color(0xFFFFD8C5), Color(0xFFFFC2A8)],
+  );
+
   static const LinearGradient metalGradient = LinearGradient(
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
