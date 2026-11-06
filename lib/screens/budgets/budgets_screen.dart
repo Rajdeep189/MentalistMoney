@@ -45,7 +45,7 @@ class BudgetsScreen extends ConsumerStatefulWidget {
 
 class _BudgetsScreenState extends ConsumerState<BudgetsScreen> {
   final PageController _topController =
-      PageController(viewportFraction: 0.72);
+      PageController(viewportFraction: 0.92);
   int _topPage = 0;
   bool _newestFirst = true;
 

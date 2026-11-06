@@ -38,13 +38,8 @@ class SettingsScreen extends ConsumerWidget {
     return Scaffold(
       backgroundColor: palette.surface,
       appBar: AppBar(
-        title: Row(
-          children: <Widget>[
-            const MetallicMark(size: 30, animated: false),
-            const SizedBox(width: 10),
-            Text('Settings', style: AppTextStyles.h2(palette.ink)),
-          ],
-        ),
+        titleSpacing: 0,
+        title: Text('Settings', style: AppTextStyles.h2(palette.ink)),
       ),
       body: ListView(
         padding: const EdgeInsets.fromLTRB(
@@ -55,6 +50,11 @@ class SettingsScreen extends ConsumerWidget {
         ),
         children: <Widget>[
           if (initialSection != null) _InitialSectionOpener(section: initialSection!),
+          _ProfileHeader(
+            name: settings.userName,
+            plan: premium ? 'Premium' : 'Free plan',
+            premium: premium,
+          ),
           const SizedBox(height: AppSpacing.x2),
           SettingsGroup(
             children: <Widget>[
@@ -283,4 +283,91 @@ class _InitialSectionOpenerState extends State<_InitialSectionOpener> {
 
   @override
   Widget build(BuildContext context) => const SizedBox.shrink();
+}
+
+
+/// Peach-accented profile header shown at the top of settings.
+class _ProfileHeader extends StatelessWidget {
+  const _ProfileHeader({
+    required this.name,
+    required this.plan,
+    required this.premium,
+  });
+
+  final String name;
+  final String plan;
+  final bool premium;
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = context.c;
+    final display = name.trim().isEmpty || name == 'there' ? 'Your profile' : name;
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: palette.card,
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: palette.divider.withOpacity(0.65)),
+      ),
+      child: Row(
+        children: <Widget>[
+          Container(
+            height: 54,
+            width: 54,
+            alignment: Alignment.center,
+            decoration: const BoxDecoration(
+              gradient: AppColors.heroGradient,
+              shape: BoxShape.circle,
+            ),
+            child: Text(
+              display.substring(0, 1).toUpperCase(),
+              style: AppTextStyles.serif(size: 22, color: AppColors.espresso),
+            ),
+          ),
+          const SizedBox(width: 14),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                Text(
+                  display,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: AppTextStyles.base(
+                    size: 17,
+                    weight: FontWeight.w700,
+                    height: 1.15,
+                  ).copyWith(color: palette.ink),
+                ),
+                const SizedBox(height: 4),
+                Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 9, vertical: 3),
+                  decoration: BoxDecoration(
+                    color: premium
+                        ? palette.accent.withOpacity(0.2)
+                        : (palette.isDark
+                            ? Colors.white.withOpacity(0.08)
+                            : palette.surfaceAlt),
+                    borderRadius: BorderRadius.circular(999),
+                  ),
+                  child: Text(
+                    plan,
+                    style: AppTextStyles.base(
+                      size: 11,
+                      weight: FontWeight.w600,
+                      height: 1.1,
+                    ).copyWith(
+                      color: premium ? palette.accent : palette.sub,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Icon(Icons.chevron_right_rounded, size: 20, color: palette.tertiary),
+        ],
+      ),
+    );
+  }
 }

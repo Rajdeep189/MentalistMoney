@@ -817,60 +817,100 @@ class _BarReport extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = context.c;
-    final maxV = daily.isEmpty
+    final peak = daily.isEmpty
         ? 1.0
         : daily
             .map((d) => d.total)
             .reduce((a, b) => a > b ? a : b)
-            .toDouble();
-    final peak = maxV <= 0 ? 1.0 : maxV;
+            .toDouble()
+            .clamp(1, double.infinity);
+    final labels = <String>[
+      Fmt.money(peak.toInt(), forceCompact: true),
+      Fmt.money((peak * 0.66).toInt(), forceCompact: true),
+      Fmt.money((peak * 0.33).toInt(), forceCompact: true),
+      Fmt.money(0, forceCompact: true),
+    ];
     return SizedBox(
       height: 190,
-      child: Column(
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
-          Expanded(
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.end,
+          SizedBox(
+            width: 40,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
-                for (var i = 0; i < daily.length; i++)
-                  Expanded(
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 1),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: <Widget>[
-                          Container(
-                            height: (daily[i].total / peak * 150).clamp(2, 150).toDouble(),
-                            decoration: BoxDecoration(
-                              color: daily[i].total == 0
-                                  ? palette.divider
-                                  : (i.isEven
-                                      ? palette.expense
-                                      : palette.income),
-                              borderRadius: const BorderRadius.vertical(
-                                top: Radius.circular(3),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
+                for (final label in labels)
+                  Text(
+                    label,
+                    style: AppTextStyles.caption(palette.tertiary)
+                        .copyWith(fontSize: 9.5),
                   ),
               ],
             ),
           ),
-          const SizedBox(height: 6),
-          Row(
-            children: <Widget>[
-              for (var day = 1; day <= 6; day++)
+          Expanded(
+            child: Column(
+              children: <Widget>[
                 Expanded(
-                  child: Text(
-                    '${(day - 1) * 5 + 1}',
-                    style: AppTextStyles.caption(palette.tertiary)
-                        .copyWith(fontSize: 9),
+                  child: Stack(
+                    children: <Widget>[
+                      Column(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: <Widget>[
+                          for (var i = 0; i < 4; i++)
+                            Container(
+                              height: 1,
+                              color: palette.divider.withOpacity(0.5),
+                            ),
+                        ],
+                      ),
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: <Widget>[
+                          for (var i = 0; i < daily.length; i++)
+                            Expanded(
+                              child: Padding(
+                                padding:
+                                    const EdgeInsets.symmetric(horizontal: 1),
+                                child: Container(
+                                  height: (daily[i].total / peak * 160)
+                                      .clamp(2, 160)
+                                      .toDouble(),
+                                  decoration: BoxDecoration(
+                                    color: daily[i].total == 0
+                                        ? palette.divider
+                                        : (i.isEven
+                                            ? palette.expense
+                                            : palette.income),
+                                    borderRadius: const BorderRadius.vertical(
+                                      top: Radius.circular(3),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                        ],
+                      ),
+                    ],
                   ),
                 ),
-            ],
+                const SizedBox(height: 6),
+                Row(
+                  children: <Widget>[
+                    for (var i = 0; i < 6; i++)
+                      Expanded(
+                        child: Text(
+                          '${i * 5 + 1}',
+                          style: AppTextStyles.caption(palette.tertiary)
+                              .copyWith(fontSize: 9),
+                        ),
+                      ),
+                  ],
+                ),
+              ],
+            ),
           ),
         ],
       ),
