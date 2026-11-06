@@ -318,7 +318,15 @@ class _LabelsScreenState extends ConsumerState<LabelsScreen> {
     }
     final repo = ref.read(labelRepositoryProvider);
     if (existing == null) {
-      await repo.create(name: name, color: color);
+      try {
+        await repo.create(name: name, color: color);
+      } catch (_) {
+        if (context.mounted) {
+          showSnack(context, 'A label called "$name" already exists',
+              error: true);
+        }
+        return;
+      }
     } else {
       await repo.rename(existing.id, name);
       await repo.setColor(existing.id, color);

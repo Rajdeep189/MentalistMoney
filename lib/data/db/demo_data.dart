@@ -299,6 +299,32 @@ class DemoData {
       });
     }
 
+    // Labels (tags) so the Labels screen has data on a demo install.
+    final personalTag = await db.insert(
+      'tags',
+      <String, Object?>{'name': 'Personal', 'color': '#A855F7'},
+    );
+    final workTag = await db.insert(
+      'tags',
+      <String, Object?>{'name': 'Work', 'color': '#8B5CF6'},
+    );
+    final tagged = await db.query(
+      'transactions',
+      columns: <String>['id'],
+      orderBy: 'date DESC',
+      limit: 16,
+    );
+    for (var i = 0; i < tagged.length; i++) {
+      await db.insert(
+        'transaction_tags',
+        <String, Object?>{
+          'transaction_id': tagged[i]['id']! as int,
+          'tag_id': i.isEven ? personalTag : workTag,
+        },
+        conflictAlgorithm: ConflictAlgorithm.ignore,
+      );
+    }
+
     final billRows = <Map<String, Object?>>[
       {
         'name': 'Electricity bill',

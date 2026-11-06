@@ -73,7 +73,6 @@ class LabelRepository {
     final id = await db.insert(
       'tags',
       <String, Object?>{'name': name.trim(), 'color': color},
-      conflictAlgorithm: null,
     );
     _db.notifyChanged();
     return id;
