@@ -133,7 +133,14 @@ class HomeScreen extends ConsumerWidget {
                   .state = !hidden,
             ),
             const SizedBox(height: 22),
-            Text('Overview', style: AppTextStyles.serif(size: 20, color: palette.ink)),
+            Text(
+              'Overview',
+              style: AppTextStyles.base(
+                size: 20,
+                weight: FontWeight.w600,
+                height: 1.15,
+              ).copyWith(color: palette.ink),
+            ),
             const SizedBox(height: 12),
             _TileRow(
               children: <Widget>[
@@ -149,10 +156,11 @@ class HomeScreen extends ConsumerWidget {
                       const SizedBox(height: 4),
                       Text(
                         hidden ? '••••' : Fmt.money(assets, forceCompact: true),
-                        style: AppTextStyles.serif(
-                          size: 22,
-                          color: palette.onSoft,
-                        ),
+                        style: AppTextStyles.base(
+                          size: 24,
+                          weight: FontWeight.w700,
+                          height: 1.1,
+                        ).copyWith(color: palette.accent),
                       ),
                     ],
                   ),
@@ -169,10 +177,11 @@ class HomeScreen extends ConsumerWidget {
                       const SizedBox(height: 4),
                       Text(
                         hidden ? '••••' : Fmt.money(monthSpend, forceCompact: true),
-                        style: AppTextStyles.serif(
-                          size: 22,
-                          color: palette.onSoft,
-                        ),
+                        style: AppTextStyles.base(
+                          size: 24,
+                          weight: FontWeight.w700,
+                          height: 1.1,
+                        ).copyWith(color: palette.accent),
                       ),
                     ],
                   ),
@@ -218,10 +227,11 @@ class HomeScreen extends ConsumerWidget {
                       const SizedBox(height: 6),
                       Text(
                         Fmt.money(liabilities, forceCompact: true),
-                        style: AppTextStyles.serif(
-                          size: 20,
-                          color: palette.expense,
-                        ),
+                        style: AppTextStyles.base(
+                          size: 22,
+                          weight: FontWeight.w700,
+                          height: 1.1,
+                        ).copyWith(color: palette.expense),
                       ),
                       _TileValue('Loan Balance'),
                     ],
@@ -338,10 +348,11 @@ class HomeScreen extends ConsumerWidget {
                       const SizedBox(height: 2),
                       Text(
                         Fmt.money(monthSpend, forceCompact: true),
-                        style: AppTextStyles.serif(
-                          size: 22,
-                          color: palette.onSoft,
-                        ),
+                        style: AppTextStyles.base(
+                          size: 24,
+                          weight: FontWeight.w700,
+                          height: 1.1,
+                        ).copyWith(color: palette.accent),
                       ),
                       const SizedBox(height: 2),
                       Row(
@@ -841,7 +852,16 @@ class _Header extends StatelessWidget {
                   style: const TextStyle(fontWeight: FontWeight.w700),
                 ),
                 TextSpan(
-                  text: '. You have $notifications notification${notifications == 1 ? '' : 's'} and ',
+                  text:
+                      '. You have $notifications notification${notifications == 1 ? '' : 's'} ',
+                ),
+                WidgetSpan(
+                  alignment: PlaceholderAlignment.middle,
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 3),
+                    child: Icon(Icons.notifications_rounded,
+                        size: 15, color: palette.accent),
+                  ),
                 ),
               ],
             ),
@@ -849,8 +869,6 @@ class _Header extends StatelessWidget {
                 .copyWith(color: palette.sub),
           ),
         ),
-        const SizedBox(width: 8),
-        Icon(Icons.star_rounded, size: 17, color: palette.accent),
         const SizedBox(width: 12),
         GestureDetector(
           onTap: onBell,
@@ -913,7 +931,7 @@ class _BalanceHero extends StatelessWidget {
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: palette.isDark
-              ? const <Color>[Color(0xFF6E3E28), Color(0xFF4A2618)]
+              ? const <Color>[Color(0xFF7A4028), Color(0xFF612F1B)]
               : const <Color>[Color(0xFFFFD9C6), Color(0xFFFFC1A5)],
         ),
         borderRadius: BorderRadius.circular(26),
@@ -926,8 +944,8 @@ class _BalanceHero extends StatelessWidget {
               Text(
                 'Total balance',
                 style: AppTextStyles.base(
-                  size: 14,
-                  weight: FontWeight.w600,
+                  size: 16.5,
+                  weight: FontWeight.w500,
                   height: 1.1,
                 ).copyWith(color: soft),
               ),
@@ -950,19 +968,15 @@ class _BalanceHero extends StatelessWidget {
             alignment: Alignment.centerLeft,
             child: Text(
               hidden ? '••••••' : Fmt.money(balance),
-              style: AppTextStyles.serif(size: 34, color: fg),
+              style: AppTextStyles.base(
+                size: 38,
+                weight: FontWeight.w700,
+                height: 1.05,
+                letterSpacing: -0.6,
+              ).copyWith(color: fg),
             ),
           ),
-          const SizedBox(height: 14),
-          Text(
-            'This month',
-            style: AppTextStyles.base(
-              size: 13,
-              weight: FontWeight.w600,
-              height: 1.1,
-            ).copyWith(color: soft),
-          ),
-          const SizedBox(height: 10),
+          const SizedBox(height: 16),
           Row(
             children: <Widget>[
               Expanded(
@@ -1093,7 +1107,7 @@ class _TileValue extends StatelessWidget {
       text,
       maxLines: 1,
       overflow: TextOverflow.ellipsis,
-      style: AppTextStyles.base(size: size, height: 1.25)
+      style: AppTextStyles.base(size: size + 2, height: 1.25)
           .copyWith(color: context.c.sub),
     );
   }
@@ -1114,7 +1128,11 @@ class _CountValue extends StatelessWidget {
       children: <Widget>[
         Text(
           count,
-          style: AppTextStyles.serif(size: 21, color: palette.onSoft),
+          style: AppTextStyles.base(
+            size: 22,
+            weight: FontWeight.w700,
+            height: 1.1,
+          ).copyWith(color: palette.accent),
         ),
         const SizedBox(width: 5),
         Flexible(
@@ -1122,7 +1140,11 @@ class _CountValue extends StatelessWidget {
             label,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
-            style: AppTextStyles.caption(palette.sub).copyWith(fontSize: 11.5),
+            style: AppTextStyles.base(
+              size: 14.5,
+              weight: FontWeight.w400,
+              height: 1.2,
+            ).copyWith(color: palette.sub),
           ),
         ),
       ],
