@@ -25,7 +25,7 @@ class ThemePack {
   final bool premium;
 
   static const List<ThemePack> packs = <ThemePack>[
-    ThemePack(id: 'default', name: 'Paisa', accent: AppColors.accent),
+    ThemePack(id: 'default', name: 'Sunset', accent: AppColors.accent),
     ThemePack(id: 'mono', name: 'Cocoa', accent: Color(0xFFB07A5A)),
     ThemePack(
       id: 'midnight',

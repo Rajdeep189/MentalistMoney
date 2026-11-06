@@ -45,12 +45,12 @@ class _SplitsScreenState extends ConsumerState<SplitsScreen> {
               context,
               'Settlement summary lives inside each group.',
             ),
-            icon: Icon(Icons.receipt_long_rounded, color: palette.sub),
+            icon: Icon(Icons.copy_all_rounded, size: 22, color: palette.sub),
           ),
           IconButton(
             tooltip: 'How bill splitter works',
             onPressed: () => _showInfo(context),
-            icon: Icon(Icons.info_outline_rounded, color: palette.sub),
+            icon: Icon(Icons.info_outline_rounded, size: 22, color: palette.sub),
           ),
           const SizedBox(width: 6),
         ],
@@ -119,23 +119,21 @@ class _SplitsScreenState extends ConsumerState<SplitsScreen> {
                 children: <Widget>[
                   Text(
                     '${groups.length} bill splitter${groups.length == 1 ? '' : 's'}',
-                    style: AppTextStyles.serif(
-                        size: 18, color: AppColors.accentShift),
+                    style: AppTextStyles.base(
+                      size: 19,
+                      weight: FontWeight.w700,
+                      height: 1.1,
+                    ).copyWith(color: palette.accent),
                   ),
                   const Spacer(),
-                  Icon(Icons.account_balance_wallet_outlined,
-                      size: 20, color: palette.sub),
-                  const SizedBox(width: 14),
+                  Icon(Icons.copy_all_rounded, size: 22, color: palette.sub),
+                  const SizedBox(width: 16),
                   Icon(Icons.info_outline_rounded,
-                      size: 20, color: palette.sub),
+                      size: 22, color: palette.sub),
                 ],
               ),
               const SizedBox(height: 12),
-              for (final group in groups)
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 10),
-                  child: _GroupCard(group: group, filter: _filter),
-                ),
+              _SplitGroupList(groups: groups, filter: _filter),
             ],
           );
         },
@@ -205,11 +203,63 @@ class _SplitsScreenState extends ConsumerState<SplitsScreen> {
   }
 }
 
-class _GroupCard extends ConsumerWidget {
-  const _GroupCard({required this.group, this.filter = 'Active'});
+class _SplitGroupList extends ConsumerWidget {
+  const _SplitGroupList({required this.groups, required this.filter});
+
+  final List<SplitGroup> groups;
+  final String filter;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final palette = context.c;
+    final visible = <SplitGroup>[];
+    for (final group in groups) {
+      final summary =
+          ref.watch(splitSummaryProvider(group.id!)).valueOrNull;
+      final settled = summary != null &&
+          summary.expenses.isNotEmpty &&
+          summary.balances.every((b) => b.net.abs() < 100);
+      if (summary != null && filter != (settled ? 'Settled' : 'Active')) {
+        continue;
+      }
+      visible.add(group);
+    }
+
+    if (visible.isEmpty) {
+      return PaisaCard(
+        child: Text(
+          filter == 'Settled'
+              ? 'Nothing settled yet. Bills you settle will be archived here.'
+              : 'No active bills. Create a splitter to share expenses with friends.',
+          style: AppTextStyles.body(palette.sub).copyWith(height: 1.5),
+        ),
+      );
+    }
+
+    return Container(
+      decoration: BoxDecoration(
+        color: palette.card,
+        borderRadius: BorderRadius.circular(22),
+        border: Border.all(color: palette.divider.withOpacity(0.35)),
+      ),
+      child: Column(
+        children: <Widget>[
+          for (var i = 0; i < visible.length; i++)
+            _GroupRow(
+              group: visible[i],
+              showDivider: i < visible.length - 1,
+            ),
+        ],
+      ),
+    );
+  }
+}
+
+class _GroupRow extends ConsumerWidget {
+  const _GroupRow({required this.group, required this.showDivider});
 
   final SplitGroup group;
-  final String filter;
+  final bool showDivider;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -218,35 +268,30 @@ class _GroupCard extends ConsumerWidget {
     final settled = summary != null &&
         summary.expenses.isNotEmpty &&
         summary.balances.every((b) => b.net.abs() < 100);
-    if (summary != null && filter != (settled ? 'Settled' : 'Active')) {
-      return const SizedBox.shrink();
-    }
-    final tint = TileColors.all[group.name.hashCode.abs() % TileColors.all.length];
-    final initials = summary == null || summary.members.isEmpty
-        ? 'A'
-        : summary.members
-            .take(2)
-            .map((m) => m.name.isEmpty ? 'A' : m.name[0].toUpperCase())
-            .join();
+    final tint =
+        TileColors.all[group.name.hashCode.abs() % TileColors.all.length];
 
-    return GestureDetector(
+    return InkWell(
       onTap: () => Navigator.of(context).push(
         MaterialPageRoute<void>(
           builder: (_) => SplitDetailScreen(groupId: group.id!),
         ),
       ),
       child: Container(
-        padding: const EdgeInsets.all(14),
+        padding: const EdgeInsets.fromLTRB(14, 14, 16, 14),
         decoration: BoxDecoration(
-          color: palette.card,
-          borderRadius: BorderRadius.circular(22),
-          border: Border.all(color: palette.divider.withOpacity(0.35)),
+          border: showDivider
+              ? Border(
+                  bottom:
+                      BorderSide(color: palette.divider.withOpacity(0.35)),
+                )
+              : null,
         ),
         child: Row(
           children: <Widget>[
             Container(
-              height: 50,
-              width: 50,
+              height: 52,
+              width: 52,
               decoration: BoxDecoration(
                 color: tint,
                 borderRadius: BorderRadius.circular(15),
@@ -255,11 +300,11 @@ class _GroupCard extends ConsumerWidget {
                 group.name.toLowerCase().contains('trip')
                     ? Icons.savings_rounded
                     : Icons.attach_money_rounded,
-                size: 24,
+                size: 26,
                 color: Colors.white,
               ),
             ),
-            const SizedBox(width: 12),
+            const SizedBox(width: 13),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -269,50 +314,62 @@ class _GroupCard extends ConsumerWidget {
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: AppTextStyles.base(
-                      size: 16,
-                      weight: FontWeight.w700,
+                      size: 18,
+                      weight: FontWeight.w600,
                       height: 1.15,
                     ).copyWith(color: palette.ink),
                   ),
-                  const SizedBox(height: 6),
+                  const SizedBox(height: 7),
                   Wrap(
                     crossAxisAlignment: WrapCrossAlignment.center,
-                    spacing: 4,
-                    runSpacing: 4,
+                    spacing: 6,
+                    runSpacing: 6,
                     children: <Widget>[
-                      if (summary != null)
-                        for (var i = 0; i < summary.members.take(2).length; i++)
-                          Transform.translate(
-                            offset: Offset(i == 0 ? 0 : -6, 0),
-                            child: Container(
-                              height: 20,
-                              width: 20,
-                              alignment: Alignment.center,
-                              decoration: BoxDecoration(
-                                color: i.isEven
-                                    ? const Color(0xFFF26B5B)
-                                    : const Color(0xFF22C55E),
-                                shape: BoxShape.circle,
-                                border: Border.all(
-                                    color: palette.card, width: 1.5),
-                              ),
-                              child: Text(
-                                summary.members[i].name.isEmpty
-                                    ? 'A'
-                                    : summary.members[i].name[0].toUpperCase(),
-                                style: const TextStyle(
-                                  fontSize: 9,
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.w700,
+                      if (summary != null && summary.members.isNotEmpty)
+                        SizedBox(
+                          height: 26,
+                          width: summary.members.take(2).length * 19.0 + 7,
+                          child: Stack(
+                            children: <Widget>[
+                              for (var i = 0;
+                                  i < summary.members.take(2).length;
+                                  i++)
+                                Positioned(
+                                  left: i * 19,
+                                  child: Container(
+                                    height: 26,
+                                    width: 26,
+                                    alignment: Alignment.center,
+                                    decoration: BoxDecoration(
+                                      color: i.isEven
+                                          ? const Color(0xFFF26B5B)
+                                          : const Color(0xFF2FBF7A),
+                                      shape: BoxShape.circle,
+                                      border: Border.all(
+                                        color: palette.card,
+                                        width: 2,
+                                      ),
+                                    ),
+                                    child: Text(
+                                      summary.members[i].name.isEmpty
+                                          ? 'A'
+                                          : summary.members[i].name[0]
+                                              .toUpperCase(),
+                                      style: const TextStyle(
+                                        fontSize: 10.5,
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.w700,
+                                        height: 1,
+                                      ),
+                                    ),
+                                  ),
                                 ),
-                              ),
-                            ),
+                            ],
                           ),
-                      Icon(Icons.call_split_rounded,
-                          size: 11, color: palette.sub),
-                      const SizedBox(width: 3),
+                        ),
                       _TinyChip(
-                        label: 'Percentage',
+                        label: 'Equal',
+                        icon: Icons.call_split_rounded,
                         color: palette.tertiary,
                         background: palette.isDark
                             ? const Color(0xFF3A2A22)
@@ -323,12 +380,15 @@ class _GroupCard extends ConsumerWidget {
                         color: settled
                             ? const Color(0xFF6BD6A0)
                             : const Color(0xFFF6C453),
-                        background: (settled
-                                ? const Color(0xFF6BD6A0)
-                                : const Color(0xFFF6C453))
-                            .withOpacity(0.16),
+                        background: palette.isDark
+                            ? (settled
+                                ? const Color(0xFF17321F)
+                                : const Color(0xFF3A2A14))
+                            : (settled
+                                ? const Color(0xFFDDF3E6)
+                                : const Color(0xFFFBF0D2)),
                         icon: settled
-                            ? Icons.check_circle_outline_rounded
+                            ? Icons.check_circle_rounded
                             : Icons.access_time_rounded,
                       ),
                     ],
@@ -337,26 +397,13 @@ class _GroupCard extends ConsumerWidget {
               ),
             ),
             const SizedBox(width: 8),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: <Widget>[
-                Text(
-                  summary == null
-                      ? '—'
-                      : Fmt.money(summary.totalSpent, forceCompact: true),
-                  style: AppTextStyles.base(
-                    size: 14.5,
-                    weight: FontWeight.w600,
-                    height: 1.1,
-                  ).copyWith(color: palette.ink),
-                ),
-                if (initials.isNotEmpty)
-                  Text(
-                    initials,
-                    style: AppTextStyles.caption(palette.tertiary)
-                        .copyWith(fontSize: 10),
-                  ),
-              ],
+            Text(
+              summary == null ? '—' : Fmt.money(summary.totalSpent),
+              style: AppTextStyles.base(
+                size: 16.5,
+                weight: FontWeight.w600,
+                height: 1.1,
+              ).copyWith(color: palette.ink),
             ),
           ],
         ),
@@ -381,24 +428,24 @@ class _TinyChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
       decoration: BoxDecoration(
         color: background,
-        borderRadius: BorderRadius.circular(6),
+        borderRadius: BorderRadius.circular(8),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: <Widget>[
           if (icon != null) ...<Widget>[
-            Icon(icon, size: 9, color: color),
-            const SizedBox(width: 2),
+            Icon(icon, size: 12, color: color),
+            const SizedBox(width: 4),
           ],
           Text(
             label,
             style: AppTextStyles.base(
-              size: 9.5,
+              size: 11.5,
               weight: FontWeight.w600,
-              height: 1.1,
+              height: 1,
             ).copyWith(color: color),
           ),
         ],

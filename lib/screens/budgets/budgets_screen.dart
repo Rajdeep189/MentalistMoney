@@ -95,7 +95,7 @@ class _BudgetsScreenState extends ConsumerState<BudgetsScreen> {
             return EmptyState(
               title: 'No budgets yet',
               message:
-                  'Set a spending limit and Paisa will track it automatically, with alerts before you overspend.',
+                  'Set a spending limit and MoneyMan will track it automatically, with alerts before you overspend.',
               illustration: IllustrationKind.target,
               actionLabel: 'Create your first budget',
               onAction: () => _openForm(context, ref),
@@ -356,13 +356,13 @@ class _BudgetsScreenState extends ConsumerState<BudgetsScreen> {
             icon: Icons.category_outlined,
             title: 'Budget Type',
             body:
-                'Category Budget: Track spending for specific categories.\nOverall Budget: Track your total spending, optionally excluding certain categories.',
+                'Category Budget: Track spending for specific categories (e.g., Food, Transport).\nOverall Budget: Track your total spending, optionally excluding certain categories.',
           ),
           InfoSection(
             icon: Icons.tune_rounded,
             title: 'Budget Mode',
             body:
-                'Automatic: Paisa matches transactions to your budget based on categories.\nManual: You choose which transactions count toward the budget.',
+                'Automatic: MoneyMan matches transactions to your budget based on categories.\nManual: You choose which transactions count toward the budget.',
           ),
           InfoSection(
             icon: Icons.calendar_today_rounded,
@@ -386,7 +386,7 @@ class _BudgetsScreenState extends ConsumerState<BudgetsScreen> {
             icon: Icons.bar_chart_rounded,
             title: 'Tracking',
             body:
-                "Your budget card shows spent, remaining and a progress bar. Status indicators show whether you're on track, approaching your limit, or have exceeded it.",
+                "Your budget card shows spent amount, remaining amount, and a progress bar. Status indicators show whether you're on track, approaching your limit, or have exceeded it.",
           ),
         ],
       ),

@@ -747,7 +747,7 @@ class HomeScreen extends ConsumerWidget {
             icon: Icons.tune_rounded,
             title: 'Budget Mode',
             body:
-                'Automatic: Paisa automatically matches transactions to your budget based on categories.\nManual: You choose which transactions count toward the budget.',
+                'Automatic: MoneyMan automatically matches transactions to your budget based on categories.\nManual: You choose which transactions count toward the budget.',
           ),
           InfoSection(
             icon: Icons.calendar_today_rounded,

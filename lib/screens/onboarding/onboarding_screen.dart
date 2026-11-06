@@ -101,7 +101,7 @@ const List<_Page> _pages = <_Page>[
   _Page(
     title: 'Speak your language',
     body:
-        'Paisa is built for India first — English and हिन्दी today, 35+ languages rolling out.',
+        'MoneyMan is built for India first — English and हिन्दी today, 35+ languages rolling out.',
     art: _Art.languages,
   ),
   _Page(
@@ -117,7 +117,7 @@ const List<_Page> _pages = <_Page>[
     art: _Art.privacy,
   ),
   _Page(
-    title: 'Set up Paisa',
+    title: 'Set up MoneyMan',
     body: 'Choose how you would like to start. You can change this later.',
     art: _Art.overview,
   ),
@@ -258,7 +258,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                         const SizedBox(height: 14),
                         if (last) ...<Widget>[
                           Text(
-                            '14 days of Paisa Plus are included with every new account.',
+                            '14 days of MoneyMan Plus are included with every new account.',
                             style: AppTextStyles.caption(palette.tertiary),
                           ),
                         ],

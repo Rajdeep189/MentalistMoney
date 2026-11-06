@@ -85,10 +85,12 @@ class AssetsScreen extends ConsumerWidget {
                 alignment: Alignment.centerLeft,
                 child: Text(
                   Fmt.money(total),
-                  style: AppTextStyles.serif(
-                    size: 34,
-                    color: palette.accent,
-                  ),
+                  style: AppTextStyles.base(
+                    size: 38,
+                    weight: FontWeight.w800,
+                    height: 1.05,
+                    letterSpacing: -0.6,
+                  ).copyWith(color: palette.accent),
                 ),
               ),
               const SizedBox(height: 20),
@@ -121,8 +123,8 @@ class AssetsScreen extends ConsumerWidget {
                       Text(
                         _labelFor(entry.key),
                         style: AppTextStyles.base(
-                          size: 16,
-                          weight: FontWeight.w700,
+                          size: 18,
+                          weight: FontWeight.w600,
                           height: 1.15,
                         ).copyWith(color: palette.ink),
                       ),
@@ -133,19 +135,19 @@ class AssetsScreen extends ConsumerWidget {
                           forceCompact: true,
                         ),
                         style: AppTextStyles.base(
-                          size: 14,
-                          weight: FontWeight.w600,
+                          size: 17,
+                          weight: FontWeight.w700,
                           height: 1.1,
-                        ).copyWith(color: palette.sub),
+                        ).copyWith(color: palette.accent),
                       ),
                     ],
                   ),
                   const SizedBox(height: 8),
                   Container(
-                    padding: const EdgeInsets.symmetric(vertical: 4),
+                    padding: const EdgeInsets.symmetric(vertical: 2),
                     decoration: BoxDecoration(
                       color: palette.card,
-                      borderRadius: BorderRadius.circular(22),
+                      borderRadius: BorderRadius.circular(20),
                       border: Border.all(
                           color: palette.divider.withOpacity(0.35)),
                     ),
@@ -163,8 +165,8 @@ class AssetsScreen extends ConsumerWidget {
                 ],
               Text(
                 'Assets are valued at their current account balance.',
-                style: AppTextStyles.caption(palette.tertiary)
-                    .copyWith(fontSize: 11.5),
+                style: AppTextStyles.body(palette.tertiary)
+                    .copyWith(fontSize: 12.5, height: 1.4),
               ),
             ],
           );
@@ -225,7 +227,7 @@ class _AssetRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = context.c;
-    final tint = TileColors.all[(account.name.hashCode.abs()) % TileColors.all.length];
+    final look = _lookFor(account);
     return InkWell(
       onTap: () => Navigator.of(context).push(
         MaterialPageRoute<void>(
@@ -233,25 +235,27 @@ class _AssetRow extends StatelessWidget {
         ),
       ),
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+        padding: const EdgeInsets.fromLTRB(14, 14, 14, 14),
         decoration: BoxDecoration(
           border: showDivider
-              ? Border(bottom: BorderSide(color: palette.divider.withOpacity(0.35)))
+              ? Border(
+                  bottom:
+                      BorderSide(color: palette.divider.withOpacity(0.35)),
+                )
               : null,
         ),
         child: Row(
           children: <Widget>[
             Container(
-              height: 48,
-              width: 48,
+              height: 46,
+              width: 46,
               decoration: BoxDecoration(
-                color: tint,
-                borderRadius: BorderRadius.circular(14),
+                color: look.tint,
+                borderRadius: BorderRadius.circular(13),
               ),
-              child: const Icon(Icons.home_work_rounded,
-                  size: 23, color: Colors.white),
+              child: Icon(look.icon, size: 23, color: Colors.white),
             ),
-            const SizedBox(width: 12),
+            const SizedBox(width: 13),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -261,8 +265,8 @@ class _AssetRow extends StatelessWidget {
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: AppTextStyles.base(
-                      size: 15,
-                      weight: FontWeight.w700,
+                      size: 17,
+                      weight: FontWeight.w600,
                       height: 1.15,
                     ).copyWith(color: palette.ink),
                   ),
@@ -273,18 +277,20 @@ class _AssetRow extends StatelessWidget {
                         : accountTypeLabel(account.type),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
-                    style: AppTextStyles.caption(palette.tertiary)
-                        .copyWith(fontSize: 11.5),
+                    style: AppTextStyles.body(palette.tertiary).copyWith(
+                      fontSize: 13,
+                      height: 1.35,
+                    ),
                   ),
                 ],
               ),
             ),
             const SizedBox(width: 10),
             Text(
-              Fmt.money(account.balance, forceCompact: true),
+              Fmt.money(account.balance),
               style: AppTextStyles.base(
-                size: 14,
-                weight: FontWeight.w700,
+                size: 16,
+                weight: FontWeight.w600,
                 height: 1.1,
               ).copyWith(color: const Color(0xFF6BD6A0)),
             ),
@@ -293,4 +299,40 @@ class _AssetRow extends StatelessWidget {
       ),
     );
   }
+
+  _AssetLook _lookFor(Account account) {
+    final haystack =
+        '${account.name} ${account.notes ?? ''}'.toLowerCase();
+    if (haystack.contains('rent') || haystack.contains('apartment')) {
+      return const _AssetLook(Icons.money_rounded, Color(0xFF12A594));
+    }
+    if (haystack.contains('home') ||
+        haystack.contains('house') ||
+        haystack.contains('residence') ||
+        haystack.contains('property') ||
+        haystack.contains('real estate')) {
+      return const _AssetLook(Icons.account_balance_rounded, Color(0xFF4CAF50));
+    }
+    if (haystack.contains('vehicle') ||
+        haystack.contains('car') ||
+        haystack.contains('bike')) {
+      return const _AssetLook(Icons.directions_car_filled_rounded,
+          Color(0xFF2F9BF2));
+    }
+    if (haystack.contains('gold') || haystack.contains('jewellery')) {
+      return const _AssetLook(Icons.workspace_premium_rounded,
+          Color(0xFFE0A126));
+    }
+    if (account.type == kAccountInvestment) {
+      return const _AssetLook(Icons.trending_up_rounded, Color(0xFF3BB273));
+    }
+    return const _AssetLook(Icons.savings_rounded, Color(0xFF8A6ACF));
+  }
+}
+
+class _AssetLook {
+  const _AssetLook(this.icon, this.tint);
+
+  final IconData icon;
+  final Color tint;
 }

@@ -76,9 +76,9 @@ class InfoSheet extends StatelessWidget {
   Widget build(BuildContext context) {
     final palette = context.c;
     final dark = palette.isDark;
-    final bg = dark ? const Color(0xFF2E1D17) : Colors.white;
+    final bg = dark ? const Color(0xFF251712) : Colors.white;
     final ink = dark ? Colors.white : AppColors.espresso;
-    final muted = dark ? const Color(0xFFD9C3B8) : const Color(0xFF6B4E42);
+    final muted = dark ? const Color(0xFFC9B2A7) : const Color(0xFF6B4E42);
 
     return ClipRRect(
       borderRadius: const BorderRadius.vertical(top: Radius.circular(30)),
@@ -93,9 +93,17 @@ class InfoSheet extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
                   Expanded(
-                    child: Text(
-                      title,
-                      style: AppTextStyles.serif(size: 24, color: ink),
+                    child: Padding(
+                      padding: const EdgeInsets.only(top: 4),
+                      child: Text(
+                        title,
+                        style: AppTextStyles.base(
+                          size: 25,
+                          weight: FontWeight.w800,
+                          height: 1.15,
+                          letterSpacing: -0.3,
+                        ).copyWith(color: ink),
+                      ),
                     ),
                   ),
                   IconButton(
@@ -113,11 +121,12 @@ class InfoSheet extends StatelessWidget {
             ),
             Flexible(
               child: ListView(
-                padding: const EdgeInsets.fromLTRB(22, 4, 22, 12),
+                padding: const EdgeInsets.fromLTRB(24, 6, 24, 12),
                 children: <Widget>[
                   Text(
                     intro,
-                    style: AppTextStyles.body(muted).copyWith(height: 1.55),
+                    style: AppTextStyles.body(muted)
+                        .copyWith(fontSize: 15, height: 1.55),
                   ),
                   const SizedBox(height: 18),
                   for (final section in sections) ...<Widget>[
@@ -199,15 +208,15 @@ class _InfoSectionTile extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
         Container(
-          height: 38,
-          width: 38,
+          height: 48,
+          width: 48,
           decoration: BoxDecoration(
-            color: const Color(0xFF6B4530),
-            borderRadius: BorderRadius.circular(11),
+            color: const Color(0xFFA8502B),
+            borderRadius: BorderRadius.circular(12),
           ),
-          child: Icon(section.icon, size: 19, color: AppColors.accent),
+          child: Icon(section.icon, size: 23, color: const Color(0xFFFFE0D2)),
         ),
-        const SizedBox(width: 12),
+        const SizedBox(width: 14),
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -215,7 +224,7 @@ class _InfoSectionTile extends StatelessWidget {
               Text(
                 section.title,
                 style: AppTextStyles.base(
-                  size: 15,
+                  size: 17,
                   weight: FontWeight.w700,
                   height: 1.2,
                 ).copyWith(color: ink),
@@ -223,7 +232,7 @@ class _InfoSectionTile extends StatelessWidget {
               const SizedBox(height: 5),
               Text(
                 section.body,
-                style: AppTextStyles.body(muted).copyWith(height: 1.5, fontSize: 13.5),
+                style: AppTextStyles.body(muted).copyWith(height: 1.5, fontSize: 15),
               ),
             ],
           ),
@@ -900,8 +909,9 @@ class PaisaSectionCard extends StatelessWidget {
   const PaisaSectionCard({
     super.key,
     required this.title,
-    required this.icon,
     required this.child,
+    this.icon,
+    this.titleColor,
     this.onTap,
     this.padding = const EdgeInsets.all(16),
     this.margin = const EdgeInsets.only(bottom: 12),
@@ -909,7 +919,8 @@ class PaisaSectionCard extends StatelessWidget {
   });
 
   final String title;
-  final IconData icon;
+  final IconData? icon;
+  final Color? titleColor;
   final Widget child;
   final VoidCallback? onTap;
   final EdgeInsetsGeometry padding;
@@ -935,8 +946,10 @@ class PaisaSectionCard extends StatelessWidget {
             behavior: HitTestBehavior.opaque,
             child: Row(
               children: <Widget>[
-                Icon(icon, size: 20, color: palette.sub),
-                const SizedBox(width: 8),
+                if (icon != null) ...<Widget>[
+                  Icon(icon, size: 20, color: palette.sub),
+                  const SizedBox(width: 8),
+                ],
                 Expanded(
                   child: Text(
                     title,
@@ -944,7 +957,7 @@ class PaisaSectionCard extends StatelessWidget {
                       size: 18,
                       weight: FontWeight.w700,
                       height: 1.15,
-                    ).copyWith(color: palette.ink),
+                    ).copyWith(color: titleColor ?? palette.ink),
                   ),
                 ),
                 if (trailing != null)

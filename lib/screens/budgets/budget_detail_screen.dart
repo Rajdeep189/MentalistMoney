@@ -134,9 +134,12 @@ class _BudgetDetailScreenState extends ConsumerState<BudgetDetailScreen> {
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: palette.card,
+                  color: Color.alphaBlend(
+                    accent.withOpacity(palette.isDark ? 0.10 : 0.07),
+                    palette.card,
+                  ),
                   borderRadius: BorderRadius.circular(26),
-                  border: Border.all(color: palette.divider.withOpacity(0.35)),
+                  border: Border.all(color: accent.withOpacity(0.16)),
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -166,7 +169,7 @@ class _BudgetDetailScreenState extends ConsumerState<BudgetDetailScreen> {
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
                                 style: AppTextStyles.base(
-                                  size: 17,
+                                  size: 19,
                                   weight: FontWeight.w700,
                                   height: 1.15,
                                 ).copyWith(color: palette.ink),
@@ -218,8 +221,8 @@ class _BudgetDetailScreenState extends ConsumerState<BudgetDetailScreen> {
                         Text(
                           '${progress.percent.toStringAsFixed(0)}% Used',
                           style: AppTextStyles.base(
-                            size: 14,
-                            weight: FontWeight.w600,
+                            size: 15,
+                            weight: FontWeight.w500,
                             height: 1.1,
                           ).copyWith(color: palette.sub),
                         ),
@@ -231,8 +234,8 @@ class _BudgetDetailScreenState extends ConsumerState<BudgetDetailScreen> {
                             child: Text(
                               '${Fmt.money(progress.spent)} of ${Fmt.money(progress.amount)}',
                               style: AppTextStyles.base(
-                                size: 13,
-                                weight: FontWeight.w600,
+                                size: 14.5,
+                                weight: FontWeight.w500,
                                 height: 1.1,
                               ).copyWith(color: palette.ink),
                             ),
@@ -243,9 +246,14 @@ class _BudgetDetailScreenState extends ConsumerState<BudgetDetailScreen> {
                     const SizedBox(height: 10),
                     WavyProgress(
                       value: progress.ratio,
-                      height: 22,
+                      height: 20,
                       color: accent,
-                      trackColor: palette.divider,
+                      trackColor: Color.alphaBlend(
+                        accent.withOpacity(0.18),
+                        palette.isDark
+                            ? const Color(0xFF161110)
+                            : Colors.white,
+                      ),
                       waves: 9,
                     ),
                     const SizedBox(height: 12),
@@ -256,14 +264,20 @@ class _BudgetDetailScreenState extends ConsumerState<BudgetDetailScreen> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: <Widget>[
                               Text('Remaining',
-                                  style: AppTextStyles.caption(palette.sub)
-                                      .copyWith(fontSize: 12)),
-                              const SizedBox(height: 2),
+                                  style: AppTextStyles.base(
+                                    size: 14,
+                                    weight: FontWeight.w400,
+                                    height: 1.1,
+                                  ).copyWith(color: palette.sub)),
+                              const SizedBox(height: 3),
                               Text(
                                 Fmt.money(progress.remaining,
                                     forceCompact: true),
-                                style: AppTextStyles.serif(
-                                    size: 18, color: palette.ink),
+                                style: AppTextStyles.base(
+                                  size: 18,
+                                  weight: FontWeight.w600,
+                                  height: 1.1,
+                                ).copyWith(color: palette.ink),
                               ),
                             ],
                           ),
@@ -273,13 +287,19 @@ class _BudgetDetailScreenState extends ConsumerState<BudgetDetailScreen> {
                             crossAxisAlignment: CrossAxisAlignment.end,
                             children: <Widget>[
                               Text('Spent',
-                                  style: AppTextStyles.caption(palette.sub)
-                                      .copyWith(fontSize: 12)),
-                              const SizedBox(height: 2),
+                                  style: AppTextStyles.base(
+                                    size: 14,
+                                    weight: FontWeight.w400,
+                                    height: 1.1,
+                                  ).copyWith(color: palette.sub)),
+                              const SizedBox(height: 3),
                               Text(
                                 Fmt.money(progress.spent, forceCompact: true),
-                                style: AppTextStyles.serif(
-                                    size: 18, color: palette.ink),
+                                style: AppTextStyles.base(
+                                  size: 18,
+                                  weight: FontWeight.w600,
+                                  height: 1.1,
+                                ).copyWith(color: palette.ink),
                               ),
                             ],
                           ),
@@ -303,8 +323,11 @@ class _BudgetDetailScreenState extends ConsumerState<BudgetDetailScreen> {
                             child: Text(
                               'You can spend ${Fmt.money(progress.dailyAllowance)}/day for '
                               '${progress.daysLeft} more days',
-                              style: AppTextStyles.caption(accent)
-                                  .copyWith(fontSize: 12),
+                              style: AppTextStyles.base(
+                                size: 13,
+                                weight: FontWeight.w500,
+                                height: 1.2,
+                              ).copyWith(color: accent),
                             ),
                           ),
                         ],
@@ -322,9 +345,7 @@ class _BudgetDetailScreenState extends ConsumerState<BudgetDetailScreen> {
               ),
               PaisaSectionCard(
                 title: 'Budget Progress',
-                icon: Icons.bar_chart_rounded,
-                trailing: Icon(Icons.show_chart_rounded,
-                    size: 18, color: palette.tertiary),
+                titleColor: accent,
                 child: _BudgetProgressChart(
                   budget: budget,
                   daily: daily,
@@ -335,26 +356,26 @@ class _BudgetDetailScreenState extends ConsumerState<BudgetDetailScreen> {
               if (categoryTotals.isNotEmpty)
                 PaisaSectionCard(
                   title: 'Category Breakdown',
-                  icon: Icons.donut_small_rounded,
+                  titleColor: accent,
                   child: Column(
                     children: <Widget>[
                       for (final total in categoryTotals) ...<Widget>[
                         Row(
                           children: <Widget>[
                             Container(
-                              height: 40,
-                              width: 40,
+                              height: 52,
+                              width: 52,
                               decoration: BoxDecoration(
                                 color: AppColors.fromHex(total.color),
-                                borderRadius: BorderRadius.circular(12),
+                                borderRadius: BorderRadius.circular(14),
                               ),
                               child: Icon(
                                 AppIcons.byName(total.icon),
-                                size: 19,
+                                size: 24,
                                 color: Colors.white,
                               ),
                             ),
-                            const SizedBox(width: 12),
+                            const SizedBox(width: 13),
                             Expanded(
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -367,7 +388,7 @@ class _BudgetDetailScreenState extends ConsumerState<BudgetDetailScreen> {
                                           maxLines: 1,
                                           overflow: TextOverflow.ellipsis,
                                           style: AppTextStyles.base(
-                                            size: 14,
+                                            size: 16.5,
                                             weight: FontWeight.w600,
                                             height: 1.15,
                                           ).copyWith(color: palette.ink),
@@ -375,23 +396,24 @@ class _BudgetDetailScreenState extends ConsumerState<BudgetDetailScreen> {
                                       ),
                                       Text(
                                         '${progress.spent == 0 ? 0 : (total.total / progress.spent * 100).round()}%',
-                                        style: AppTextStyles.caption(
-                                                palette.tertiary)
-                                            .copyWith(fontSize: 11.5),
-                                      ),
-                                      const SizedBox(width: 8),
-                                      Text(
-                                        Fmt.money(total.total,
-                                            forceCompact: true),
                                         style: AppTextStyles.base(
-                                          size: 13,
+                                          size: 13.5,
+                                          weight: FontWeight.w500,
+                                          height: 1.1,
+                                        ).copyWith(color: palette.tertiary),
+                                      ),
+                                      const SizedBox(width: 10),
+                                      Text(
+                                        Fmt.money(total.total),
+                                        style: AppTextStyles.base(
+                                          size: 15,
                                           weight: FontWeight.w600,
                                           height: 1.1,
                                         ).copyWith(color: palette.ink),
                                       ),
                                     ],
                                   ),
-                                  const SizedBox(height: 6),
+                                  const SizedBox(height: 8),
                                   ClipRRect(
                                     borderRadius: BorderRadius.circular(99),
                                     child: LinearProgressIndicator(
@@ -399,7 +421,7 @@ class _BudgetDetailScreenState extends ConsumerState<BudgetDetailScreen> {
                                           ? 0
                                           : (total.total / progress.spent)
                                               .clamp(0.0, 1.0),
-                                      minHeight: 5,
+                                      minHeight: 6,
                                       backgroundColor: palette.divider,
                                       valueColor: AlwaysStoppedAnimation<Color>(
                                         AppColors.fromHex(total.color),
@@ -419,8 +441,11 @@ class _BudgetDetailScreenState extends ConsumerState<BudgetDetailScreen> {
               const SizedBox(height: 6),
               Text(
                 'Recent transactions',
-                style: AppTextStyles.serif(
-                    size: 18, color: AppColors.accentShift),
+                style: AppTextStyles.base(
+                  size: 18,
+                  weight: FontWeight.w700,
+                  height: 1.15,
+                ).copyWith(color: palette.accent),
               ),
               const SizedBox(height: 10),
               _BudgetTransactions(budget: budget),
