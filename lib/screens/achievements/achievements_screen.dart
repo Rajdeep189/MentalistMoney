@@ -5,279 +5,513 @@ import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_radius.dart';
 import '../../core/theme/app_spacing.dart';
 import '../../core/theme/app_text_styles.dart';
-import '../../core/utils/money.dart';
 import '../../core/utils/app_icons.dart';
+import '../../core/utils/money.dart';
 import '../../data/models/models.dart';
 import '../../providers/app_providers.dart';
-import '../../widgets/app_card.dart';
-import '../../widgets/category_icon.dart';
-import '../../widgets/empty_state.dart';
-import '../../widgets/illustration.dart';
-import '../../widgets/premium_badge.dart';
+import '../../widgets/app_sheets.dart';
+import '../../widgets/paisa.dart';
+import '../../widgets/paisa_blocks.dart';
 import '../../widgets/premium_gate.dart';
-import '../../widgets/progress_widgets.dart';
-import '../../widgets/section_header.dart';
 
-class AchievementsScreen extends ConsumerWidget {
+class AchievementsScreen extends ConsumerStatefulWidget {
   const AchievementsScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<AchievementsScreen> createState() => _AchievementsScreenState();
+}
+
+class _AchievementsScreenState extends ConsumerState<AchievementsScreen> {
+  String _filter = 'All';
+
+  @override
+  Widget build(BuildContext context) {
     final palette = context.c;
     final achievements =
         ref.watch(achievementsProvider).valueOrNull ?? const <Achievement>[];
-    final premium = ref.watch(isPremiumProvider);
     final unlocked = achievements.where((a) => a.unlocked).toList();
-    final inProgress = achievements.where((a) => !a.unlocked).toList();
-    final completion = achievements.isEmpty
-        ? 0.0
-        : unlocked.length / achievements.length;
+    final locked = achievements.where((a) => !a.unlocked).toList();
+    final completion =
+        achievements.isEmpty ? 0.0 : unlocked.length / achievements.length;
+    final latest = unlocked.isEmpty ? null : unlocked.last;
+
+    final visible = _filter == 'Unlocked'
+        ? unlocked
+        : _filter == 'Locked'
+            ? locked
+            : achievements;
 
     return Scaffold(
       backgroundColor: palette.surface,
       appBar: AppBar(
-        title: Text('Trophy room', style: AppTextStyles.h2(palette.ink)),
+        titleSpacing: 0,
+        title: Text('Achievements', style: AppTextStyles.h2(palette.ink)),
         actions: <Widget>[
-          if (!premium)
-            Padding(
-              padding: const EdgeInsets.only(right: 12),
-              child: Center(child: PremiumBadge(dense: true)),
-            ),
+          IconButton(
+            tooltip: 'How achievements work',
+            onPressed: () => _showInfo(context),
+            icon: Icon(Icons.info_outline_rounded,
+                size: 22, color: palette.sub),
+          ),
+          const SizedBox(width: 6),
         ],
       ),
       body: ListView(
         padding: const EdgeInsets.fromLTRB(
           AppSpacing.screen,
-          AppSpacing.x2,
+          4,
           AppSpacing.screen,
-          AppSpacing.x10,
+          120,
         ),
         children: <Widget>[
           Container(
-            padding: const EdgeInsets.all(AppSpacing.x5),
+            padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              gradient: AppColors.graphiteGradient,
-              borderRadius: BorderRadius.circular(AppRadius.cardLarge),
-              border: Border.all(color: AppColors.gold.withOpacity(0.30)),
+              color: Color.alphaBlend(
+                palette.accent.withOpacity(palette.isDark ? 0.12 : 0.10),
+                palette.card,
+              ),
+              borderRadius: BorderRadius.circular(24),
+              border: Border.all(color: palette.accent.withOpacity(0.18)),
             ),
-            child: Row(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
-                ProgressRing(
-                  value: completion,
-                  size: 76,
-                  strokeWidth: 7,
-                  color: AppColors.gold,
-                  child: Text(
-                    '${unlocked.length}',
-                    style: AppTextStyles.serif(size: 20, color: Colors.white),
-                  ),
+                Row(
+                  children: <Widget>[
+                    RingGauge(
+                      value: completion,
+                      size: 92,
+                      strokeWidth: 10,
+                      color: palette.accent,
+                      center: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: <Widget>[
+                          Text(
+                            '${unlocked.length}',
+                            style: AppTextStyles.base(
+                              size: 26,
+                              weight: FontWeight.w700,
+                              height: 1.05,
+                            ).copyWith(color: palette.ink),
+                          ),
+                          Text(
+                            'of ${achievements.length}',
+                            style: AppTextStyles.base(
+                              size: 12,
+                              weight: FontWeight.w400,
+                              height: 1.2,
+                            ).copyWith(color: palette.sub),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: 18),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: <Widget>[
+                          Text(
+                            '${(completion * 100).round()}% completed',
+                            style: AppTextStyles.base(
+                              size: 20,
+                              weight: FontWeight.w700,
+                              height: 1.15,
+                            ).copyWith(color: palette.ink),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            completion >= 1
+                                ? 'Every milestone unlocked. Legendary.'
+                                : 'Keep logging — the next badge is close.',
+                            style: AppTextStyles.body(palette.sub)
+                                .copyWith(fontSize: 14, height: 1.4),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
                 ),
-                const SizedBox(width: AppSpacing.x4),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: <Widget>[
-                      Text(
-                        'Your trophy case',
-                        style: AppTextStyles.h3(Colors.white),
-                      ),
-                      const SizedBox(height: 3),
-                      Text(
-                        '${unlocked.length} of ${achievements.length} unlocked',
-                        style: AppTextStyles.caption(const Color(0xFF9C9CA6)),
-                      ),
-                      const SizedBox(height: 6),
-                      Text(
-                        completion >= 1
-                            ? 'Every milestone complete. Legendary.'
-                            : 'Keep logging — the next badge is close.',
-                        style: AppTextStyles.caption(AppColors.gold)
-                            .copyWith(fontSize: 10.5),
-                      ),
-                    ],
+                const SizedBox(height: 14),
+                if (latest != null)
+                  Container(
+                    padding: const EdgeInsets.fromLTRB(10, 8, 14, 8),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF4A2A12),
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    child: Row(
+                      children: <Widget>[
+                        Container(
+                          height: 34,
+                          width: 34,
+                          decoration: const BoxDecoration(
+                            shape: BoxShape.circle,
+                            gradient: LinearGradient(
+                              colors: <Color>[
+                                Color(0xFFE8A23B),
+                                Color(0xFFB35B1C),
+                              ],
+                            ),
+                          ),
+                          child: const Icon(Icons.workspace_premium_rounded,
+                              size: 18, color: Color(0xFFFFE9C9)),
+                        ),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: <Widget>[
+                              Text(
+                                'LAST EARNED',
+                                style: AppTextStyles.base(
+                                  size: 10.5,
+                                  weight: FontWeight.w700,
+                                  height: 1.1,
+                                  letterSpacing: 0.6,
+                                ).copyWith(color: const Color(0xFFF0B267)),
+                              ),
+                              const SizedBox(height: 2),
+                              Text(
+                                latest.name,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: AppTextStyles.base(
+                                  size: 15,
+                                  weight: FontWeight.w600,
+                                  height: 1.1,
+                                ).copyWith(color: const Color(0xFFFFE9D6)),
+                              ),
+                            ],
+                          ),
+                        ),
+                        if (latest.unlockedAt != null)
+                          Text(
+                            Fmt.date(latest.unlockedAt!),
+                            style: AppTextStyles.base(
+                              size: 12.5,
+                              weight: FontWeight.w500,
+                              height: 1.1,
+                            ).copyWith(color: const Color(0xFFE2B48C)),
+                          ),
+                      ],
+                    ),
                   ),
+                const SizedBox(height: 12),
+                _ProgressLine(value: completion, color: palette.accent),
+              ],
+            ),
+          ),
+          const SizedBox(height: AppSpacing.x4),
+          PaisaSegment<String>(
+            options: const <String>['All', 'Unlocked', 'Locked'],
+            value: _filter,
+            dense: true,
+            onChanged: (value) => setState(() => _filter = value),
+          ),
+          const SizedBox(height: AppSpacing.x4),
+          GridView.count(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            crossAxisCount: 2,
+            mainAxisSpacing: 10,
+            crossAxisSpacing: 10,
+            childAspectRatio: 1.02,
+            children: <Widget>[
+              for (final achievement in visible)
+                _BadgeTile(
+                  achievement: achievement,
+                  onTap: () => _openBadge(context, achievement),
+                ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          PaisaCard(
+            color: palette.accentSoft,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                Text(
+                  'Every badge tells a story',
+                  style: AppTextStyles.base(
+                    size: 16,
+                    weight: FontWeight.w700,
+                    height: 1.2,
+                  ).copyWith(color: palette.onSoft),
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  'Badges unlock as you log transactions, stay on budget and build streaks. Premium adds milestone history and celebration animations.',
+                  style: AppTextStyles.body(palette.onSoft)
+                      .copyWith(fontSize: 13.5, height: 1.45),
                 ),
               ],
             ),
           ),
-          const SizedBox(height: AppSpacing.x5),
-          SectionHeader(title: 'Unlocked', padding: EdgeInsets.zero),
-          if (unlocked.isEmpty)
-            const EmptyState(
-              title: 'No badges yet',
-              message: 'Add your first transaction to open the trophy case.',
-              illustration: IllustrationKind.achievements,
-              compact: true,
-            )
-          else
-            GridView.count(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              crossAxisCount: 2,
-              mainAxisSpacing: AppSpacing.x3,
-              crossAxisSpacing: AppSpacing.x3,
-              childAspectRatio: 1.15,
-              children: unlocked
-                  .map(
-                    (achievement) => _AchievementCard(
-                      achievement: achievement,
-                      unlocked: true,
-                      lockedByPlan: false,
-                    ),
-                  )
-                  .toList(),
-            ),
-          if (inProgress.isNotEmpty) ...<Widget>[
-            const SizedBox(height: AppSpacing.x5),
-            SectionHeader(title: 'In progress', padding: EdgeInsets.zero),
-            ...inProgress.map(
-              (achievement) => Padding(
-                padding: const EdgeInsets.only(bottom: AppSpacing.x2),
-                child: AppCard(
-                  padding: const EdgeInsets.all(AppSpacing.x4),
-                  onTap: () => ensurePremium(
-                    context,
-                    ref,
-                    feature: 'Achievement details',
-                    description:
-                        'Premium unlocks the full badge cabinet with milestones, history and celebrations.',
-                  ),
-                  child: Row(
-                    children: <Widget>[
-                      CategoryIcon(
-                        icon: !premium
-                            ? Icons.lock_outline_rounded
-                            : AppIcons.byName(achievement.icon,
-                                fallback: Icons.emoji_events_rounded),
-                        color: premium ? palette.accent : palette.tertiary,
-                        size: 42,
-                        rounded: true,
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: <Widget>[
-                            Text(achievement.name,
-                                style: AppTextStyles.label(palette.ink)),
-                            const SizedBox(height: 2),
-                            Text(achievement.description, style: context.caption),
-                            const SizedBox(height: 8),
-                            ProgressBar(value: achievement.ratio, height: 6),
-                            const SizedBox(height: 4),
-                            Text(
-                              _progressLabel(achievement),
-                              style: AppTextStyles.caption(palette.tertiary)
-                                  .copyWith(fontSize: 10.5),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          ],
-          if (!premium) ...<Widget>[
-            const SizedBox(height: AppSpacing.x5),
-            AppCard(
-              color: palette.accentSoft,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: <Widget>[
-                  Row(
-                    children: <Widget>[
-                      const PremiumBadge(dense: true),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: Text('Full trophy cabinet',
-                            style: AppTextStyles.label(palette.onSoft)),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 6),
-                  Text(
-                    'Premium unlocks milestone history, streak analytics and celebration animations.',
-                    style: AppTextStyles.caption(palette.onSoft).copyWith(height: 1.4),
-                  ),
-                ],
-              ),
-            ),
-          ],
         ],
       ),
     );
   }
 
-  String _progressLabel(Achievement achievement) {
-    if (achievement.target <= 1) return 'Not started';
-    if (achievement.key == 'saved_10k') {
-      return '${Fmt.money(achievement.progress, forceCompact: true)} of '
-          '${Fmt.money(achievement.target, forceCompact: true)}';
+  Future<void> _openBadge(BuildContext context, Achievement achievement) async {
+    final premium = ref.read(isPremiumProvider);
+    if (!achievement.unlocked && !premium) {
+      await ensurePremium(
+        context,
+        ref,
+        feature: 'Achievement details',
+        description:
+            'Premium unlocks the full badge cabinet with milestones, history and celebrations.',
+      );
+      return;
     }
-    return '${achievement.progress} of ${achievement.target}';
+    await showAppSheet<void>(
+      context,
+      (sheetContext) => _BadgeSheet(achievement: achievement),
+    );
+  }
+
+  static Future<void> _showInfo(BuildContext context) {
+    return showAppSheet<void>(
+      context,
+      (sheetContext) => const InfoSheet(
+        title: 'How Achievements Work',
+        intro:
+            'Badges celebrate the habits that keep your money healthy. They unlock automatically as you use MoneyMan.',
+        sections: <InfoSection>[
+          InfoSection(
+            icon: Icons.emoji_events_rounded,
+            title: 'Unlocking',
+            body:
+                'Log transactions, keep budgets on track and hit savings milestones to unlock new badges.',
+          ),
+          InfoSection(
+            icon: Icons.local_fire_department_rounded,
+            title: 'Streaks',
+            body:
+                'Log something every day to build a streak. Longer streaks raise your multiplier and unlock rarer badges.',
+          ),
+          InfoSection(
+            icon: Icons.workspace_premium_rounded,
+            title: 'Trophy cabinet',
+            body:
+                'Premium keeps the full history of every badge you have earned, with celebration animations.',
+          ),
+        ],
+      ),
+    );
   }
 }
 
-class _AchievementCard extends StatelessWidget {
-  const _AchievementCard({
-    required this.achievement,
-    required this.unlocked,
-    required this.lockedByPlan,
-  });
+class _BadgeTile extends StatelessWidget {
+  const _BadgeTile({required this.achievement, required this.onTap});
 
   final Achievement achievement;
-  final bool unlocked;
-  final bool lockedByPlan;
+  final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
     final palette = context.c;
-    return AppCard(
-      padding: const EdgeInsets.all(AppSpacing.x4),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          _badgeIconStatic(context, achievement, unlocked),
-          const Spacer(),
-          Text(
-            achievement.name,
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-            style: AppTextStyles.label(palette.ink).copyWith(height: 1.25),
+    final unlocked = achievement.unlocked;
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.all(14),
+        decoration: BoxDecoration(
+          color: palette.card,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(
+            color: unlocked
+                ? palette.accent.withOpacity(0.45)
+                : palette.divider.withOpacity(0.4),
           ),
-          const SizedBox(height: 2),
-          Text(
-            unlocked
-                ? achievement.unlockedAt == null
-                    ? 'Unlocked'
-                    : 'Unlocked ${Fmt.date(achievement.unlockedAt!)}'
-                : 'Locked',
-            style: AppTextStyles.caption(
-              unlocked ? palette.income : palette.tertiary,
-            ).copyWith(fontSize: 10.5),
-          ),
-        ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            Container(
+              height: 48,
+              width: 48,
+              decoration: BoxDecoration(
+                color: unlocked
+                    ? const Color(0xFFA8502B)
+                    : palette.isDark
+                        ? Colors.white.withOpacity(0.06)
+                        : palette.surfaceAlt,
+                borderRadius: BorderRadius.circular(14),
+              ),
+              child: Icon(
+                unlocked
+                    ? AppIcons.byName(achievement.icon,
+                        fallback: Icons.emoji_events_rounded)
+                    : Icons.lock_outline_rounded,
+                size: 23,
+                color: unlocked
+                    ? const Color(0xFFFFE0D2)
+                    : palette.tertiary,
+              ),
+            ),
+            const Spacer(),
+            Text(
+              achievement.name,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: AppTextStyles.base(
+                size: 15.5,
+                weight: FontWeight.w600,
+                height: 1.2,
+              ).copyWith(color: palette.ink),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              unlocked
+                  ? achievement.unlockedAt == null
+                      ? 'Unlocked'
+                      : 'Unlocked ${Fmt.date(achievement.unlockedAt!)}'
+                  : '${achievement.progress} / ${achievement.target}',
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: AppTextStyles.base(
+                size: 12.5,
+                weight: FontWeight.w400,
+                height: 1.2,
+              ).copyWith(
+                color: unlocked ? palette.income : palette.tertiary,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
+}
 
-  Widget _badgeIconStatic(BuildContext context, Achievement achievement, bool unlocked) {
+class _ProgressLine extends StatelessWidget {
+  const _ProgressLine({required this.value, required this.color});
+
+  final double value;
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) {
     final palette = context.c;
-    return Container(
-      height: 44,
-      width: 44,
-      decoration: BoxDecoration(
-        color: unlocked ? palette.accentSoft : palette.surfaceAlt,
-        borderRadius: BorderRadius.circular(14),
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(99),
+      child: LinearProgressIndicator(
+        value: value.clamp(0.0, 1.0),
+        minHeight: 7,
+        backgroundColor: palette.isDark
+            ? Colors.white.withOpacity(0.10)
+            : palette.divider,
+        valueColor: AlwaysStoppedAnimation<Color>(color),
       ),
-      child: Icon(
-        unlocked
-            ? AppIcons.byName(achievement.icon, fallback: Icons.emoji_events_rounded)
-            : Icons.lock_outline_rounded,
-        size: 22,
-        color: unlocked ? palette.accent : palette.tertiary,
+    );
+  }
+}
+
+class _BadgeSheet extends StatelessWidget {
+  const _BadgeSheet({required this.achievement});
+
+  final Achievement achievement;
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = context.c;
+    return ClipRRect(
+      borderRadius: const BorderRadius.vertical(top: Radius.circular(30)),
+      child: ColoredBox(
+        color: palette.card,
+        child: Padding(
+          padding: EdgeInsets.fromLTRB(
+            22,
+            20,
+            22,
+            20 + MediaQuery.of(context).padding.bottom,
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              Center(
+                child: Container(
+                  height: 72,
+                  width: 72,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFA8502B),
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Icon(
+                    AppIcons.byName(achievement.icon,
+                        fallback: Icons.emoji_events_rounded),
+                    size: 34,
+                    color: const Color(0xFFFFE0D2),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
+              Center(
+                child: Text(
+                  achievement.name,
+                  textAlign: TextAlign.center,
+                  style: AppTextStyles.base(
+                    size: 22,
+                    weight: FontWeight.w700,
+                    height: 1.2,
+                  ).copyWith(color: palette.ink),
+                ),
+              ),
+              const SizedBox(height: 6),
+              Text(
+                achievement.description,
+                textAlign: TextAlign.center,
+                style: AppTextStyles.body(palette.sub)
+                    .copyWith(fontSize: 15, height: 1.5),
+              ),
+              const SizedBox(height: 18),
+              _ProgressLine(
+                value: achievement.ratio,
+                color: achievement.unlocked
+                    ? const Color(0xFF2ED3B7)
+                    : palette.accent,
+              ),
+              const SizedBox(height: 8),
+              Text(
+                achievement.unlocked
+                    ? 'Unlocked'
+                    : '${achievement.progress} of ${achievement.target}',
+                style: AppTextStyles.base(
+                  size: 13.5,
+                  weight: FontWeight.w500,
+                  height: 1.2,
+                ).copyWith(color: palette.tertiary),
+              ),
+              const SizedBox(height: 18),
+              SizedBox(
+                height: 52,
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: () => Navigator.of(context).maybePop(),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: palette.accent,
+                    elevation: 0,
+                    shape: RoundedRectangleBorder(
+                      borderRadius:
+                          BorderRadius.circular(AppRadius.pill),
+                    ),
+                  ),
+                  child: Text(
+                    'Got it',
+                    style: AppTextStyles.base(
+                      size: 16,
+                      weight: FontWeight.w700,
+                      height: 1.1,
+                    ).copyWith(color: AppColors.espresso),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
