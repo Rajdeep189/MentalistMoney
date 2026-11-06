@@ -287,12 +287,7 @@ class _TransactionsScreenState extends ConsumerState<TransactionsScreen> {
                                     if (!_selected.remove(txn.id)) _selected.add(txn.id!);
                                   });
                                 } else {
-                                  Navigator.of(context).push(
-                                    MaterialPageRoute<void>(
-                                      builder: (_) =>
-                                          TransactionDetailScreen(transactionId: txn.id!),
-                                    ),
-                                  );
+                                  showTransactionDetail(context, txn.id!);
                                 }
                               },
                             );

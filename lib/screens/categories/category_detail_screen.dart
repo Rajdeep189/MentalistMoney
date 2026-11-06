@@ -160,12 +160,8 @@ class CategoryDetailScreen extends ConsumerWidget {
                               category: category,
                               showDate: true,
                               dense: true,
-                              onTap: () => Navigator.of(context).push(
-                                MaterialPageRoute<void>(
-                                  builder: (_) =>
-                                      TransactionDetailScreen(transactionId: txn.id!),
-                                ),
-                              ),
+                              onTap: () =>
+                                  showTransactionDetail(context, txn.id!),
                             ))
                         .toList(),
                   ),

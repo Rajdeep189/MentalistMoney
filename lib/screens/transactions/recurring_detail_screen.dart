@@ -315,13 +315,8 @@ class RecurringDetailScreen extends ConsumerWidget {
                       showTime: true,
                       margin: EdgeInsets.zero,
                       showDivider: i < history.length - 1,
-                      onTap: () => Navigator.of(context).push(
-                        MaterialPageRoute<void>(
-                          builder: (_) => TransactionDetailScreen(
-                            transactionId: history[i].id!,
-                          ),
-                        ),
-                      ),
+                      onTap: () =>
+                          showTransactionDetail(context, history[i].id!),
                     ),
                 ],
               ),

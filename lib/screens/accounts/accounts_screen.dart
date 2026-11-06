@@ -64,8 +64,13 @@ class AccountsScreen extends ConsumerWidget {
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (error, _) => Center(child: Text('$error')),
         data: (accounts) {
-          final active = accounts.where((a) => !a.archived).toList();
-          final archived = accounts.where((a) => a.archived).toList();
+          // Loans live on their own screen, never in the accounts list.
+          final walletAccounts =
+              accounts.where((a) => a.loanKind == null).toList();
+          final active =
+              walletAccounts.where((a) => !a.archived).toList();
+          final archived =
+              walletAccounts.where((a) => a.archived).toList();
           if (active.isEmpty) {
             return EmptyState(
               title: 'No accounts yet',

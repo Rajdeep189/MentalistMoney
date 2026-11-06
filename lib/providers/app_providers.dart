@@ -212,6 +212,14 @@ final ruleTransactionsProvider =
   return ref.watch(transactionRepositoryProvider).byRecurringRule(ruleId);
 }, name: 'ruleTransactions');
 
+final accountTransactionsProvider =
+    FutureProvider.family<List<Txn>, int>((ref, accountId) {
+  ref.watch(revisionProvider);
+  return ref.watch(transactionRepositoryProvider).query(
+        TransactionFilter(accountIds: <int>[accountId], sort: 'newest'),
+      );
+}, name: 'accountTransactions');
+
 final FutureProvider<List<String>> allTagsProvider = FutureProvider<List<String>>(
   (ref) {
     ref.watch(revisionProvider);

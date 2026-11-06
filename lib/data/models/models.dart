@@ -137,6 +137,11 @@ class Account {
     this.creditLimit,
     this.statementDay,
     this.dueDay,
+    this.person,
+    this.startDate,
+    this.endDate,
+    this.categoryId,
+    this.loanKind,
     this.createdAt = 0,
     this.updatedAt = 0,
   });
@@ -155,6 +160,11 @@ class Account {
   final int? creditLimit;
   final int? statementDay;
   final int? dueDay;
+  final String? person;
+  final int? startDate;
+  final int? endDate;
+  final int? categoryId;
+  final String? loanKind;
   final int createdAt;
   final int updatedAt;
 
@@ -180,6 +190,11 @@ class Account {
         'credit_limit': creditLimit,
         'statement_day': statementDay,
         'due_day': dueDay,
+        'person': person,
+        'start_date': startDate,
+        'end_date': endDate,
+        'category_id': categoryId,
+        'loan_kind': loanKind,
         'created_at': createdAt,
         'updated_at': updatedAt,
       };
@@ -199,6 +214,11 @@ class Account {
         creditLimit: _int(map['credit_limit']),
         statementDay: _int(map['statement_day']),
         dueDay: _int(map['due_day']),
+        person: map['person'] as String?,
+        startDate: _int(map['start_date']),
+        endDate: _int(map['end_date']),
+        categoryId: _int(map['category_id']),
+        loanKind: map['loan_kind'] as String?,
         createdAt: _intOr(map['created_at'], 0),
         updatedAt: _intOr(map['updated_at'], 0),
       );
@@ -218,6 +238,11 @@ class Account {
     int? creditLimit,
     int? statementDay,
     int? dueDay,
+    String? person,
+    int? startDate,
+    int? endDate,
+    int? categoryId,
+    String? loanKind,
     int? createdAt,
     int? updatedAt,
   }) {
@@ -236,6 +261,11 @@ class Account {
       creditLimit: creditLimit ?? this.creditLimit,
       statementDay: statementDay ?? this.statementDay,
       dueDay: dueDay ?? this.dueDay,
+      person: person ?? this.person,
+      startDate: startDate ?? this.startDate,
+      endDate: endDate ?? this.endDate,
+      categoryId: categoryId ?? this.categoryId,
+      loanKind: loanKind ?? this.loanKind,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
     );

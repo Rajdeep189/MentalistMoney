@@ -8,6 +8,38 @@ import '../core/theme/app_spacing.dart';
 import '../core/theme/app_text_styles.dart';
 
 /// Rounded cocoa card — the base surface of the whole app.
+/// Small entrance animation: fades and lifts its child into place. Used to make
+/// lists and cards feel like they settle in as screens open.
+class Entrance extends StatelessWidget {
+  const Entrance({
+    super.key,
+    required this.child,
+    this.index = 0,
+    this.offset = 14,
+  });
+
+  final Widget child;
+  final int index;
+  final double offset;
+
+  @override
+  Widget build(BuildContext context) {
+    return TweenAnimationBuilder<double>(
+      tween: Tween<double>(begin: 0, end: 1),
+      duration: Duration(milliseconds: 320 + (index.clamp(0, 8) * 45)),
+      curve: Curves.easeOutCubic,
+      builder: (context, value, built) => Opacity(
+        opacity: value,
+        child: Transform.translate(
+          offset: Offset(0, (1 - value) * offset),
+          child: built,
+        ),
+      ),
+      child: child,
+    );
+  }
+}
+
 class PaisaCard extends StatelessWidget {
   const PaisaCard({
     super.key,

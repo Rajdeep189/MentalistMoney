@@ -115,11 +115,8 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                       category: categories[txn.categoryId],
                       accountName: accounts[txn.accountId]?.name,
                       showDate: true,
-                      onTap: () => Navigator.of(context).push(
-                        MaterialPageRoute<void>(
-                          builder: (_) => TransactionDetailScreen(transactionId: txn.id!),
-                        ),
-                      ),
+                      onTap: () =>
+                          showTransactionDetail(context, txn.id!),
                     );
                   },
                 );

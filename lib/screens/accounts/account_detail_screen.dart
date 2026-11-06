@@ -230,12 +230,7 @@ class _AccountBodyState extends ConsumerState<_AccountBody> {
                   txn: txn,
                   category: categories[txn.categoryId],
                   accountName: account.name,
-                  onTap: () => Navigator.of(context).push(
-                    MaterialPageRoute<void>(
-                      builder: (_) =>
-                          TransactionDetailScreen(transactionId: txn.id!),
-                    ),
-                  ),
+                  onTap: () => showTransactionDetail(context, txn.id!),
                 ),
             const SizedBox(height: 12),
             Row(

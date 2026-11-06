@@ -16,7 +16,7 @@ class AppDatabase {
 
   static final AppDatabase instance = AppDatabase._();
 
-  static const int schemaVersion = 1;
+  static const int schemaVersion = 2;
   static const String fileName = 'moneyman.db';
 
   final ValueNotifier<int> revision = ValueNotifier<int>(0);
@@ -61,6 +61,11 @@ class AppDatabase {
     // Migrations are additive and idempotent so upgrades never lose data.
     if (oldVersion < 2) {
       await _addColumnIfMissing(db, 'accounts', 'icon', "TEXT DEFAULT 'wallet'");
+      await _addColumnIfMissing(db, 'accounts', 'person', 'TEXT');
+      await _addColumnIfMissing(db, 'accounts', 'start_date', 'INTEGER');
+      await _addColumnIfMissing(db, 'accounts', 'end_date', 'INTEGER');
+      await _addColumnIfMissing(db, 'accounts', 'category_id', 'INTEGER');
+      await _addColumnIfMissing(db, 'accounts', 'loan_kind', 'TEXT');
     }
   }
 
@@ -159,6 +164,11 @@ class AppDatabase {
         credit_limit INTEGER,
         statement_day INTEGER,
         due_day INTEGER,
+        person TEXT,
+        start_date INTEGER,
+        end_date INTEGER,
+        category_id INTEGER,
+        loan_kind TEXT,
         created_at INTEGER NOT NULL,
         updated_at INTEGER NOT NULL
       )
