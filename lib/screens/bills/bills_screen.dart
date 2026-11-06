@@ -38,13 +38,8 @@ class _BillsScreenState extends ConsumerState<BillsScreen> {
     return Scaffold(
       backgroundColor: palette.surface,
       appBar: AppBar(
-        title: Row(
-          children: <Widget>[
-            const MetallicMark(size: 28, animated: false),
-            const SizedBox(width: 10),
-            Text('Bills', style: AppTextStyles.h2(palette.ink)),
-          ],
-        ),
+        titleSpacing: 0,
+        title: Text('Bills', style: AppTextStyles.h2(palette.ink)),
         actions: <Widget>[
           IconButton(
             tooltip: 'Calendar',

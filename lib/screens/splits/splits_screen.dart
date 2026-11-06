@@ -28,7 +28,10 @@ class SplitsScreen extends ConsumerWidget {
 
     return Scaffold(
       backgroundColor: palette.surface,
-      appBar: AppBar(title: const Text('Bill splitting')),
+      appBar: AppBar(
+        titleSpacing: 0,
+        title: Text('Bill Splitter', style: AppTextStyles.h2(context.c.ink)),
+      ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => _create(context, ref),
         child: const Icon(Icons.group_add_rounded),
