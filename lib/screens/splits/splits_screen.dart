@@ -271,7 +271,10 @@ class _GroupCard extends ConsumerWidget {
                     ).copyWith(color: palette.ink),
                   ),
                   const SizedBox(height: 6),
-                  Row(
+                  Wrap(
+                    crossAxisAlignment: WrapCrossAlignment.center,
+                    spacing: 4,
+                    runSpacing: 4,
                     children: <Widget>[
                       if (summary != null)
                         for (var i = 0; i < summary.members.take(2).length; i++)
@@ -301,7 +304,6 @@ class _GroupCard extends ConsumerWidget {
                               ),
                             ),
                           ),
-                      const SizedBox(width: 2),
                       Icon(Icons.call_split_rounded,
                           size: 11, color: palette.sub),
                       const SizedBox(width: 3),
@@ -312,7 +314,6 @@ class _GroupCard extends ConsumerWidget {
                             ? const Color(0xFF3A2A22)
                             : palette.surfaceAlt,
                       ),
-                      const SizedBox(width: 5),
                       _TinyChip(
                         label: settled ? 'Settled' : 'Active',
                         color: settled

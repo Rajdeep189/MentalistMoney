@@ -15,6 +15,7 @@ import '../../widgets/empty_state.dart';
 import '../../widgets/fields.dart';
 import '../../widgets/illustration.dart';
 import '../../widgets/shimmer.dart';
+import '../../widgets/paisa_blocks.dart';
 import '../../widgets/transaction_tile.dart';
 import '../io/export_screen.dart';
 import '../io/csv_import_screen.dart';
@@ -271,13 +272,15 @@ class _TransactionsScreenState extends ConsumerState<TransactionsScreen> {
                             expense: group.expense,
                           ),
                           ...group.items.map((txn) {
-                            final tile = TransactionTile(
+                            final tile = PaisaTxnCard(
                               txn: txn,
                               category: categories[txn.categoryId],
                               accountName: accounts[txn.accountId]?.name,
                               toAccountName: accounts[txn.toAccountId]?.name,
                               selected: _selected.contains(txn.id),
-                              showDate: _groupBy != 'day',
+                              onLongPress: () {
+                                setState(() => _selected.add(txn.id!));
+                              },
                               onTap: () {
                                 if (_selectionMode) {
                                   setState(() {
@@ -291,9 +294,6 @@ class _TransactionsScreenState extends ConsumerState<TransactionsScreen> {
                                     ),
                                   );
                                 }
-                              },
-                              onLongPress: () {
-                                setState(() => _selected.add(txn.id!));
                               },
                             );
 

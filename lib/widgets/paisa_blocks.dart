@@ -973,6 +973,8 @@ class PaisaTxnCard extends StatelessWidget {
     this.accountName,
     this.toAccountName,
     this.onTap,
+    this.onLongPress,
+    this.selected = false,
     this.showTime = true,
   });
 
@@ -981,6 +983,8 @@ class PaisaTxnCard extends StatelessWidget {
   final String? accountName;
   final String? toAccountName;
   final VoidCallback? onTap;
+  final VoidCallback? onLongPress;
+  final bool selected;
   final bool showTime;
 
   @override
@@ -1011,13 +1015,19 @@ class PaisaTxnCard extends StatelessWidget {
 
     return GestureDetector(
       onTap: onTap,
+      onLongPress: onLongPress,
       child: Container(
         margin: const EdgeInsets.only(bottom: 10),
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
           color: palette.card,
           borderRadius: BorderRadius.circular(22),
-          border: Border.all(color: palette.divider.withOpacity(0.6)),
+          border: Border.all(
+            color: selected
+                ? palette.accent
+                : palette.divider.withOpacity(0.6),
+            width: selected ? 1.5 : 1,
+          ),
         ),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,

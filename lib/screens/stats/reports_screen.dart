@@ -838,7 +838,7 @@ class _BarReport extends StatelessWidget {
                         mainAxisAlignment: MainAxisAlignment.end,
                         children: <Widget>[
                           Container(
-                            height: (daily[i].total / peak * 150).clamp(2, 150),
+                            height: (daily[i].total / peak * 150).clamp(2, 150).toDouble(),
                             decoration: BoxDecoration(
                               color: daily[i].total == 0
                                   ? palette.divider
