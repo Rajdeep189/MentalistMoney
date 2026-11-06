@@ -298,6 +298,7 @@ class _RecurringScreenState extends ConsumerState<RecurringScreen> {
                 for (final rule in visible) ...<Widget>[
                   _RecurringRow(
                     rule: rule,
+                    showActions: true,
                     account: accounts[rule.accountId]?.name,
                     category: categories[rule.categoryId],
                     onTap: () => _openEditor(context, ref, rule: rule),
@@ -405,6 +406,7 @@ class _RecurringRow extends StatelessWidget {
     required this.onTap,
     required this.onSkip,
     required this.onProcess,
+    this.showActions = false,
     this.account,
     this.category,
   });
@@ -413,6 +415,7 @@ class _RecurringRow extends StatelessWidget {
   final VoidCallback onTap;
   final VoidCallback onSkip;
   final VoidCallback onProcess;
+  final bool showActions;
   final String? account;
   final Category? category;
 
@@ -420,9 +423,9 @@ class _RecurringRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final palette = context.c;
     final income = rule.type == kTypeIncome;
-    final tint = income ? const Color(0xFF2F6BF2) : const Color(0xFF9B2FD0);
-    final amountTone = income ? palette.income : palette.expense;
-    final endDate = rule.endDate;
+    final tint = income ? const Color(0xFF3B5BF2) : const Color(0xFF9B2FD0);
+    final amountTone = income ? const Color(0xFF6BD6A0) : const Color(0xFFFF7B7B);
+    final amount = Fmt.money(rule.amount);
 
     return GestureDetector(
       onTap: onTap,
@@ -463,167 +466,254 @@ class _RecurringRow extends StatelessWidget {
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: AppTextStyles.base(
-                          size: 17,
+                          size: 19,
                           weight: FontWeight.w600,
                           height: 1.15,
                         ).copyWith(color: palette.ink),
                       ),
-                      const SizedBox(height: 7),
+                      const SizedBox(height: 8),
                       Row(
                         children: <Widget>[
                           PaisaChip(
                             label: frequencyLabel(rule.frequency),
+                            icon: Icons.schedule_rounded,
                             color: tint,
                           ),
                           const SizedBox(width: 7),
-                          Text(
-                            '•',
-                            style: AppTextStyles.base(
-                              size: 12,
-                              height: 1.1,
-                            ).copyWith(color: palette.tertiary),
-                          ),
-                          const SizedBox(width: 7),
-                          Text(
-                            income ? 'Income' : 'Expense',
-                            style: AppTextStyles.base(
-                              size: 14,
-                              weight: FontWeight.w400,
-                              height: 1.1,
-                            ).copyWith(color: palette.sub),
+                          PaisaChip(
+                            label: income ? 'Income' : 'Expense',
+                            icon: income
+                                ? Icons.arrow_downward_rounded
+                                : Icons.arrow_upward_rounded,
+                            color: amountTone,
                           ),
                         ],
                       ),
                     ],
                   ),
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  amount,
+                  style: AppTextStyles.base(
+                    size: 18,
+                    weight: FontWeight.w700,
+                    height: 1.1,
+                  ).copyWith(color: amountTone),
                 ),
               ],
             ),
             const SizedBox(height: 14),
             Divider(height: 1, color: palette.divider.withOpacity(0.4)),
             const SizedBox(height: 12),
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: <Widget>[
-                      Text(
-                        'End date',
-                        style: AppTextStyles.base(
-                          size: 14,
-                          weight: FontWeight.w400,
-                          height: 1.1,
-                        ).copyWith(color: palette.sub),
-                      ),
-                      const SizedBox(height: 5),
-                      Row(
-                        children: <Widget>[
-                          Icon(Icons.calendar_today_rounded,
-                              size: 15, color: palette.tertiary),
-                          const SizedBox(width: 6),
-                          Text(
-                            endDate == null
-                                ? 'Ongoing'
-                                : Fmt.date(endDate),
-                            style: AppTextStyles.base(
-                              size: 15.5,
-                              weight: FontWeight.w500,
-                              height: 1.1,
-                            ).copyWith(color: palette.ink),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: <Widget>[
-                      Text(
-                        'Amount',
-                        style: AppTextStyles.base(
-                          size: 14,
-                          weight: FontWeight.w400,
-                          height: 1.1,
-                        ).copyWith(color: palette.sub),
-                      ),
-                      const SizedBox(height: 4),
-                      FittedBox(
-                        fit: BoxFit.scaleDown,
-                        child: Text(
-                          Fmt.money(rule.amount),
+            if (showActions) ...<Widget>[
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: <Widget>[
+                        Text(
+                          'End date',
                           style: AppTextStyles.base(
-                            size: 20,
-                            weight: FontWeight.w700,
+                            size: 14,
+                            weight: FontWeight.w400,
                             height: 1.1,
-                          ).copyWith(color: amountTone),
+                          ).copyWith(color: palette.sub),
                         ),
-                      ),
-                    ],
+                        const SizedBox(height: 5),
+                        Row(
+                          children: <Widget>[
+                            Icon(Icons.calendar_today_rounded,
+                                size: 15, color: palette.tertiary),
+                            const SizedBox(width: 6),
+                            Text(
+                              rule.endDate == null
+                                  ? 'Ongoing'
+                                  : Fmt.date(rule.endDate!),
+                              style: AppTextStyles.base(
+                                size: 15.5,
+                                weight: FontWeight.w500,
+                                height: 1.1,
+                              ).copyWith(color: palette.ink),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 14),
-            Row(
-              children: <Widget>[
-                Expanded(
-                  child: SizedBox(
-                    height: 46,
-                    child: OutlinedButton.icon(
-                      onPressed: onSkip,
-                      icon: Icon(Icons.close_rounded,
-                          size: 18, color: palette.ink),
-                      label: Text(
-                        'Skip',
-                        style: AppTextStyles.base(
-                          size: 15,
-                          weight: FontWeight.w600,
-                          height: 1.1,
-                        ).copyWith(color: palette.ink),
-                      ),
-                      style: OutlinedButton.styleFrom(
-                        side: BorderSide(color: palette.divider),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(14),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: <Widget>[
+                        Text(
+                          'Amount',
+                          style: AppTextStyles.base(
+                            size: 14,
+                            weight: FontWeight.w400,
+                            height: 1.1,
+                          ).copyWith(color: palette.sub),
+                        ),
+                        const SizedBox(height: 4),
+                        FittedBox(
+                          fit: BoxFit.scaleDown,
+                          child: Text(
+                            amount,
+                            style: AppTextStyles.base(
+                              size: 20,
+                              weight: FontWeight.w700,
+                              height: 1.1,
+                            ).copyWith(color: amountTone),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 14),
+              Row(
+                children: <Widget>[
+                  Expanded(
+                    child: SizedBox(
+                      height: 46,
+                      child: OutlinedButton.icon(
+                        onPressed: onSkip,
+                        icon: Icon(Icons.close_rounded,
+                            size: 18, color: palette.ink),
+                        label: Text(
+                          'Skip',
+                          style: AppTextStyles.base(
+                            size: 15,
+                            weight: FontWeight.w600,
+                            height: 1.1,
+                          ).copyWith(color: palette.ink),
+                        ),
+                        style: OutlinedButton.styleFrom(
+                          side: BorderSide(color: palette.divider),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(14),
+                          ),
                         ),
                       ),
                     ),
                   ),
-                ),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: SizedBox(
-                    height: 46,
-                    child: ElevatedButton.icon(
-                      onPressed: onProcess,
-                      icon: const Icon(Icons.check_rounded,
-                          size: 18, color: AppColors.espresso),
-                      label: Text(
-                        'Process',
-                        style: AppTextStyles.base(
-                          size: 15,
-                          weight: FontWeight.w600,
-                          height: 1.1,
-                        ).copyWith(color: AppColors.espresso),
-                      ),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: palette.accent,
-                        elevation: 0,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(14),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: SizedBox(
+                      height: 46,
+                      child: ElevatedButton.icon(
+                        onPressed: onProcess,
+                        icon: const Icon(Icons.check_rounded,
+                            size: 18, color: AppColors.espresso),
+                        label: Text(
+                          'Process',
+                          style: AppTextStyles.base(
+                            size: 15,
+                            weight: FontWeight.w600,
+                            height: 1.1,
+                          ).copyWith(color: AppColors.espresso),
+                        ),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: palette.accent,
+                          elevation: 0,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(14),
+                          ),
                         ),
                       ),
                     ),
                   ),
-                ),
-              ],
-            ),
+                ],
+              ),
+            ] else ...<Widget>[
+              _InfoRow(
+                icon: Icons.calendar_month_rounded,
+                label: 'Next Payment',
+                value: Fmt.date(rule.nextDate),
+                tint: tint,
+              ),
+              const SizedBox(height: 8),
+              _InfoRow(
+                icon: account == null
+                    ? Icons.account_balance_wallet_rounded
+                    : Icons.credit_card_rounded,
+                label: income ? 'Paid To' : 'Paid From',
+                value: account ?? 'Any account',
+                tint: tint,
+              ),
+            ],
           ],
         ),
+      ),
+    );
+  }
+}
+
+class _InfoRow extends StatelessWidget {
+  const _InfoRow({
+    required this.icon,
+    required this.label,
+    required this.value,
+    required this.tint,
+  });
+
+  final IconData icon;
+  final String label;
+  final String value;
+  final Color tint;
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = context.c;
+    return Container(
+      padding: const EdgeInsets.fromLTRB(10, 10, 14, 10),
+      decoration: BoxDecoration(
+        color: palette.isDark
+            ? Colors.white.withOpacity(0.035)
+            : palette.surfaceAlt,
+        borderRadius: BorderRadius.circular(14),
+      ),
+      child: Row(
+        children: <Widget>[
+          Container(
+            height: 40,
+            width: 40,
+            decoration: BoxDecoration(
+              color: tint.withOpacity(0.16),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Icon(icon, size: 20, color: tint),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                Text(
+                  label,
+                  style: AppTextStyles.base(
+                    size: 14,
+                    weight: FontWeight.w400,
+                    height: 1.1,
+                  ).copyWith(color: palette.sub),
+                ),
+                const SizedBox(height: 3),
+                Text(
+                  value,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: AppTextStyles.base(
+                    size: 15.5,
+                    weight: FontWeight.w500,
+                    height: 1.15,
+                  ).copyWith(color: palette.ink),
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }
