@@ -248,12 +248,13 @@ class _RecurringScreenState extends ConsumerState<RecurringScreen> {
               if (_view == 'Calendar') ...<Widget>[
                 _MonthCalendar(
                   month: _month,
-                  days: <int>{
+                  days: <int, bool>{
                     for (final rule in list)
                       if (DateTime.fromMillisecondsSinceEpoch(rule.nextDate)
                               .month ==
                           _month.month)
-                        DateTime.fromMillisecondsSinceEpoch(rule.nextDate).day,
+                        DateTime.fromMillisecondsSinceEpoch(rule.nextDate).day:
+                            rule.type == kTypeIncome,
                   },
                   selected: _dayFilter,
                   onSelect: (day) =>
@@ -729,7 +730,7 @@ class _MonthCalendar extends StatelessWidget {
   });
 
   final DateTime month;
-  final Set<int> days;
+  final Map<int, bool> days;
   final int? selected;
   final ValueChanged<int> onSelect;
   final ValueChanged<int> onMonth;
@@ -737,6 +738,9 @@ class _MonthCalendar extends StatelessWidget {
   static const List<String> _months = <String>[
     'January', 'February', 'March', 'April', 'May', 'June',
     'July', 'August', 'September', 'October', 'November', 'December',
+  ];
+  static const List<String> _weekdays = <String>[
+    'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun',
   ];
 
   @override
@@ -746,13 +750,15 @@ class _MonthCalendar extends StatelessWidget {
     final daysInMonth = DateTime(month.year, month.month + 1, 0).day;
     final leading = (first.weekday + 6) % 7;
     final cells = leading + daysInMonth;
+    final now = DateTime.now();
+    final isThisMonth = now.year == month.year && now.month == month.month;
 
     return Container(
-      padding: const EdgeInsets.all(14),
+      padding: const EdgeInsets.fromLTRB(10, 8, 10, 14),
       decoration: BoxDecoration(
         color: palette.card,
         borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: palette.divider.withOpacity(0.7)),
+        border: Border.all(color: palette.divider.withOpacity(0.6)),
       ),
       child: Column(
         children: <Widget>[
@@ -760,14 +766,15 @@ class _MonthCalendar extends StatelessWidget {
             children: <Widget>[
               IconButton(
                 onPressed: () => onMonth(-1),
-                icon: Icon(Icons.chevron_left_rounded, color: palette.sub),
+                icon: Icon(Icons.chevron_left_rounded,
+                    size: 26, color: palette.accent),
               ),
               Expanded(
                 child: Center(
                   child: Text(
                     '${_months[month.month - 1]} ${month.year}',
                     style: AppTextStyles.base(
-                      size: 15,
+                      size: 17,
                       weight: FontWeight.w700,
                       height: 1.1,
                     ).copyWith(color: palette.ink),
@@ -776,63 +783,98 @@ class _MonthCalendar extends StatelessWidget {
               ),
               IconButton(
                 onPressed: () => onMonth(1),
-                icon: Icon(Icons.chevron_right_rounded, color: palette.sub),
+                icon: Icon(Icons.chevron_right_rounded,
+                    size: 26, color: palette.accent),
               ),
             ],
           ),
           Row(
             children: <Widget>[
-              for (final d in const <String>['M', 'T', 'W', 'T', 'F', 'S', 'S'])
+              for (final d in _weekdays)
                 Expanded(
                   child: Center(
                     child: Text(
                       d,
-                      style: AppTextStyles.caption(palette.tertiary)
-                          .copyWith(fontSize: 10.5),
+                      style: AppTextStyles.base(
+                        size: 14,
+                        weight: FontWeight.w400,
+                        height: 1.1,
+                      ).copyWith(color: palette.tertiary),
                     ),
                   ),
                 ),
             ],
           ),
-          const SizedBox(height: 4),
+          const SizedBox(height: 6),
           GridView.count(
             crossAxisCount: 7,
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
-            childAspectRatio: 1.05,
+            childAspectRatio: 0.82,
             children: <Widget>[
               for (var i = 0; i < cells; i++)
                 Builder(
                   builder: (context) {
                     if (i < leading) return const SizedBox.shrink();
                     final day = i - leading + 1;
-                    final has = days.contains(day);
+                    final has = days.containsKey(day);
+                    final income = days[day] ?? false;
                     final isSelected = selected == day;
+                    final isToday = isThisMonth && now.day == day;
+                    final badge = income
+                        ? const Color(0xFF3B5BF2)
+                        : const Color(0xFF9B2FD0);
                     return GestureDetector(
                       onTap: () => onSelect(day),
-                      child: Center(
-                        child: Container(
-                          height: 32,
-                          width: 32,
-                          alignment: Alignment.center,
-                          decoration: BoxDecoration(
-                            color: isSelected
-                                ? palette.accent
-                                : has
-                                    ? palette.accent.withOpacity(0.14)
-                                    : Colors.transparent,
-                            shape: BoxShape.circle,
-                          ),
-                          child: Text(
-                            '$day',
-                            style: AppTextStyles.caption(
-                              isSelected
-                                  ? palette.onAccent
-                                  : has
-                                      ? palette.ink
-                                      : palette.tertiary,
-                            ).copyWith(fontWeight: FontWeight.w600),
-                          ),
+                      child: Container(
+                        margin: const EdgeInsets.all(2),
+                        decoration: BoxDecoration(
+                          color: isSelected
+                              ? palette.accent.withOpacity(0.12)
+                              : has
+                                  ? Colors.white.withOpacity(0.03)
+                                  : Colors.transparent,
+                          borderRadius: BorderRadius.circular(12),
+                          border: isSelected || isToday
+                              ? Border.all(
+                                  color: palette.accent,
+                                  width: 1.3,
+                                )
+                              : null,
+                        ),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: <Widget>[
+                            Text(
+                              '$day',
+                              style: AppTextStyles.base(
+                                size: 14,
+                                weight: FontWeight.w500,
+                                height: 1.1,
+                              ).copyWith(
+                                color: has || isSelected
+                                    ? palette.ink
+                                    : palette.tertiary,
+                              ),
+                            ),
+                            const SizedBox(height: 3),
+                            if (has)
+                              Container(
+                                height: 20,
+                                width: 20,
+                                decoration: BoxDecoration(
+                                  color: badge,
+                                  borderRadius: BorderRadius.circular(6),
+                                ),
+                                child: Icon(
+                                  income
+                                      ? Icons.account_balance_rounded
+                                      : Icons.credit_card_rounded,
+                                  size: 12,
+                                  color: Colors.white,
+                                ),
+                              ),
+                          ],
                         ),
                       ),
                     );
