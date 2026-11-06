@@ -381,23 +381,26 @@ class PastelSummaryTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 11),
       decoration: BoxDecoration(
         color: background,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(20),
       ),
       child: Row(
         children: <Widget>[
           Container(
-            height: 34,
-            width: 34,
+            height: 44,
+            width: 44,
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.35),
-              borderRadius: BorderRadius.circular(10),
+              color: Color.alphaBlend(
+                foreground.withOpacity(0.16),
+                background,
+              ),
+              borderRadius: BorderRadius.circular(13),
             ),
-            child: Icon(icon, size: 17, color: foreground),
+            child: Icon(icon, size: 21, color: foreground),
           ),
-          const SizedBox(width: 10),
+          const SizedBox(width: 12),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -405,19 +408,19 @@ class PastelSummaryTile extends StatelessWidget {
                 Text(
                   label,
                   style: AppTextStyles.base(
-                    size: 12,
-                    weight: FontWeight.w600,
+                    size: 15,
+                    weight: FontWeight.w500,
                     height: 1.1,
-                  ).copyWith(color: foreground.withOpacity(0.85)),
+                  ).copyWith(color: foreground.withOpacity(0.9)),
                 ),
-                const SizedBox(height: 2),
+                const SizedBox(height: 3),
                 FittedBox(
                   fit: BoxFit.scaleDown,
                   alignment: Alignment.centerLeft,
                   child: Text(
                     value,
                     style: AppTextStyles.base(
-                      size: 16,
+                      size: 17,
                       weight: FontWeight.w700,
                       height: 1.1,
                     ).copyWith(color: foreground),

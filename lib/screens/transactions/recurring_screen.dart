@@ -144,38 +144,69 @@ class _RecurringScreenState extends ConsumerState<RecurringScreen> {
               120,
             ),
             children: <Widget>[
+              _VividStat(
+                label: 'Monthly Average',
+                value: Fmt.money(monthlyAvg.round()),
+                icon: Icons.insert_chart_outlined_rounded,
+                background: const Color(0xFFF9B295),
+                foreground: AppColors.espresso,
+                valueSize: 30,
+                fullWidth: true,
+              ),
+              const SizedBox(height: 10),
               Row(
                 children: <Widget>[
                   Expanded(
-                    child: PaisaStatTile(
-                      label: 'Monthly Avg',
-                      value: Fmt.money(monthlyAvg.round(), forceCompact: true),
-                      icon: Icons.show_chart_rounded,
-                      background: AppColors.blush,
-                      foreground: AppColors.blushDeep,
-                      valueSize: 16,
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: PaisaStatTile(
+                    child: _VividStat(
                       label: 'Due This Month',
-                      value: Fmt.money(dueSoon, forceCompact: true),
-                      icon: Icons.event_available_rounded,
-                      background: AppColors.butter,
-                      foreground: AppColors.butterDeep,
-                      valueSize: 16,
+                      value: Fmt.money(dueSoon),
+                      icon: Icons.calendar_month_rounded,
+                      background: const Color(0xFF7C3A1E),
+                      foreground: const Color(0xFFFFE3D5),
                     ),
                   ),
-                  const SizedBox(width: 8),
+                  const SizedBox(width: 10),
                   Expanded(
-                    child: PaisaStatTile(
-                      label: 'Monthly Total',
-                      value: Fmt.money(monthlyTotal, forceCompact: true),
-                      icon: Icons.sync_rounded,
-                      background: AppColors.mint,
-                      foreground: AppColors.mintDeep,
-                      valueSize: 16,
+                    child: _VividStat(
+                      label: 'Total Yearly',
+                      value: Fmt.money(monthlyTotal * 12),
+                      icon: Icons.calendar_today_rounded,
+                      background: const Color(0xFF6B6414),
+                      foreground: const Color(0xFFF6EAB9),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 10),
+              Row(
+                children: <Widget>[
+                  Expanded(
+                    child: _VividStat(
+                      label: 'Income',
+                      value: Fmt.money(
+                        active
+                            .where((r) => r.type == kTypeIncome)
+                            .fold<int>(0, (sum, r) => sum + r.amount),
+                      ),
+                      icon: Icons.trending_up_rounded,
+                      background: const Color(0xFF0E7A34),
+                      foreground: const Color(0xFF8DF2AD),
+                      highlight: const Color(0xFFD9FFE4),
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: _VividStat(
+                      label: 'Expense',
+                      value: Fmt.money(
+                        active
+                            .where((r) => r.type != kTypeIncome)
+                            .fold<int>(0, (sum, r) => sum + r.amount),
+                      ),
+                      icon: Icons.trending_down_rounded,
+                      background: const Color(0xFFB01B1B),
+                      foreground: const Color(0xFFFFC9C9),
+                      highlight: Colors.white,
                     ),
                   ),
                 ],
@@ -219,9 +250,22 @@ class _RecurringScreenState extends ConsumerState<RecurringScreen> {
                     account: accounts[rule.accountId]?.name,
                     category: categories[rule.categoryId],
                     onTap: () => _openEditor(context, ref, rule: rule),
-                    onToggle: (value) => ref
-                        .read(transactionRepositoryProvider)
-                        .toggleRecurringRule(rule.id!, value),
+                    onSkip: () async {
+                      await ref
+                          .read(transactionRepositoryProvider)
+                          .skipRecurringRule(rule);
+                      if (context.mounted) {
+                        showSnack(context, 'Skipped this occurrence');
+                      }
+                    },
+                    onProcess: () async {
+                      await ref
+                          .read(transactionRepositoryProvider)
+                          .processRecurringRule(rule);
+                      if (context.mounted) {
+                        showSnack(context, 'Posted ${Fmt.money(rule.amount)}');
+                      }
+                    },
                   ),
                   const SizedBox(height: 10),
                 ],
@@ -232,9 +276,22 @@ class _RecurringScreenState extends ConsumerState<RecurringScreen> {
                     account: accounts[rule.accountId]?.name,
                     category: categories[rule.categoryId],
                     onTap: () => _openEditor(context, ref, rule: rule),
-                    onToggle: (value) => ref
-                        .read(transactionRepositoryProvider)
-                        .toggleRecurringRule(rule.id!, value),
+                    onSkip: () async {
+                      await ref
+                          .read(transactionRepositoryProvider)
+                          .skipRecurringRule(rule);
+                      if (context.mounted) {
+                        showSnack(context, 'Skipped this occurrence');
+                      }
+                    },
+                    onProcess: () async {
+                      await ref
+                          .read(transactionRepositoryProvider)
+                          .processRecurringRule(rule);
+                      if (context.mounted) {
+                        showSnack(context, 'Posted ${Fmt.money(rule.amount)}');
+                      }
+                    },
                   ),
                   const SizedBox(height: 10),
                 ],
@@ -295,14 +352,16 @@ class _RecurringRow extends StatelessWidget {
   const _RecurringRow({
     required this.rule,
     required this.onTap,
-    required this.onToggle,
+    required this.onSkip,
+    required this.onProcess,
     this.account,
     this.category,
   });
 
   final RecurringRule rule;
   final VoidCallback onTap;
-  final ValueChanged<bool> onToggle;
+  final VoidCallback onSkip;
+  final VoidCallback onProcess;
   final String? account;
   final Category? category;
 
@@ -310,90 +369,203 @@ class _RecurringRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final palette = context.c;
     final income = rule.type == kTypeIncome;
+    final tint = income ? const Color(0xFF2F6BF2) : const Color(0xFF9B2FD0);
+    final amountTone = income ? palette.income : palette.expense;
+    final endDate = rule.endDate;
+
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.all(14),
+        padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
           color: palette.card,
-          borderRadius: BorderRadius.circular(AppRadius.card),
-          border: Border.all(color: palette.divider.withOpacity(0.7)),
+          borderRadius: BorderRadius.circular(22),
+          border: Border.all(color: palette.divider.withOpacity(0.45)),
         ),
-        child: Row(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
-            Container(
-              height: 44,
-              width: 44,
-              decoration: BoxDecoration(
-                color: (income ? AppColors.mint : AppColors.blush),
-                borderRadius: BorderRadius.circular(14),
-              ),
-              child: Icon(
-                AppIcons.byName(category?.icon ?? 'autorenew'),
-                size: 20,
-                color: income ? AppColors.mintDeep : AppColors.blushDeep,
-              ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: <Widget>[
-                  Text(
-                    rule.note?.trim().isNotEmpty == true
-                        ? rule.note!
-                        : (category?.name ?? 'Recurring'),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: AppTextStyles.base(
-                      size: 14.5,
-                      weight: FontWeight.w600,
-                      height: 1.15,
-                    ).copyWith(color: palette.ink),
+            Row(
+              children: <Widget>[
+                Container(
+                  height: 52,
+                  width: 52,
+                  decoration: BoxDecoration(
+                    color: tint,
+                    borderRadius: BorderRadius.circular(15),
                   ),
-                  const SizedBox(height: 4),
-                  Row(
+                  child: Icon(
+                    AppIcons.byName(category?.icon ?? 'autorenew'),
+                    size: 24,
+                    color: Colors.white,
+                  ),
+                ),
+                const SizedBox(width: 13),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: <Widget>[
-                      PaisaChip(
-                        label: frequencyLabel(rule.frequency),
-                        icon: Icons.repeat_rounded,
-                        color: palette.sub,
+                      Text(
+                        rule.note?.trim().isNotEmpty == true
+                            ? rule.note!
+                            : (category?.name ?? 'Recurring'),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: AppTextStyles.base(
+                          size: 17,
+                          weight: FontWeight.w600,
+                          height: 1.15,
+                        ).copyWith(color: palette.ink),
                       ),
-                      const SizedBox(width: 6),
-                      Flexible(
+                      const SizedBox(height: 7),
+                      Row(
+                        children: <Widget>[
+                          PaisaChip(
+                            label: frequencyLabel(rule.frequency),
+                            color: tint,
+                          ),
+                          const SizedBox(width: 7),
+                          Text(
+                            '•',
+                            style: AppTextStyles.base(
+                              size: 12,
+                              height: 1.1,
+                            ).copyWith(color: palette.tertiary),
+                          ),
+                          const SizedBox(width: 7),
+                          Text(
+                            income ? 'Income' : 'Expense',
+                            style: AppTextStyles.base(
+                              size: 14,
+                              weight: FontWeight.w400,
+                              height: 1.1,
+                            ).copyWith(color: palette.sub),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 14),
+            Divider(height: 1, color: palette.divider.withOpacity(0.4)),
+            const SizedBox(height: 12),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
+                      Text(
+                        'End date',
+                        style: AppTextStyles.base(
+                          size: 14,
+                          weight: FontWeight.w400,
+                          height: 1.1,
+                        ).copyWith(color: palette.sub),
+                      ),
+                      const SizedBox(height: 5),
+                      Row(
+                        children: <Widget>[
+                          Icon(Icons.calendar_today_rounded,
+                              size: 15, color: palette.tertiary),
+                          const SizedBox(width: 6),
+                          Text(
+                            endDate == null
+                                ? 'Ongoing'
+                                : Fmt.date(endDate),
+                            style: AppTextStyles.base(
+                              size: 15.5,
+                              weight: FontWeight.w500,
+                              height: 1.1,
+                            ).copyWith(color: palette.ink),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: <Widget>[
+                      Text(
+                        'Amount',
+                        style: AppTextStyles.base(
+                          size: 14,
+                          weight: FontWeight.w400,
+                          height: 1.1,
+                        ).copyWith(color: palette.sub),
+                      ),
+                      const SizedBox(height: 4),
+                      FittedBox(
+                        fit: BoxFit.scaleDown,
                         child: Text(
-                          'next ${Fmt.date(rule.nextDate)}${account != null ? ' · $account' : ''}',
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: AppTextStyles.caption(palette.tertiary)
-                              .copyWith(fontSize: 11),
+                          Fmt.money(rule.amount),
+                          style: AppTextStyles.base(
+                            size: 20,
+                            weight: FontWeight.w700,
+                            height: 1.1,
+                          ).copyWith(color: amountTone),
                         ),
                       ),
                     ],
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
-            const SizedBox(width: 8),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.end,
+            const SizedBox(height: 14),
+            Row(
               children: <Widget>[
-                Text(
-                  '${income ? '+' : '−'}${Fmt.money(rule.amount)}',
-                  style: AppTextStyles.money(
-                    14,
-                    color: income ? palette.income : palette.ink,
-                    weight: FontWeight.w700,
-                    serifFace: false,
+                Expanded(
+                  child: SizedBox(
+                    height: 46,
+                    child: OutlinedButton.icon(
+                      onPressed: onSkip,
+                      icon: Icon(Icons.close_rounded,
+                          size: 18, color: palette.ink),
+                      label: Text(
+                        'Skip',
+                        style: AppTextStyles.base(
+                          size: 15,
+                          weight: FontWeight.w600,
+                          height: 1.1,
+                        ).copyWith(color: palette.ink),
+                      ),
+                      style: OutlinedButton.styleFrom(
+                        side: BorderSide(color: palette.divider),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(14),
+                        ),
+                      ),
+                    ),
                   ),
                 ),
-                SizedBox(
-                  height: 28,
-                  child: FittedBox(
-                    child: Switch.adaptive(
-                      value: rule.active,
-                      onChanged: onToggle,
-                      activeColor: palette.accent,
+                const SizedBox(width: 10),
+                Expanded(
+                  child: SizedBox(
+                    height: 46,
+                    child: ElevatedButton.icon(
+                      onPressed: onProcess,
+                      icon: const Icon(Icons.check_rounded,
+                          size: 18, color: AppColors.espresso),
+                      label: Text(
+                        'Process',
+                        style: AppTextStyles.base(
+                          size: 15,
+                          weight: FontWeight.w600,
+                          height: 1.1,
+                        ).copyWith(color: AppColors.espresso),
+                      ),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: palette.accent,
+                        elevation: 0,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(14),
+                        ),
+                      ),
                     ),
                   ),
                 ),
@@ -843,6 +1015,86 @@ class _RecurringEditorState extends State<_RecurringEditor> {
                   ),
                 ],
               ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+
+class _VividStat extends StatelessWidget {
+  const _VividStat({
+    required this.label,
+    required this.value,
+    required this.icon,
+    required this.background,
+    required this.foreground,
+    this.highlight,
+    this.valueSize = 24,
+    this.fullWidth = false,
+  });
+
+  final String label;
+  final String value;
+  final IconData icon;
+  final Color background;
+  final Color foreground;
+  final Color? highlight;
+  final double valueSize;
+  final bool fullWidth;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: fullWidth ? double.infinity : null,
+      padding: EdgeInsets.fromLTRB(14, fullWidth ? 14 : 12, 14, 14),
+      decoration: BoxDecoration(
+        color: background,
+        borderRadius: BorderRadius.circular(18),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          Row(
+            children: <Widget>[
+              Container(
+                height: fullWidth ? 30 : 28,
+                width: fullWidth ? 30 : 28,
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.18),
+                  borderRadius: BorderRadius.circular(9),
+                ),
+                child: Icon(icon, size: 16, color: foreground),
+              ),
+              const SizedBox(width: 9),
+              Flexible(
+                child: Text(
+                  label,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: AppTextStyles.base(
+                    size: fullWidth ? 16 : 14.5,
+                    weight: FontWeight.w600,
+                    height: 1.1,
+                  ).copyWith(color: foreground),
+                ),
+              ),
+            ],
+          ),
+          SizedBox(height: fullWidth ? 10 : 8),
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            alignment: Alignment.centerLeft,
+            child: Text(
+              value,
+              style: AppTextStyles.base(
+                size: valueSize,
+                weight: FontWeight.w700,
+                height: 1.05,
+                letterSpacing: -0.3,
+              ).copyWith(color: highlight ?? foreground),
             ),
           ),
         ],

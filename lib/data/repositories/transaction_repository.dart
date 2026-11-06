@@ -529,6 +529,48 @@ class TransactionRepository {
     _db.notifyChanged();
   }
 
+  /// Posts the next occurrence of a single rule and advances its schedule.
+  Future<void> processRecurringRule(RecurringRule rule) async {
+    final accountId = rule.accountId;
+    if (accountId == null || rule.id == null) return;
+    final due = DateTime.fromMillisecondsSinceEpoch(rule.nextDate);
+    await create(
+      Txn(
+        type: rule.type,
+        amount: rule.amount,
+        date: due.millisecondsSinceEpoch,
+        accountId: accountId,
+        categoryId: rule.categoryId,
+        note: rule.note,
+        paymentMethod: rule.paymentMethod,
+        recurringRuleId: rule.id,
+      ),
+    );
+    await _advanceRule(rule, due);
+  }
+
+  /// Skips the current occurrence without recording a transaction.
+  Future<void> skipRecurringRule(RecurringRule rule) async {
+    if (rule.id == null) return;
+    final due = DateTime.fromMillisecondsSinceEpoch(rule.nextDate);
+    await _advanceRule(rule, due);
+  }
+
+  Future<void> _advanceRule(RecurringRule rule, DateTime from) async {
+    final next = nextOccurrence(from, rule.frequency, interval: rule.interval);
+    final db = await _db.database;
+    await db.update(
+      'recurring_rules',
+      <String, Object?>{
+        'next_date': next.millisecondsSinceEpoch,
+        'last_run_at': DateTime.now().millisecondsSinceEpoch,
+      },
+      where: 'id = ?',
+      whereArgs: <Object?>[rule.id],
+    );
+    _db.notifyChanged();
+  }
+
   Future<List<RecurringRule>> recurringRules() async {
     final db = await _db.database;
     final rows = await db.query('recurring_rules', orderBy: 'next_date ASC');

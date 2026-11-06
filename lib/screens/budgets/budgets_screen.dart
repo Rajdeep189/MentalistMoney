@@ -159,23 +159,27 @@ class _BudgetsScreenState extends ConsumerState<BudgetsScreen> {
                         children: <Widget>[
                           RingGauge(
                             value: total == 0 ? 0 : spent / total,
-                            size: 150,
-                            strokeWidth: 18,
+                            size: 138,
+                            strokeWidth: 16,
                             color: const Color(0xFF2ED3B7),
                             center: Column(
                               mainAxisSize: MainAxisSize.min,
                               children: <Widget>[
                                 Text(
                                   '${total == 0 ? 0 : (spent / total * 100).round()}%',
-                                  style: AppTextStyles.serif(
-                                    size: 26,
-                                    color: palette.ink,
-                                  ),
+                                  style: AppTextStyles.base(
+                                    size: 34,
+                                    weight: FontWeight.w700,
+                                    height: 1.05,
+                                  ).copyWith(color: palette.ink),
                                 ),
                                 Text(
                                   'Spent',
-                                  style: AppTextStyles.caption(palette.sub)
-                                      .copyWith(fontSize: 12),
+                                  style: AppTextStyles.base(
+                                    size: 17,
+                                    weight: FontWeight.w400,
+                                    height: 1.2,
+                                  ).copyWith(color: palette.sub),
                                 ),
                               ],
                             ),
@@ -189,25 +193,25 @@ class _BudgetsScreenState extends ConsumerState<BudgetsScreen> {
                                   label: 'Total',
                                   value: Fmt.money(total, forceCompact: true),
                                   icon: Icons.account_balance_wallet_outlined,
-                                  background: AppColors.periwinkle,
-                                  foreground: AppColors.periwinkleDeep,
+                                  background: const Color(0xFFDCDCFF),
+                                  foreground: const Color(0xFF4C4C9E),
                                 ),
-                                const SizedBox(height: 8),
+                                const SizedBox(height: 6),
                                 PastelSummaryTile(
                                   label: 'Spent',
                                   value: Fmt.money(spent, forceCompact: true),
                                   icon: Icons.shopping_bag_outlined,
-                                  background: AppColors.blush,
-                                  foreground: AppColors.blushDeep,
+                                  background: const Color(0xFFFBD9DF),
+                                  foreground: const Color(0xFFA83A55),
                                 ),
-                                const SizedBox(height: 8),
+                                const SizedBox(height: 6),
                                 PastelSummaryTile(
                                   label: 'Remaining',
                                   value: Fmt.money(total - spent,
                                       forceCompact: true),
                                   icon: Icons.savings_outlined,
-                                  background: AppColors.mint,
-                                  foreground: AppColors.mintDeep,
+                                  background: const Color(0xFFBFF2DD),
+                                  foreground: const Color(0xFF12684B),
                                 ),
                               ],
                             ),
