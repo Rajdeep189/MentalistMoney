@@ -26,7 +26,8 @@ class RecurringScreen extends ConsumerStatefulWidget {
 }
 
 class _RecurringScreenState extends ConsumerState<RecurringScreen> {
-  String _tab = 'All';
+  String _tab = 'Active';
+  String _view = 'All';
   DateTime _month = DateTime(DateTime.now().year, DateTime.now().month);
   int? _dayFilter;
 
@@ -40,17 +41,12 @@ class _RecurringScreenState extends ConsumerState<RecurringScreen> {
         }).toList();
       case 'Archived':
         return list.where((r) => !r.active).toList();
-      case 'Calendar':
-        return list.where((r) {
-          final next = DateTime.fromMillisecondsSinceEpoch(r.nextDate);
-          final inMonth = next.year == _month.year && next.month == _month.month;
-          final inDay = _dayFilter == null || next.day == _dayFilter;
-          return inMonth && inDay;
-        }).toList();
       default:
         return list.where((r) => r.active).toList();
     }
   }
+
+  bool _sortByAmount = false;
 
   double _monthlyEquivalent(RecurringRule rule) {
     switch (rule.frequency) {
@@ -96,13 +92,28 @@ class _RecurringScreenState extends ConsumerState<RecurringScreen> {
               }
             },
           ),
-          IconButton(
-            onPressed: () => _openEditor(context, ref),
-            icon: Icon(Icons.add_circle_outline_rounded,
-                color: palette.onSoft),
-          ),
           const SizedBox(width: 6),
         ],
+      ),
+      bottomNavigationBar: rules.valueOrNull == null
+          ? null
+          : Padding(
+              padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+              child: SafeArea(
+                top: false,
+                child: PaisaSegment<String>(
+                  options: const <String>['Active', 'Due', 'Archived'],
+                  value: _tab,
+                  height: 54,
+                  onChanged: (value) => setState(() => _tab = value),
+                ),
+              ),
+            ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () => _openEditor(context, ref),
+        backgroundColor: palette.isDark ? const Color(0xFF7A452C) : palette.ink,
+        shape: const CircleBorder(),
+        child: const Icon(Icons.add_rounded, size: 28, color: Colors.white),
       ),
       body: rules.when(
         loading: () => const Center(child: CircularProgressIndicator()),
@@ -133,6 +144,18 @@ class _RecurringScreenState extends ConsumerState<RecurringScreen> {
               .where((r) => r.frequency == 'monthly')
               .fold<int>(0, (sum, r) => sum + r.amount);
           final visible = _visible(list);
+          if (_view == 'Calendar') {
+            visible.removeWhere((r) {
+              final next = DateTime.fromMillisecondsSinceEpoch(r.nextDate);
+              final inMonth =
+                  next.year == _month.year && next.month == _month.month;
+              final inDay = _dayFilter == null || next.day == _dayFilter;
+              return !(inMonth && inDay);
+            });
+          }
+          if (_sortByAmount) {
+            visible.sort((a, b) => b.amount.compareTo(a.amount));
+          }
           final upcoming = [...list]
             ..sort((a, b) => a.nextDate.compareTo(b.nextDate));
 
@@ -213,16 +236,16 @@ class _RecurringScreenState extends ConsumerState<RecurringScreen> {
               ),
               const SizedBox(height: AppSpacing.x4),
               PaisaSegment<String>(
-                options: const <String>['All', 'Calendar', 'Due', 'Archived'],
-                value: _tab,
+                options: const <String>['All', 'Calendar'],
+                value: _view,
                 dense: true,
                 onChanged: (value) => setState(() {
-                  _tab = value;
+                  _view = value;
                   _dayFilter = null;
                 }),
               ),
               const SizedBox(height: AppSpacing.x3),
-              if (_tab == 'Calendar') ...<Widget>[
+              if (_view == 'Calendar') ...<Widget>[
                 _MonthCalendar(
                   month: _month,
                   days: <int>{
@@ -242,6 +265,34 @@ class _RecurringScreenState extends ConsumerState<RecurringScreen> {
                 ),
                 const SizedBox(height: AppSpacing.x3),
               ],
+              Row(
+                children: <Widget>[
+                  Text(
+                    '${visible.length} recurring',
+                    style: AppTextStyles.base(
+                      size: 20,
+                      weight: FontWeight.w700,
+                      height: 1.15,
+                    ).copyWith(color: palette.accent),
+                  ),
+                  const Spacer(),
+                  GestureDetector(
+                    onTap: () => setState(() => _sortByAmount = !_sortByAmount),
+                    child: Icon(Icons.sort_rounded,
+                        size: 22, color: palette.sub),
+                  ),
+                  const SizedBox(width: 16),
+                  GestureDetector(
+                    onTap: () => showAppSheet<void>(
+                      context,
+                      (sheetContext) => const _HowItWorksSheet(),
+                    ),
+                    child: Icon(Icons.info_outline_rounded,
+                        size: 22, color: palette.sub),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
               if (_tab == 'Due' && upcoming.isNotEmpty) ...<Widget>[
                 PaisaSectionTitle(title: 'Due soon'),
                 for (final rule in visible) ...<Widget>[
