@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_spacing.dart';
 import '../../core/theme/app_text_styles.dart';
+import '../../core/utils/app_icons.dart';
 import '../../core/utils/money.dart';
 import '../../data/models/models.dart';
 import '../../providers/app_providers.dart';
@@ -143,10 +144,18 @@ class _CategoriesScreenState extends ConsumerState<CategoriesScreen> {
                         ),
                         child: Row(
                           children: <Widget>[
-                            CategoryIcon(
-                              iconName: category.icon,
-                              color: _parse(category.color),
-                              size: 42,
+                            Container(
+                              height: 46,
+                              width: 46,
+                              decoration: BoxDecoration(
+                                color: _parse(category.color),
+                                borderRadius: BorderRadius.circular(14),
+                              ),
+                              child: Icon(
+                                AppIcons.byName(category.icon),
+                                size: 22,
+                                color: Colors.white,
+                              ),
                             ),
                             const SizedBox(width: 12),
                             Expanded(
@@ -171,9 +180,34 @@ class _CategoriesScreenState extends ConsumerState<CategoriesScreen> {
                                         ),
                                     ],
                                   ),
-                                  Text(
-                                    '${spend?.count ?? 0} transactions this month',
-                                    style: AppTextStyles.caption(palette.tertiary),
+                                  Row(
+                                    children: <Widget>[
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 6, vertical: 2),
+                                        decoration: BoxDecoration(
+                                          color: _parse(category.color)
+                                              .withOpacity(0.16),
+                                          borderRadius:
+                                              BorderRadius.circular(5),
+                                        ),
+                                        child: Text(
+                                          '${spend?.count ?? 0} txns',
+                                          style: AppTextStyles.caption(
+                                                  _parse(category.color))
+                                              .copyWith(fontSize: 10),
+                                        ),
+                                      ),
+                                      const SizedBox(width: 6),
+                                      Flexible(
+                                        child: Text(
+                                          'this month',
+                                          style: AppTextStyles.caption(
+                                              palette.tertiary)
+                                              .copyWith(fontSize: 10.5),
+                                        ),
+                                      ),
+                                    ],
                                   ),
                                 ],
                               ),
