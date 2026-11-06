@@ -453,8 +453,8 @@ class StatusPillRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.only(bottom: 10),
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+      margin: const EdgeInsets.only(bottom: 8),
+      padding: const EdgeInsets.fromLTRB(12, 10, 16, 10),
       decoration: BoxDecoration(
         color: background,
         borderRadius: BorderRadius.circular(999),
@@ -462,13 +462,13 @@ class StatusPillRow extends StatelessWidget {
       child: Row(
         children: <Widget>[
           Container(
-            height: 30,
-            width: 30,
+            height: 40,
+            width: 40,
             decoration: BoxDecoration(
-              color: foreground.withOpacity(0.18),
-              shape: BoxShape.circle,
+              color: foreground.withOpacity(0.22),
+              borderRadius: BorderRadius.circular(13),
             ),
-            child: Icon(icon, size: 17, color: foreground),
+            child: Icon(icon, size: 21, color: foreground),
           ),
           const SizedBox(width: 12),
           Expanded(
@@ -478,16 +478,16 @@ class StatusPillRow extends StatelessWidget {
                 Text(
                   label,
                   style: AppTextStyles.base(
-                    size: 12,
-                    weight: FontWeight.w600,
+                    size: 15,
+                    weight: FontWeight.w700,
                     height: 1.1,
-                  ).copyWith(color: foreground.withOpacity(0.85)),
+                  ).copyWith(color: foreground),
                 ),
-                const SizedBox(height: 1),
+                const SizedBox(height: 2),
                 Text(
                   '$count',
                   style: AppTextStyles.base(
-                    size: 15,
+                    size: 17,
                     weight: FontWeight.w700,
                     height: 1.2,
                   ).copyWith(color: foreground),
@@ -1031,10 +1031,10 @@ class PaisaTxnCard extends StatelessWidget {
       onLongPress: onLongPress,
       child: Container(
         margin: const EdgeInsets.only(bottom: 10),
-        padding: const EdgeInsets.all(14),
+        padding: const EdgeInsets.fromLTRB(14, 14, 16, 14),
         decoration: BoxDecoration(
           color: palette.card,
-          borderRadius: BorderRadius.circular(22),
+          borderRadius: BorderRadius.circular(18),
           border: Border.all(
             color: selected
                 ? palette.accent
@@ -1046,15 +1046,15 @@ class PaisaTxnCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
             Container(
-              height: 50,
-              width: 50,
+              height: 54,
+              width: 54,
               decoration: BoxDecoration(
                 color: tone,
                 borderRadius: BorderRadius.circular(15),
               ),
-              child: Icon(icon, size: 24, color: Colors.white),
+              child: Icon(icon, size: 26, color: Colors.white),
             ),
-            const SizedBox(width: 12),
+            const SizedBox(width: 13),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -1064,18 +1064,18 @@ class PaisaTxnCard extends StatelessWidget {
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: AppTextStyles.base(
-                      size: 16,
-                      weight: FontWeight.w700,
+                      size: 18.5,
+                      weight: FontWeight.w600,
                       height: 1.15,
                     ).copyWith(color: palette.ink),
                   ),
-                  const SizedBox(height: 3),
+                  const SizedBox(height: 4),
                   Text(
                     meta,
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
-                    style: AppTextStyles.caption(palette.tertiary)
-                        .copyWith(fontSize: 11.5, height: 1.35),
+                    style: AppTextStyles.body(palette.tertiary)
+                        .copyWith(fontSize: 14, height: 1.35),
                   ),
                   if (txn.tagNames.isNotEmpty) ...<Widget>[
                     const SizedBox(height: 7),
@@ -1096,13 +1096,12 @@ class PaisaTxnCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.end,
               children: <Widget>[
                 Text(
-                  '${txn.type == kTypeIncome ? '+' : txn.type == kTypeTransfer ? '' : '−'}${Fmt.money(txn.amount)}',
-                  style: AppTextStyles.money(
-                    15,
-                    color: amountTone,
-                    weight: FontWeight.w700,
-                    serifFace: false,
-                  ),
+                  Fmt.money(txn.amount),
+                  style: AppTextStyles.base(
+                    size: 17,
+                    weight: FontWeight.w600,
+                    height: 1.1,
+                  ).copyWith(color: amountTone),
                 ),
                 if (txn.type == kTypeTransfer)
                   Text(
@@ -1129,20 +1128,20 @@ class _TagChip extends StatelessWidget {
     final palette = context.c;
     final tone = TileColors.all[label.hashCode.abs() % TileColors.all.length];
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
         color: tone.withOpacity(0.18),
-        borderRadius: BorderRadius.circular(6),
+        borderRadius: BorderRadius.circular(7),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: <Widget>[
-          Icon(Icons.label_rounded, size: 10, color: tone),
-          const SizedBox(width: 3),
+          Icon(Icons.label_rounded, size: 12, color: tone),
+          const SizedBox(width: 4),
           Text(
             label,
             style: AppTextStyles.base(
-              size: 10.5,
+              size: 12,
               weight: FontWeight.w600,
               height: 1.1,
             ).copyWith(color: palette.isDark ? Colors.white : tone),

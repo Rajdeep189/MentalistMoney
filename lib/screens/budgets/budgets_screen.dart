@@ -242,8 +242,11 @@ class _BudgetsScreenState extends ConsumerState<BudgetsScreen> {
                   children: <Widget>[
                     Text(
                       '${all.length} budget${all.length == 1 ? '' : 's'}',
-                      style: AppTextStyles.serif(
-                          size: 19, color: AppColors.accentShift),
+                      style: AppTextStyles.base(
+                        size: 22,
+                        weight: FontWeight.w700,
+                        height: 1.15,
+                      ).copyWith(color: palette.accent),
                     ),
                     const Spacer(),
                     GestureDetector(
@@ -489,8 +492,8 @@ class BudgetCard extends StatelessWidget {
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: AppTextStyles.base(
-                          size: 17,
-                          weight: FontWeight.w700,
+                          size: 20,
+                          weight: FontWeight.w600,
                           height: 1.15,
                         ).copyWith(color: palette.ink),
                       ),
@@ -510,7 +513,11 @@ class BudgetCard extends StatelessWidget {
                                 : 'Category',
                             tone: accent,
                           ),
-                          _CardChip(label: 'Automatic', tone: accent),
+                          _CardChip(
+                            label: 'Automatic',
+                            tone: accent,
+                            icon: Icons.sync_rounded,
+                          ),
                         ],
                       ),
                     ],
@@ -558,13 +565,22 @@ class BudgetCard extends StatelessWidget {
                     children: <Widget>[
                       Text(
                         'Spent',
-                        style: AppTextStyles.caption(palette.sub)
-                            .copyWith(fontSize: 12),
+                        style: AppTextStyles.base(
+                          size: 14.5,
+                          weight: FontWeight.w400,
+                          height: 1.1,
+                        ).copyWith(color: palette.isDark
+                            ? Colors.white.withOpacity(0.62)
+                            : palette.sub),
                       ),
-                      const SizedBox(height: 2),
+                      const SizedBox(height: 3),
                       Text(
-                        Fmt.money(progress.spent, forceCompact: true),
-                        style: AppTextStyles.serif(size: 18, color: accent),
+                        Fmt.money(progress.spent),
+                        style: AppTextStyles.base(
+                          size: 19,
+                          weight: FontWeight.w600,
+                          height: 1.1,
+                        ).copyWith(color: accent),
                       ),
                     ],
                   ),
@@ -581,14 +597,22 @@ class BudgetCard extends StatelessWidget {
                     children: <Widget>[
                       Text(
                         'Budget',
-                        style: AppTextStyles.caption(palette.sub)
-                            .copyWith(fontSize: 12),
+                        style: AppTextStyles.base(
+                          size: 14.5,
+                          weight: FontWeight.w400,
+                          height: 1.1,
+                        ).copyWith(color: palette.isDark
+                            ? Colors.white.withOpacity(0.62)
+                            : palette.sub),
                       ),
-                      const SizedBox(height: 2),
+                      const SizedBox(height: 3),
                       Text(
-                        Fmt.money(progress.amount, forceCompact: true),
-                        style: AppTextStyles.serif(
-                            size: 18, color: palette.ink),
+                        Fmt.money(progress.amount),
+                        style: AppTextStyles.base(
+                          size: 19,
+                          weight: FontWeight.w600,
+                          height: 1.1,
+                        ).copyWith(color: palette.ink),
                       ),
                     ],
                   ),
@@ -606,53 +630,63 @@ class BudgetCard extends StatelessWidget {
               waves: 8,
             ),
             const SizedBox(height: 12),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-              decoration: BoxDecoration(
-                color: accent.withOpacity(palette.isDark ? 0.10 : 0.12),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Row(
-                children: <Widget>[
-                  Icon(Icons.calendar_today_rounded,
-                      size: 13, color: accent.withOpacity(0.9)),
-                  const SizedBox(width: 7),
-                  Expanded(
-                    child: Text(
-                      'You can spend ${Fmt.money(perDay.round())}/day for '
-                      '${progress.daysLeft} more days',
-                      style: AppTextStyles.caption(accent)
-                          .copyWith(fontSize: 11.5),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 10),
             Row(
               children: <Widget>[
-                Icon(Icons.savings_outlined,
-                    size: 13, color: palette.sub),
-                const SizedBox(width: 6),
+                Icon(Icons.calendar_today_rounded,
+                    size: 14, color: accent.withOpacity(0.85)),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    'You can spend ${Fmt.money(perDay.round())}/day for '
+                    '${progress.daysLeft} more days',
+                    style: AppTextStyles.base(
+                      size: 14,
+                      weight: FontWeight.w400,
+                      height: 1.2,
+                    ).copyWith(
+                      color: palette.isDark
+                          ? Colors.white.withOpacity(0.72)
+                          : palette.sub,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            Row(
+              children: <Widget>[
+                Icon(Icons.account_balance_wallet_outlined,
+                    size: 14, color: accent.withOpacity(0.85)),
+                const SizedBox(width: 8),
                 Text(
                   'Remaining',
-                  style: AppTextStyles.caption(palette.sub)
-                      .copyWith(fontSize: 12),
+                  style: AppTextStyles.base(
+                    size: 14,
+                    weight: FontWeight.w400,
+                    height: 1.2,
+                  ).copyWith(
+                    color: palette.isDark
+                        ? Colors.white.withOpacity(0.72)
+                        : palette.sub,
+                  ),
                 ),
                 const SizedBox(width: 8),
                 Text(
-                  Fmt.money(progress.remaining, forceCompact: true),
+                  Fmt.money(progress.remaining),
                   style: AppTextStyles.base(
-                    size: 13,
-                    weight: FontWeight.w700,
+                    size: 15,
+                    weight: FontWeight.w600,
                     height: 1.1,
                   ).copyWith(color: accent),
                 ),
                 const Spacer(),
                 Text(
                   status,
-                  style: AppTextStyles.caption(statusColor)
-                      .copyWith(fontSize: 11),
+                  style: AppTextStyles.base(
+                    size: 12,
+                    weight: FontWeight.w600,
+                    height: 1.1,
+                  ).copyWith(color: statusColor.withOpacity(0.9)),
                 ),
                 if (onAddExpense != null) ...<Widget>[
                   const SizedBox(width: 10),
@@ -672,26 +706,36 @@ class BudgetCard extends StatelessWidget {
 }
 
 class _CardChip extends StatelessWidget {
-  const _CardChip({required this.label, required this.tone});
+  const _CardChip({required this.label, required this.tone, this.icon});
 
   final String label;
   final Color tone;
+  final IconData? icon;
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+      padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
       decoration: BoxDecoration(
-        color: tone.withOpacity(0.14),
+        color: tone.withOpacity(0.16),
         borderRadius: BorderRadius.circular(7),
       ),
-      child: Text(
-        label,
-        style: AppTextStyles.base(
-          size: 10.5,
-          weight: FontWeight.w600,
-          height: 1.1,
-        ).copyWith(color: tone),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: <Widget>[
+          if (icon != null) ...<Widget>[
+            Icon(icon, size: 12, color: tone),
+            const SizedBox(width: 4),
+          ],
+          Text(
+            label,
+            style: AppTextStyles.base(
+              size: 12,
+              weight: FontWeight.w600,
+              height: 1.1,
+            ).copyWith(color: tone),
+          ),
+        ],
       ),
     );
   }

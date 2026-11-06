@@ -187,42 +187,22 @@ class _AccountBodyState extends ConsumerState<_AccountBody> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
                 Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: <Widget>[
-                      DeltaStatCard(
-                        label: 'Income',
-                        amount: income,
-                        delta: incomeDelta,
-                        income: true,
-                      ),
-                      const SizedBox(height: 6),
-                      Text(
-                        'Compared to ${Fmt.money(prevIncome)} last month',
-                        style: AppTextStyles.caption(palette.tertiary)
-                            .copyWith(fontSize: 11.5),
-                      ),
-                    ],
+                  child: _AccountStat(
+                    label: 'Income',
+                    amount: income,
+                    delta: incomeDelta,
+                    previous: prevIncome,
+                    income: true,
                   ),
                 ),
-                const SizedBox(width: 10),
+                const SizedBox(width: 14),
                 Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: <Widget>[
-                      DeltaStatCard(
-                        label: 'Expense',
-                        amount: expense,
-                        delta: expenseDelta,
-                        income: false,
-                      ),
-                      const SizedBox(height: 6),
-                      Text(
-                        'Compared to ${Fmt.money(prevExpense)} last month',
-                        style: AppTextStyles.caption(palette.tertiary)
-                            .copyWith(fontSize: 11.5),
-                      ),
-                    ],
+                  child: _AccountStat(
+                    label: 'Expense',
+                    amount: expense,
+                    delta: expenseDelta,
+                    previous: prevExpense,
+                    income: false,
                   ),
                 ),
               ],
@@ -230,7 +210,11 @@ class _AccountBodyState extends ConsumerState<_AccountBody> {
             const SizedBox(height: 20),
             Text(
               'Transactions',
-              style: AppTextStyles.serif(size: 19, color: AppColors.accentShift),
+              style: AppTextStyles.base(
+                size: 19,
+                weight: FontWeight.w700,
+                height: 1.15,
+              ).copyWith(color: palette.accent),
             ),
             const SizedBox(height: 10),
             if (txns.isEmpty)
@@ -420,7 +404,11 @@ class _AccountHero extends StatelessWidget {
           const Spacer(),
           Text(
             'Total balance',
-            style: AppTextStyles.caption(palette.sub).copyWith(fontSize: 12.5),
+            style: AppTextStyles.base(
+              size: 15.5,
+              weight: FontWeight.w400,
+              height: 1.1,
+            ).copyWith(color: palette.sub),
           ),
           const SizedBox(height: 2),
           FittedBox(
@@ -428,11 +416,13 @@ class _AccountHero extends StatelessWidget {
             alignment: Alignment.centerLeft,
             child: Text(
               Fmt.money(account.balance),
-              style: AppTextStyles.serif(
-                size: 28,
-                color: palette.isDark
-                    ? const Color(0xFFF6877A)
-                    : palette.ink,
+              style: AppTextStyles.base(
+                size: 34,
+                weight: FontWeight.w800,
+                height: 1.05,
+                letterSpacing: -0.5,
+              ).copyWith(
+                color: palette.isDark ? const Color(0xFFF6877A) : palette.ink,
               ),
             ),
           ),
@@ -509,6 +499,88 @@ class _HeroChip extends StatelessWidget {
           height: 1.1,
         ).copyWith(color: context.c.sub),
       ),
+    );
+  }
+}
+
+
+class _AccountStat extends StatelessWidget {
+  const _AccountStat({
+    required this.label,
+    required this.amount,
+    required this.delta,
+    required this.previous,
+    required this.income,
+  });
+
+  final String label;
+  final int amount;
+  final double delta;
+  final int previous;
+  final bool income;
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = context.c;
+    final up = delta >= 0;
+    final tone = income ? palette.income : palette.expense;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: <Widget>[
+        Text(
+          label,
+          style: AppTextStyles.base(
+            size: 15.5,
+            weight: FontWeight.w400,
+            height: 1.1,
+          ).copyWith(color: palette.sub),
+        ),
+        const SizedBox(height: 3),
+        Row(
+          children: <Widget>[
+            Flexible(
+              child: FittedBox(
+                fit: BoxFit.scaleDown,
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  Fmt.money(amount),
+                  style: AppTextStyles.base(
+                    size: 19,
+                    weight: FontWeight.w700,
+                    height: 1.1,
+                  ).copyWith(color: palette.ink),
+                ),
+              ),
+            ),
+            const SizedBox(width: 3),
+            Icon(
+              up ? Icons.arrow_upward_rounded : Icons.arrow_downward_rounded,
+              size: 13,
+              color: tone,
+            ),
+            Flexible(
+              child: FittedBox(
+                fit: BoxFit.scaleDown,
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  '${delta.abs().toStringAsFixed(2)}%',
+                  style: AppTextStyles.base(
+                    size: 14,
+                    weight: FontWeight.w600,
+                    height: 1.1,
+                  ).copyWith(color: tone),
+                ),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 4),
+        Text(
+          'Compared to ${Fmt.money(previous)} last month',
+          style: AppTextStyles.body(palette.tertiary)
+              .copyWith(fontSize: 14.5, height: 1.35),
+        ),
+      ],
     );
   }
 }
