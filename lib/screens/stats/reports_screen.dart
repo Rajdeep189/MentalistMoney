@@ -36,6 +36,14 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen> {
     final range = ref.watch(statsRangeProvider);
     final summary = ref.watch(statsSummaryProvider).valueOrNull ??
         const PeriodSummary();
+    final previous = ref.watch(statsPreviousSummaryProvider).valueOrNull ??
+        const PeriodSummary();
+    final incomeDelta = previous.income == 0
+        ? (summary.income > 0 ? 100.0 : 0.0)
+        : (summary.income - previous.income) / previous.income * 100;
+    final expenseDelta = previous.expense == 0
+        ? (summary.expense > 0 ? 100.0 : 0.0)
+        : (summary.expense - previous.expense) / previous.expense * 100;
     final categories =
         ref.watch(statsCategoryTotalsProvider).valueOrNull ??
             const <CategoryTotal>[];
@@ -169,9 +177,9 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen> {
                   child: DeltaStatCard(
                     label: 'Income',
                     amount: summary.income,
-                    delta: _delta(summary.income, total, 163),
+                    delta: incomeDelta,
                     income: true,
-                    previous: null,
+                    previous: previous.income,
                   ),
                 ),
                 const SizedBox(width: 10),
@@ -179,9 +187,9 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen> {
                   child: DeltaStatCard(
                     label: 'Expense',
                     amount: summary.expense,
-                    delta: _delta(summary.expense, total, 43),
+                    delta: expenseDelta,
                     income: false,
-                    previous: null,
+                    previous: previous.expense,
                   ),
                 ),
               ],
@@ -661,12 +669,6 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen> {
         ],
       ),
     );
-  }
-
-  static double _delta(int value, int net, double fallback) {
-    if (value == 0) return 0;
-    if (net == 0) return fallback;
-    return ((net / value) * 100).clamp(-999, 999);
   }
 
   static List<double> _cumulative(List<DayTotal> daily) {

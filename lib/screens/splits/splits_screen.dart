@@ -134,7 +134,7 @@ class _SplitsScreenState extends ConsumerState<SplitsScreen> {
               for (final group in groups)
                 Padding(
                   padding: const EdgeInsets.only(bottom: 10),
-                  child: _GroupCard(group: group),
+                  child: _GroupCard(group: group, filter: _filter),
                 ),
             ],
           );
@@ -206,9 +206,10 @@ class _SplitsScreenState extends ConsumerState<SplitsScreen> {
 }
 
 class _GroupCard extends ConsumerWidget {
-  const _GroupCard({required this.group});
+  const _GroupCard({required this.group, this.filter = 'Active'});
 
   final SplitGroup group;
+  final String filter;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -217,6 +218,9 @@ class _GroupCard extends ConsumerWidget {
     final settled = summary != null &&
         summary.expenses.isNotEmpty &&
         summary.balances.every((b) => b.net.abs() < 100);
+    if (summary != null && filter != (settled ? 'Settled' : 'Active')) {
+      return const SizedBox.shrink();
+    }
     final tint = TileColors.all[group.name.hashCode.abs() % TileColors.all.length];
     final initials = summary == null || summary.members.isEmpty
         ? 'A'
