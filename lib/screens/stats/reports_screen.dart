@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_spacing.dart';
 import '../../core/theme/app_text_styles.dart';
+import '../../core/utils/app_icons.dart';
 import '../../core/utils/money.dart';
 import '../../data/models/models.dart';
 import '../../providers/app_providers.dart';
@@ -28,7 +29,6 @@ class ReportsScreen extends ConsumerStatefulWidget {
 class _ReportsScreenState extends ConsumerState<ReportsScreen> {
   String _chartMode = 'bars';
   String _breakdown = 'Expense';
-  String _group = 'Category';
 
   @override
   Widget build(BuildContext context) {
@@ -496,26 +496,49 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen> {
             padding: const EdgeInsets.symmetric(horizontal: AppSpacing.screen),
             child: Row(
               children: <Widget>[
-                Expanded(
-                  child: _DropdownPill(
-                    label: _breakdown,
-                    options: const <String>['Expense', 'Income'],
-                    onSelected: (value) =>
-                        setState(() => _breakdown = value),
+                PopupMenuButton<String>(
+                  onSelected: (value) => setState(() => _breakdown = value),
+                  color: palette.card,
+                  position: PopupMenuPosition.under,
+                  itemBuilder: (context) => <PopupMenuEntry<String>>[
+                    for (final option in const <String>['Expense', 'Income'])
+                      PopupMenuItem<String>(
+                        value: option,
+                        child: Text(
+                          option,
+                          style: AppTextStyles.body(palette.ink),
+                        ),
+                      ),
+                  ],
+                  child: Row(
+                    children: <Widget>[
+                      Text(
+                        _breakdown,
+                        style: AppTextStyles.base(
+                          size: 20,
+                          weight: FontWeight.w600,
+                          height: 1.15,
+                        ).copyWith(color: palette.ink),
+                      ),
+                      const SizedBox(width: 3),
+                      Icon(Icons.keyboard_arrow_down_rounded,
+                          size: 19, color: palette.sub),
+                    ],
                   ),
                 ),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: _DropdownPill(
-                    label: _group,
-                    options: const <String>['Category', 'Account'],
-                    onSelected: (value) => setState(() => _group = value),
-                  ),
+                const Spacer(),
+                Text(
+                  Fmt.money(categoryTotal),
+                  style: AppTextStyles.base(
+                    size: 20,
+                    weight: FontWeight.w600,
+                    height: 1.15,
+                  ).copyWith(color: palette.ink),
                 ),
               ],
             ),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 14),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: AppSpacing.screen),
             child: Column(
@@ -525,64 +548,77 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen> {
                     categories: categories,
                     total: categoryTotal,
                   ),
-                const SizedBox(height: 16),
-                if (categories.isNotEmpty)
-                  Container(
-                    padding: const EdgeInsets.all(14),
-                    decoration: BoxDecoration(
-                      color: palette.isDark
-                          ? const Color(0xFF283647)
-                          : AppColors.periwinkle,
-                      borderRadius: BorderRadius.circular(18),
-                    ),
-                    child: Row(
-                      children: <Widget>[
-                        Container(
-                          height: 42,
-                          width: 42,
-                          decoration: BoxDecoration(
-                            color: TileColors.blue,
-                            borderRadius: BorderRadius.circular(13),
+                const SizedBox(height: 14),
+                for (final category in categories.take(4))
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 8),
+                    child: Container(
+                      padding: const EdgeInsets.fromLTRB(14, 14, 16, 14),
+                      decoration: BoxDecoration(
+                        color: palette.isDark
+                            ? const Color(0xFF2E3B44)
+                            : AppColors.periwinkle,
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Row(
+                        children: <Widget>[
+                          Container(
+                            height: 52,
+                            width: 52,
+                            decoration: BoxDecoration(
+                              color: AppColors.fromHex(category.color),
+                              borderRadius: BorderRadius.circular(14),
+                            ),
+                            child: Icon(
+                              AppIcons.byName(category.icon),
+                              size: 24,
+                              color: Colors.white,
+                            ),
                           ),
-                          child: const Icon(Icons.attach_money_rounded,
-                              size: 20, color: Colors.white),
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: <Widget>[
-                              Text(
-                                '${categories.first.name} (${categoryTotal == 0 ? 0 : (categories.first.total / categoryTotal * 100).round()}%)',
-                                style: AppTextStyles.base(
-                                  size: 14.5,
-                                  weight: FontWeight.w700,
-                                  height: 1.15,
-                                ).copyWith(color: palette.ink),
-                              ),
-                              const SizedBox(height: 3),
-                              Text(
-                                '${categories.first.count} transaction${categories.first.count == 1 ? '' : 's'}',
-                                style: AppTextStyles.caption(palette.sub)
-                                    .copyWith(fontSize: 11.5),
-                              ),
-                              Text(
-                                'Includes sub-categories',
-                                style: AppTextStyles.caption(palette.tertiary)
-                                    .copyWith(
-                                        fontSize: 11,
-                                        fontStyle: FontStyle.italic),
-                              ),
-                            ],
+                          const SizedBox(width: 13),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: <Widget>[
+                                Text(
+                                  '${category.name} (${categoryTotal == 0 ? 0 : (category.total / categoryTotal * 100).toStringAsFixed(1)}%)',
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: AppTextStyles.base(
+                                    size: 17,
+                                    weight: FontWeight.w600,
+                                    height: 1.15,
+                                  ).copyWith(color: palette.ink),
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  '${category.count} transaction${category.count == 1 ? '' : 's'}',
+                                  style: AppTextStyles.body(palette.sub)
+                                      .copyWith(fontSize: 14),
+                                ),
+                                Text(
+                                  'Includes sub-categories',
+                                  style: AppTextStyles.body(palette.tertiary)
+                                      .copyWith(
+                                    fontSize: 14,
+                                    height: 1.35,
+                                    fontStyle: FontStyle.italic,
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
-                        ),
-                        Text(
-                          Fmt.money(categories.first.total,
-                              forceCompact: true),
-                          style:
-                              AppTextStyles.serif(size: 15, color: palette.ink),
-                        ),
-                      ],
+                          const SizedBox(width: 8),
+                          Text(
+                            Fmt.money(category.total),
+                            style: AppTextStyles.base(
+                              size: 17,
+                              weight: FontWeight.w600,
+                              height: 1.1,
+                            ).copyWith(color: palette.ink),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
               ],
@@ -940,60 +976,6 @@ class _LegendDot extends StatelessWidget {
           style: AppTextStyles.caption(context.c.sub).copyWith(fontSize: 11.5),
         ),
       ],
-    );
-  }
-}
-
-class _DropdownPill extends StatelessWidget {
-  const _DropdownPill({
-    required this.label,
-    required this.options,
-    required this.onSelected,
-  });
-
-  final String label;
-  final List<String> options;
-  final ValueChanged<String> onSelected;
-
-  @override
-  Widget build(BuildContext context) {
-    final palette = context.c;
-    return PopupMenuButton<String>(
-      onSelected: onSelected,
-      color: palette.card,
-      position: PopupMenuPosition.under,
-      itemBuilder: (context) => <PopupMenuEntry<String>>[
-        for (final option in options)
-          PopupMenuItem<String>(
-            value: option,
-            child: Text(option, style: AppTextStyles.body(palette.ink)),
-          ),
-      ],
-      child: Container(
-        height: 52,
-        padding: const EdgeInsets.symmetric(horizontal: 16),
-        decoration: BoxDecoration(
-          color: palette.card,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: palette.divider.withOpacity(0.35)),
-        ),
-        child: Row(
-          children: <Widget>[
-            Expanded(
-              child: Text(
-                label,
-                style: AppTextStyles.base(
-                  size: 14,
-                  weight: FontWeight.w600,
-                  height: 1.15,
-                ).copyWith(color: palette.ink),
-              ),
-            ),
-            Icon(Icons.keyboard_arrow_down_rounded,
-                size: 20, color: palette.sub),
-          ],
-        ),
-      ),
     );
   }
 }
