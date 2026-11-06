@@ -8,20 +8,27 @@ import '../../core/utils/money.dart';
 import '../../data/models/models.dart';
 import '../../data/repositories/split_repository.dart';
 import '../../providers/app_providers.dart';
-import '../../widgets/app_card.dart';
-import '../../widgets/buttons.dart';
-import '../../widgets/category_icon.dart';
+import '../../widgets/app_sheets.dart';
 import '../../widgets/empty_state.dart';
 import '../../widgets/illustration.dart';
+import '../../widgets/paisa.dart';
+import '../../widgets/paisa_blocks.dart';
 import '../../widgets/premium_gate.dart';
 import 'split_create_screen.dart';
 import 'split_detail_screen.dart';
 
-class SplitsScreen extends ConsumerWidget {
+class SplitsScreen extends ConsumerStatefulWidget {
   const SplitsScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<SplitsScreen> createState() => _SplitsScreenState();
+}
+
+class _SplitsScreenState extends ConsumerState<SplitsScreen> {
+  String _filter = 'Active';
+
+  @override
+  Widget build(BuildContext context) {
     final palette = context.c;
     final groupsAsync = ref.watch(splitGroupsProvider);
     final premium = ref.watch(isPremiumProvider);
@@ -30,11 +37,41 @@ class SplitsScreen extends ConsumerWidget {
       backgroundColor: palette.surface,
       appBar: AppBar(
         titleSpacing: 0,
-        title: Text('Bill Splitter', style: AppTextStyles.h2(context.c.ink)),
+        title: Text('Bill Splitter', style: AppTextStyles.h2(palette.ink)),
+        actions: <Widget>[
+          IconButton(
+            tooltip: 'Settlement summary',
+            onPressed: () => showSnack(
+              context,
+              'Settlement summary lives inside each group.',
+            ),
+            icon: Icon(Icons.receipt_long_rounded, color: palette.sub),
+          ),
+          IconButton(
+            tooltip: 'How bill splitter works',
+            onPressed: () => _showInfo(context),
+            icon: Icon(Icons.info_outline_rounded, color: palette.sub),
+          ),
+          const SizedBox(width: 6),
+        ],
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => _create(context, ref),
-        child: const Icon(Icons.group_add_rounded),
+        backgroundColor: palette.isDark ? const Color(0xFF7A452C) : palette.ink,
+        shape: const CircleBorder(),
+        child: const Icon(Icons.add_rounded, size: 28, color: Colors.white),
+      ),
+      bottomNavigationBar: Padding(
+        padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+        child: SafeArea(
+          top: false,
+          child: PaisaSegment<String>(
+            options: const <String>['Active', 'Settled'],
+            value: _filter,
+            height: 54,
+            onChanged: (value) => setState(() => _filter = value),
+          ),
+        ),
       ),
       body: groupsAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
@@ -53,16 +90,16 @@ class SplitsScreen extends ConsumerWidget {
           return ListView(
             padding: const EdgeInsets.fromLTRB(
               AppSpacing.screen,
-              AppSpacing.x2,
+              4,
               AppSpacing.screen,
               120,
             ),
             children: <Widget>[
               if (!premium)
                 Padding(
-                  padding: const EdgeInsets.only(bottom: AppSpacing.x3),
-                  child: AppCard(
-                    color: palette.accentSoft,
+                  padding: const EdgeInsets.only(bottom: 12),
+                  child: PaisaCard(
+                    color: palette.isDark ? const Color(0xFF33221C) : AppColors.accentLight,
                     child: Row(
                       children: <Widget>[
                         Icon(Icons.workspace_premium_rounded,
@@ -78,12 +115,27 @@ class SplitsScreen extends ConsumerWidget {
                     ),
                   ),
                 ),
-              ...groups.map(
-                (group) => Padding(
-                  padding: const EdgeInsets.only(bottom: AppSpacing.x3),
+              Row(
+                children: <Widget>[
+                  Text(
+                    '${groups.length} bill splitter${groups.length == 1 ? '' : 's'}',
+                    style: AppTextStyles.serif(
+                        size: 18, color: AppColors.accentShift),
+                  ),
+                  const Spacer(),
+                  Icon(Icons.account_balance_wallet_outlined,
+                      size: 20, color: palette.sub),
+                  const SizedBox(width: 14),
+                  Icon(Icons.info_outline_rounded,
+                      size: 20, color: palette.sub),
+                ],
+              ),
+              const SizedBox(height: 12),
+              for (final group in groups)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 10),
                   child: _GroupCard(group: group),
                 ),
-              ),
             ],
           );
         },
@@ -92,7 +144,8 @@ class SplitsScreen extends ConsumerWidget {
   }
 
   Future<void> _create(BuildContext context, WidgetRef ref) async {
-    final groups = ref.read(splitGroupsProvider).valueOrNull ?? const <SplitGroup>[];
+    final groups =
+        ref.read(splitGroupsProvider).valueOrNull ?? const <SplitGroup>[];
     if (groups.isNotEmpty) {
       final allowed = await ensurePremium(
         context,
@@ -108,6 +161,48 @@ class SplitsScreen extends ConsumerWidget {
       MaterialPageRoute<void>(builder: (_) => const SplitCreateScreen()),
     );
   }
+
+  static Future<void> _showInfo(BuildContext context) {
+    return showAppSheet<void>(
+      context,
+      (sheetContext) => const InfoSheet(
+        title: 'How Bill Splitter Works',
+        intro: 'Split bills with friends and track who owes what.',
+        sections: <InfoSection>[
+          InfoSection(
+            icon: Icons.call_split_rounded,
+            title: 'Split Types',
+            body:
+                'Equal: Split the bill evenly among all participants.\nCustom: Set a specific amount for each person.\nPercentage: Assign a percentage of the total to each person.',
+          ),
+          InfoSection(
+            icon: Icons.group_outlined,
+            title: 'Participants',
+            body:
+                'Add people from your contacts and assign who paid for the bill.',
+          ),
+          InfoSection(
+            icon: Icons.handshake_outlined,
+            title: 'Settlement',
+            body:
+                'Mark bills as settled when everyone has paid their share. Track active and settled bills separately.',
+          ),
+          InfoSection(
+            icon: Icons.account_balance_wallet_outlined,
+            title: 'Balances',
+            body:
+                'View net balances across all bills using the wallet icon in the app bar.',
+          ),
+          InfoSection(
+            icon: Icons.bar_chart_rounded,
+            title: 'Tracking',
+            body:
+                'Filter between active and settled bills. Sort by name, amount, or date to find what you need.',
+          ),
+        ],
+      ),
+    );
+  }
 }
 
 class _GroupCard extends ConsumerWidget {
@@ -119,67 +214,190 @@ class _GroupCard extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final palette = context.c;
     final summary = ref.watch(splitSummaryProvider(group.id!)).valueOrNull;
+    final settled = summary != null &&
+        summary.expenses.isNotEmpty &&
+        summary.balances.every((b) => b.net.abs() < 100);
+    final tint = TileColors.all[group.name.hashCode.abs() % TileColors.all.length];
+    final initials = summary == null || summary.members.isEmpty
+        ? 'A'
+        : summary.members
+            .take(2)
+            .map((m) => m.name.isEmpty ? 'A' : m.name[0].toUpperCase())
+            .join();
 
-    return AppCard(
+    return GestureDetector(
       onTap: () => Navigator.of(context).push(
         MaterialPageRoute<void>(
           builder: (_) => SplitDetailScreen(groupId: group.id!),
         ),
       ),
-      child: Row(
-        children: <Widget>[
-          CategoryIcon(
-            icon: Icons.groups_rounded,
-            color: palette.accent,
-            size: 46,
-            rounded: true,
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                Text(group.name, style: AppTextStyles.label(palette.ink).copyWith(fontSize: 15)),
-                const SizedBox(height: 2),
-                Text(
-                  summary == null
-                      ? 'Loading…'
-                      : '${summary.members.length} members · ${summary.expenses.length} expenses',
-                  style: context.caption,
-                ),
-                if (summary != null)
-                  Text(
-                    'Total ${Fmt.money(summary.totalSpent, forceCompact: true)}',
-                    style: context.caption,
-                  ),
-              ],
+      child: Container(
+        padding: const EdgeInsets.all(14),
+        decoration: BoxDecoration(
+          color: palette.card,
+          borderRadius: BorderRadius.circular(22),
+          border: Border.all(color: palette.divider.withOpacity(0.65)),
+        ),
+        child: Row(
+          children: <Widget>[
+            Container(
+              height: 50,
+              width: 50,
+              decoration: BoxDecoration(
+                color: tint,
+                borderRadius: BorderRadius.circular(15),
+              ),
+              child: Icon(
+                group.name.toLowerCase().contains('trip')
+                    ? Icons.savings_rounded
+                    : Icons.attach_money_rounded,
+                size: 24,
+                color: Colors.white,
+              ),
             ),
-          ),
-          if (summary != null)
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  Text(
+                    group.name,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: AppTextStyles.base(
+                      size: 16,
+                      weight: FontWeight.w700,
+                      height: 1.15,
+                    ).copyWith(color: palette.ink),
+                  ),
+                  const SizedBox(height: 6),
+                  Row(
+                    children: <Widget>[
+                      if (summary != null)
+                        for (var i = 0; i < summary.members.take(2).length; i++)
+                          Transform.translate(
+                            offset: Offset(i == 0 ? 0 : -6, 0),
+                            child: Container(
+                              height: 20,
+                              width: 20,
+                              alignment: Alignment.center,
+                              decoration: BoxDecoration(
+                                color: i.isEven
+                                    ? const Color(0xFFF26B5B)
+                                    : const Color(0xFF22C55E),
+                                shape: BoxShape.circle,
+                                border: Border.all(
+                                    color: palette.card, width: 1.5),
+                              ),
+                              child: Text(
+                                summary.members[i].name.isEmpty
+                                    ? 'A'
+                                    : summary.members[i].name[0].toUpperCase(),
+                                style: const TextStyle(
+                                  fontSize: 9,
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w700,
+                                ),
+                              ),
+                            ),
+                          ),
+                      const SizedBox(width: 2),
+                      Icon(Icons.call_split_rounded,
+                          size: 11, color: palette.sub),
+                      const SizedBox(width: 3),
+                      _TinyChip(
+                        label: 'Percentage',
+                        color: palette.tertiary,
+                        background: palette.isDark
+                            ? const Color(0xFF3A2A22)
+                            : palette.surfaceAlt,
+                      ),
+                      const SizedBox(width: 5),
+                      _TinyChip(
+                        label: settled ? 'Settled' : 'Active',
+                        color: settled
+                            ? const Color(0xFF6BD6A0)
+                            : const Color(0xFFF6C453),
+                        background: (settled
+                                ? const Color(0xFF6BD6A0)
+                                : const Color(0xFFF6C453))
+                            .withOpacity(0.16),
+                        icon: settled
+                            ? Icons.check_circle_outline_rounded
+                            : Icons.access_time_rounded,
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(width: 8),
             Column(
               crossAxisAlignment: CrossAxisAlignment.end,
               children: <Widget>[
-                _balanceLabel(context, summary),
-                Icon(Icons.chevron_right_rounded, size: 18, color: palette.tertiary),
+                Text(
+                  summary == null
+                      ? '—'
+                      : Fmt.money(summary.totalSpent, forceCompact: true),
+                  style: AppTextStyles.base(
+                    size: 14.5,
+                    weight: FontWeight.w600,
+                    height: 1.1,
+                  ).copyWith(color: palette.ink),
+                ),
+                if (initials.isNotEmpty)
+                  Text(
+                    initials,
+                    style: AppTextStyles.caption(palette.tertiary)
+                        .copyWith(fontSize: 10),
+                  ),
               ],
             ),
-        ],
+          ],
+        ),
       ),
     );
   }
+}
 
-  Widget _balanceLabel(BuildContext context, SplitGroupSummary summary) {
-    final palette = context.c;
-    final you = summary.balances.where((b) => b.member.name.toLowerCase() == 'you');
-    if (you.isEmpty) {
-      return Text('${summary.members.length} members', style: context.caption);
-    }
-    final net = you.first.net;
-    return Text(
-      net >= 0
-          ? 'You are owed ${Fmt.money(net, forceCompact: true)}'
-          : 'You owe ${Fmt.money(net.abs(), forceCompact: true)}',
-      style: AppTextStyles.caption(net >= 0 ? palette.income : palette.expense),
+class _TinyChip extends StatelessWidget {
+  const _TinyChip({
+    required this.label,
+    required this.color,
+    required this.background,
+    this.icon,
+  });
+
+  final String label;
+  final Color color;
+  final Color background;
+  final IconData? icon;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
+      decoration: BoxDecoration(
+        color: background,
+        borderRadius: BorderRadius.circular(6),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: <Widget>[
+          if (icon != null) ...<Widget>[
+            Icon(icon, size: 9, color: color),
+            const SizedBox(width: 2),
+          ],
+          Text(
+            label,
+            style: AppTextStyles.base(
+              size: 9.5,
+              weight: FontWeight.w600,
+              height: 1.1,
+            ).copyWith(color: color),
+          ),
+        ],
+      ),
     );
   }
 }

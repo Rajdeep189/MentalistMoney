@@ -7,17 +7,23 @@ import '../../core/theme/app_text_styles.dart';
 import '../../core/utils/money.dart';
 import '../../data/models/models.dart';
 import '../../providers/app_providers.dart';
+import '../../widgets/app_sheets.dart';
 import '../../widgets/paisa.dart';
+import '../../widgets/paisa_blocks.dart';
 import '../achievements/achievements_screen.dart';
 import '../accounts/accounts_screen.dart';
+import '../accounts/assets_screen.dart';
+import '../accounts/loans_screen.dart';
 import '../budgets/budgets_screen.dart';
 import '../categories/categories_screen.dart';
 import '../goals/goals_screen.dart';
 import '../notifications/notifications_screen.dart';
 import '../settings/settings_screen.dart';
 import '../splits/splits_screen.dart';
+import '../stats/reports_screen.dart';
 import '../transactions/add_transaction_sheet.dart';
 import '../transactions/recurring_screen.dart';
+import '../transactions/transactions_screen.dart';
 
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
@@ -51,6 +57,12 @@ class HomeScreen extends ConsumerWidget {
     final daily = ref.watch(monthDailyTotalsProvider).valueOrNull ??
         const <DayTotal>[];
     final tags = ref.watch(allTagsProvider).valueOrNull ?? const <String>[];
+    final recent =
+        ref.watch(recentTransactionsProvider).valueOrNull ?? const <Txn>[];
+    final accountLookup =
+        ref.watch(accountLookupProvider).valueOrNull ?? const <int, Account>{};
+    final categoryLookup =
+        ref.watch(categoryLookupProvider).valueOrNull ?? const <int, Category>{};
     final hidden = ref.watch(amountsHiddenProvider);
 
     final assets = netWorth['assets'] ?? 0;
@@ -196,7 +208,7 @@ class HomeScreen extends ConsumerWidget {
                   title: 'Loans',
                   icon: Icons.account_balance_wallet_outlined,
                   minHeight: 178,
-                  onTap: () => _push(context, const AccountsScreen()),
+                  onTap: () => _push(context, const LoansScreen()),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: <Widget>[
@@ -266,7 +278,7 @@ class HomeScreen extends ConsumerWidget {
                   title: 'Assets',
                   icon: Icons.savings_outlined,
                   minHeight: 148,
-                  onTap: () => _push(context, const AccountsScreen()),
+                  onTap: () => _push(context, const AssetsScreen()),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: <Widget>[
@@ -556,7 +568,7 @@ class HomeScreen extends ConsumerWidget {
               onAction: () => _push(context, const CategoriesScreen()),
             ),
             SizedBox(
-              height: 108,
+              height: 122,
               child: ListView(
                 scrollDirection: Axis.horizontal,
                 children: <Widget>[
@@ -564,28 +576,28 @@ class HomeScreen extends ConsumerWidget {
                     label: 'Morning Coffee',
                     amount: 450,
                     icon: Icons.local_cafe_rounded,
-                    tint: AppColors.blush,
+                    tint: const Color(0xFF8A6A5C),
                     onTap: () => _quickAdd(context, ref, 450, 'Morning coffee'),
                   ),
                   _TemplateCard(
                     label: 'Grocery Run',
                     amount: 6500,
                     icon: Icons.shopping_basket_rounded,
-                    tint: AppColors.mint,
-                    onTap: () => _quickAdd(context, ref, 6500, 'Grocery run'),
+                    tint: const Color(0xFF2FBF7A),
+                    onTap: () async => _quickAdd(context, ref, 6500, 'Grocery run'),
                   ),
                   _TemplateCard(
-                    label: 'Transport',
-                    amount: 3500,
-                    icon: Icons.directions_bus_rounded,
-                    tint: AppColors.periwinkle,
-                    onTap: () => _quickAdd(context, ref, 3500, 'Transport'),
+                    label: 'Metro Card',
+                    amount: 20000,
+                    icon: Icons.account_balance_rounded,
+                    tint: const Color(0xFF2F9BF2),
+                    onTap: () => _quickAdd(context, ref, 20000, 'Metro card'),
                   ),
                   _TemplateCard(
                     label: 'Salary',
                     amount: 7500000,
                     icon: Icons.payments_rounded,
-                    tint: AppColors.tan,
+                    tint: const Color(0xFFB0785A),
                     onTap: () => _quickAdd(
                       context,
                       ref,
@@ -597,6 +609,74 @@ class HomeScreen extends ConsumerWidget {
                 ],
               ),
             ),
+            const SizedBox(height: 14),
+            PaisaSectionCard(
+              title: 'Calendar heatmap',
+              icon: Icons.calendar_month_rounded,
+              onTap: () => _push(context, const ReportsScreen()),
+              child: MonthHeatmap(
+                month: DateTime.now(),
+                totals: <int, int>{
+                  for (final day in daily) day.day.day: day.total,
+                },
+                onDay: (_) => _push(context, const ReportsScreen()),
+              ),
+            ),
+            PaisaSectionCard(
+              title: 'Trend',
+              icon: Icons.show_chart_rounded,
+              onTap: () => _push(context, const ReportsScreen()),
+              child: TrendChart(
+                previous: _series(daily, previous.expense, DateTime.now().day),
+                current: _series(daily, summary.expense, DateTime.now().day),
+                upcoming: _projection(daily, summary.expense),
+                startDay: 1,
+                endDay: DateTime(DateTime.now().year, DateTime.now().month + 1, 0).day,
+                prefix: '₹',
+              ),
+            ),
+            PaisaSectionTitle(
+              title: 'Track budgets',
+              action: 'See all',
+              onAction: () => _push(context, const BudgetsScreen()),
+            ),
+            if (budgets.isEmpty)
+              PaisaCard(
+                child: Text(
+                  'Set a spending limit and track it here.',
+                  style: AppTextStyles.body(palette.tertiary),
+                ),
+              )
+            else
+              _TrackBudgetsCarousel(
+                budgets: budgets,
+                onOpen: () => _push(context, const BudgetsScreen()),
+                onInfo: () => _howBudgetsWork(context),
+              ),
+            const SizedBox(height: 18),
+            PaisaSectionTitle(
+              title: 'Upcoming transactions',
+              action: 'See All',
+              onAction: () => _push(context, const TransactionsScreen()),
+            ),
+            if (recent.isEmpty)
+              PaisaCard(
+                child: Text(
+                  'Nothing scheduled yet.',
+                  style: AppTextStyles.body(palette.tertiary),
+                ),
+              )
+            else
+              for (final txn in recent.take(6))
+                PaisaTxnCard(
+                  txn: txn,
+                  category: categoryLookup[txn.categoryId],
+                  accountName: accountLookup[txn.accountId]?.name,
+                  toAccountName: txn.toAccountId == null
+                      ? null
+                      : accountLookup[txn.toAccountId]?.name,
+                  onTap: () => _push(context, const TransactionsScreen()),
+                ),
           ],
         ),
       ),
@@ -611,6 +691,91 @@ class HomeScreen extends ConsumerWidget {
 
   static void _openTab(WidgetRef ref, int index) {
     ref.read(navIndexProvider.notifier).state = index;
+  }
+
+  static List<double> _series(List<DayTotal> daily, int total, int uptoDay) {
+    final perDay = <int, int>{for (final d in daily) d.day.day: d.total};
+    var running = 0.0;
+    final out = <double>[];
+    final days = uptoDay.clamp(1, 31);
+    final step = (total / days).clamp(1, double.infinity);
+    for (var day = 1; day <= days; day++) {
+      running += perDay[day]?.toDouble() ?? step / 6;
+      out.add(running);
+    }
+    return out;
+  }
+
+  static List<double> _projection(List<DayTotal> daily, int total) {
+    final day = DateTime.now().day;
+    final perDay = total <= 0 ? 0.0 : total / day;
+    final out = <double>[];
+    var running = 0.0;
+    for (var i = 0; i < day; i++) {
+      running += perDay;
+      out.add(running);
+    }
+    final daysInMonth = DateTime(DateTime.now().year, DateTime.now().month + 1, 0).day;
+    for (var i = day; i < daysInMonth; i++) {
+      running += perDay;
+      out.add(running);
+    }
+    return out;
+  }
+
+  static Future<void> _howBudgetsWork(BuildContext context) {
+    return showAppSheet<void>(
+      context,
+      (sheetContext) => const InfoSheet(
+        title: 'How Budgets Work',
+        intro:
+            'Budgets help you set spending limits and track your expenses. Here\'s how to get started.',
+        sections: <InfoSection>[
+          InfoSection(
+            icon: Icons.swap_vert_rounded,
+            title: 'Budget For',
+            body:
+                'Expense Budget: Set limits on how much you spend.\nIncome Budget: Set goals for how much you earn.',
+          ),
+          InfoSection(
+            icon: Icons.category_outlined,
+            title: 'Budget Type',
+            body:
+                'Category Budget: Track spending for specific categories (e.g., Food, Transport).\nOverall Budget: Track your total spending, optionally excluding certain categories.',
+          ),
+          InfoSection(
+            icon: Icons.tune_rounded,
+            title: 'Budget Mode',
+            body:
+                'Automatic: Paisa automatically matches transactions to your budget based on categories.\nManual: You choose which transactions count toward the budget.',
+          ),
+          InfoSection(
+            icon: Icons.calendar_today_rounded,
+            title: 'Budget Period',
+            body:
+                'Choose Daily, Weekly, Monthly, Yearly, or a Custom date range.\nMonthly budgets can start on a custom day (e.g., 25th for salary cycles).',
+          ),
+          InfoSection(
+            icon: Icons.label_outline_rounded,
+            title: 'Categories',
+            body:
+                'For Category budgets: select which categories to track.\nFor Overall budgets: select which categories to exclude.\nYou can also include subcategories.',
+          ),
+          InfoSection(
+            icon: Icons.autorenew_rounded,
+            title: 'Rolling Budget',
+            body:
+                'Unused budget carries over to the next period. Overspending reduces next period\'s available budget.',
+          ),
+          InfoSection(
+            icon: Icons.bar_chart_rounded,
+            title: 'Tracking',
+            body:
+                'Your budget card shows spent amount, remaining amount, and a progress bar. Status indicators show whether you\'re on track, approaching your limit, or have exceeded it.',
+          ),
+        ],
+      ),
+    );
   }
 
   static List<int> _lastSeven(List<DayTotal> daily) {
@@ -1090,25 +1255,36 @@ class _TemplateCard extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        width: 150,
+        width: 214,
         margin: const EdgeInsets.only(right: 10),
-        padding: const EdgeInsets.all(12),
+        padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
           color: palette.card,
           borderRadius: BorderRadius.circular(22),
-          border: Border.all(color: palette.divider.withOpacity(0.75)),
+          border: Border.all(color: palette.divider.withOpacity(0.6)),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
             Row(
               children: <Widget>[
-                PaisaIconBadge(icon: icon, color: tint, size: 36, iconSize: 18),
+                Container(
+                  height: 44,
+                  width: 44,
+                  decoration: BoxDecoration(
+                    color: tint,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Icon(icon, size: 22, color: Colors.white),
+                ),
                 const Spacer(),
                 Text(
-                  Fmt.money(amount, forceCompact: true),
-                  style: AppTextStyles.caption(palette.ink)
-                      .copyWith(fontSize: 11.5, fontWeight: FontWeight.w600),
+                  Fmt.money(amount),
+                  style: AppTextStyles.base(
+                    size: 15,
+                    weight: FontWeight.w600,
+                    height: 1.1,
+                  ).copyWith(color: palette.ink),
                 ),
               ],
             ),
@@ -1118,19 +1294,226 @@ class _TemplateCard extends StatelessWidget {
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: AppTextStyles.base(
-                size: 13.5,
-                weight: FontWeight.w600,
+                size: 16,
+                weight: FontWeight.w700,
                 height: 1.1,
               ).copyWith(color: palette.ink),
             ),
-            const SizedBox(height: 2),
+            const SizedBox(height: 3),
             Text(
               'Expense',
               style: AppTextStyles.caption(palette.tertiary)
-                  .copyWith(fontSize: 11),
+                  .copyWith(fontSize: 12),
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+/// Horizontally paged budget cards with the reference ring + figures layout.
+class _TrackBudgetsCarousel extends StatefulWidget {
+  const _TrackBudgetsCarousel({
+    required this.budgets,
+    required this.onOpen,
+    required this.onInfo,
+  });
+
+  final List<BudgetProgress> budgets;
+  final VoidCallback onOpen;
+  final VoidCallback onInfo;
+
+  @override
+  State<_TrackBudgetsCarousel> createState() => _TrackBudgetsCarouselState();
+}
+
+class _TrackBudgetsCarouselState extends State<_TrackBudgetsCarousel> {
+  int _page = 0;
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = context.c;
+    final budgets = widget.budgets.take(5).toList();
+    return Column(
+      children: <Widget>[
+        SizedBox(
+          height: 210,
+          child: PageView.builder(
+            padEnds: false,
+            controller: PageController(viewportFraction: 0.9),
+            itemCount: budgets.length,
+            onPageChanged: (index) => setState(() => _page = index),
+            itemBuilder: (context, index) {
+              final progress = budgets[index];
+              final tint = index.isEven
+                  ? const Color(0xFF123B36)
+                  : const Color(0xFF3B2A12);
+              final accent = index.isEven
+                  ? const Color(0xFF2ED3B7)
+                  : const Color(0xFFF6B93B);
+              return GestureDetector(
+                onTap: widget.onOpen,
+                child: Container(
+                  margin: const EdgeInsets.only(right: 10),
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: palette.isDark ? tint : AppColors.mint,
+                    borderRadius: BorderRadius.circular(26),
+                    border: Border.all(color: accent.withOpacity(0.25)),
+                  ),
+                  child: Row(
+                    children: <Widget>[
+                      RingGauge(
+                        value: progress.ratio,
+                        size: 110,
+                        strokeWidth: 12,
+                        color: accent,
+                        center: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: <Widget>[
+                            Text(
+                              '${progress.percent.toStringAsFixed(0)}%',
+                              style: AppTextStyles.serif(
+                                size: 20,
+                                color: palette.ink,
+                              ),
+                            ),
+                            Text(
+                              'used',
+                              style: AppTextStyles.caption(palette.sub)
+                                  .copyWith(fontSize: 10.5),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(width: 14),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: <Widget>[
+                            Text(
+                              progress.budget.name,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: AppTextStyles.base(
+                                size: 15,
+                                weight: FontWeight.w700,
+                                height: 1.1,
+                              ).copyWith(color: palette.ink),
+                            ),
+                            const SizedBox(height: 4),
+                            Row(
+                              children: <Widget>[
+                                Text(
+                                  progress.budget.period[0].toUpperCase() +
+                                      progress.budget.period.substring(1),
+                                  style: AppTextStyles.caption(palette.sub)
+                                      .copyWith(fontSize: 11),
+                                ),
+                                const SizedBox(width: 6),
+                                PaisaChip(
+                                  label: progress.isOver ? 'Over' : 'Within',
+                                  color: progress.isOver
+                                      ? palette.expense
+                                      : accent,
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 10),
+                            _MiniFigure(
+                              icon: Icons.account_balance_outlined,
+                              label: 'Budget',
+                              value: Fmt.money(progress.amount, forceCompact: true),
+                            ),
+                            _MiniFigure(
+                              icon: Icons.shopping_cart_outlined,
+                              label: 'Spent',
+                              value: Fmt.money(progress.spent, forceCompact: true),
+                            ),
+                            _MiniFigure(
+                              icon: Icons.savings_outlined,
+                              label: 'Remaining',
+                              value: Fmt.money(progress.remaining, forceCompact: true),
+                              tone: accent,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            },
+          ),
+        ),
+        const SizedBox(height: 10),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            for (var i = 0; i < budgets.length; i++)
+              AnimatedContainer(
+                duration: const Duration(milliseconds: 200),
+                margin: const EdgeInsets.symmetric(horizontal: 3),
+                height: 7,
+                width: 7,
+                decoration: BoxDecoration(
+                  color: i == _page ? palette.accent : palette.divider,
+                  shape: BoxShape.circle,
+                ),
+              ),
+            const SizedBox(width: 10),
+            GestureDetector(
+              onTap: widget.onInfo,
+              child: Icon(Icons.info_outline_rounded,
+                  size: 16, color: palette.tertiary),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+}
+
+class _MiniFigure extends StatelessWidget {
+  const _MiniFigure({
+    required this.icon,
+    required this.label,
+    required this.value,
+    this.tone,
+  });
+
+  final IconData icon;
+  final String label;
+  final String value;
+  final Color? tone;
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = context.c;
+    final color = tone ?? palette.ink;
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 3),
+      child: Row(
+        children: <Widget>[
+          Icon(icon, size: 13, color: color.withOpacity(0.8)),
+          const SizedBox(width: 6),
+          Expanded(
+            child: Text(
+              label,
+              style: AppTextStyles.caption(palette.sub).copyWith(fontSize: 11.5),
+            ),
+          ),
+          Text(
+            value,
+            style: AppTextStyles.base(
+              size: 12.5,
+              weight: FontWeight.w700,
+              height: 1.1,
+            ).copyWith(color: color),
+          ),
+        ],
       ),
     );
   }

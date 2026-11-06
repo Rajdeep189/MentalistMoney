@@ -9,7 +9,7 @@ import '../../widgets/paisa_nav.dart';
 import '../accounts/accounts_screen.dart';
 import '../common/lock_gate.dart';
 import '../home/home_screen.dart';
-import '../stats/stats_screen.dart';
+import '../stats/reports_screen.dart';
 import '../transactions/add_transaction_sheet.dart';
 import '../transactions/search_screen.dart';
 
@@ -24,7 +24,7 @@ class _MainShellState extends ConsumerState<MainShell> {
   static const List<Widget> _screens = <Widget>[
     HomeScreen(),
     AccountsScreen(),
-    StatsScreen(),
+    ReportsScreen(),
     SearchScreen(),
   ];
 
