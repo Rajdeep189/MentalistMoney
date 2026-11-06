@@ -9,6 +9,7 @@ import '../../core/utils/money.dart';
 import '../../data/models/models.dart';
 import '../../providers/app_providers.dart';
 import '../../widgets/paisa.dart';
+import 'analytics_screen.dart';
 import '../../widgets/paisa_blocks.dart';
 import '../budgets/budgets_screen.dart';
 import '../categories/categories_screen.dart';
@@ -668,7 +669,7 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen> {
                     icon: Icons.account_balance_wallet_outlined,
                     title: 'Cash Flow Analysis',
                     subtitle: 'Money flow trends and patterns over time',
-                    onTap: () => _push(context, const StatsScreen()),
+                    onTap: () => _push(context, const AnalyticsScreen()),
                   ),
                   _ReportRow(
                     icon: Icons.emoji_events_outlined,
