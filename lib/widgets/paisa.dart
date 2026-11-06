@@ -526,12 +526,14 @@ class PaisaSectionTitle extends StatelessWidget {
     required this.title,
     this.action,
     this.onAction,
+    this.color,
     this.padding = const EdgeInsets.only(bottom: 10, top: 6),
   });
 
   final String title;
   final String? action;
   final VoidCallback? onAction;
+  final Color? color;
   final EdgeInsetsGeometry padding;
 
   @override
@@ -544,22 +546,30 @@ class PaisaSectionTitle extends StatelessWidget {
           Expanded(
             child: Text(
               title,
-              style: AppTextStyles.serif(size: 19, color: palette.ink),
+              style: AppTextStyles.base(
+                size: 20,
+                weight: FontWeight.w600,
+                height: 1.15,
+              ).copyWith(color: color ?? palette.ink),
             ),
           ),
           if (action != null)
             GestureDetector(
               onTap: onAction,
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(999),
                   border: Border.all(color: palette.divider),
                 ),
                 child: Text(
                   action!,
-                  style: AppTextStyles.caption(palette.onSoft)
-                      .copyWith(fontSize: 11.5),
+                  style: AppTextStyles.base(
+                    size: 13.5,
+                    weight: FontWeight.w500,
+                    height: 1.1,
+                  ).copyWith(color: palette.onSoft),
                 ),
               ),
             ),

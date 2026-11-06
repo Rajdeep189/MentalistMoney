@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_spacing.dart';
 import '../../core/theme/app_text_styles.dart';
+import '../../core/utils/app_icons.dart';
 import '../../core/utils/money.dart';
 import '../../data/models/models.dart';
 import '../../providers/app_providers.dart';
@@ -564,11 +565,12 @@ class HomeScreen extends ConsumerWidget {
             const SizedBox(height: 22),
             PaisaSectionTitle(
               title: 'Templates',
+              color: palette.accent,
               action: 'See all',
               onAction: () => _push(context, const CategoriesScreen()),
             ),
             SizedBox(
-              height: 122,
+              height: 152,
               child: ListView(
                 scrollDirection: Axis.horizontal,
                 children: <Widget>[
@@ -656,6 +658,7 @@ class HomeScreen extends ConsumerWidget {
             const SizedBox(height: 18),
             PaisaSectionTitle(
               title: 'Upcoming transactions',
+              color: palette.accent,
               action: 'See All',
               onAction: () => _push(context, const TransactionsScreen()),
             ),
@@ -1255,12 +1258,12 @@ class _TemplateCard extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        width: 214,
+        width: 246,
         margin: const EdgeInsets.only(right: 10),
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
           color: palette.card,
-          borderRadius: BorderRadius.circular(22),
+          borderRadius: BorderRadius.circular(20),
           border: Border.all(color: palette.divider.withOpacity(0.35)),
         ),
         child: Column(
@@ -1269,19 +1272,19 @@ class _TemplateCard extends StatelessWidget {
             Row(
               children: <Widget>[
                 Container(
-                  height: 44,
-                  width: 44,
+                  height: 46,
+                  width: 46,
                   decoration: BoxDecoration(
                     color: tint,
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: BorderRadius.circular(13),
                   ),
-                  child: Icon(icon, size: 22, color: Colors.white),
+                  child: Icon(icon, size: 23, color: Colors.white),
                 ),
                 const Spacer(),
                 Text(
                   Fmt.money(amount),
                   style: AppTextStyles.base(
-                    size: 15,
+                    size: 16,
                     weight: FontWeight.w600,
                     height: 1.1,
                   ).copyWith(color: palette.ink),
@@ -1294,16 +1297,19 @@ class _TemplateCard extends StatelessWidget {
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: AppTextStyles.base(
-                size: 16,
-                weight: FontWeight.w700,
+                size: 18.5,
+                weight: FontWeight.w600,
                 height: 1.1,
               ).copyWith(color: palette.ink),
             ),
             const SizedBox(height: 3),
             Text(
               'Expense',
-              style: AppTextStyles.caption(palette.tertiary)
-                  .copyWith(fontSize: 12),
+              style: AppTextStyles.base(
+                size: 14,
+                weight: FontWeight.w400,
+                height: 1.2,
+              ).copyWith(color: palette.tertiary),
             ),
           ],
         ),
@@ -1359,87 +1365,134 @@ class _TrackBudgetsCarouselState extends State<_TrackBudgetsCarousel> {
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
                     color: palette.isDark ? tint : AppColors.mint,
-                    borderRadius: BorderRadius.circular(26),
+                    borderRadius: BorderRadius.circular(24),
                     border: Border.all(color: accent.withOpacity(0.25)),
                   ),
-                  child: Row(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: <Widget>[
-                      RingGauge(
-                        value: progress.ratio,
-                        size: 110,
-                        strokeWidth: 12,
-                        color: accent,
-                        center: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: <Widget>[
-                            Text(
-                              '${progress.percent.toStringAsFixed(0)}%',
-                              style: AppTextStyles.serif(
-                                size: 20,
-                                color: palette.ink,
-                              ),
+                      Row(
+                        children: <Widget>[
+                          Container(
+                            height: 50,
+                            width: 50,
+                            decoration: BoxDecoration(
+                              color: accent,
+                              borderRadius: BorderRadius.circular(15),
                             ),
-                            Text(
-                              'used',
-                              style: AppTextStyles.caption(palette.sub)
-                                  .copyWith(fontSize: 10.5),
+                            child: Icon(
+                              AppIcons.byName(progress.budget.icon),
+                              size: 25,
+                              color: palette.isDark
+                                  ? const Color(0xFF0B1512)
+                                  : AppColors.espresso,
                             ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(width: 14),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: <Widget>[
-                            Text(
-                              progress.budget.name,
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: AppTextStyles.base(
-                                size: 15,
-                                weight: FontWeight.w700,
-                                height: 1.1,
-                              ).copyWith(color: palette.ink),
-                            ),
-                            const SizedBox(height: 4),
-                            Row(
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
                               children: <Widget>[
                                 Text(
-                                  progress.budget.period[0].toUpperCase() +
-                                      progress.budget.period.substring(1),
-                                  style: AppTextStyles.caption(palette.sub)
-                                      .copyWith(fontSize: 11),
+                                  progress.budget.name,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: AppTextStyles.base(
+                                    size: 19,
+                                    weight: FontWeight.w600,
+                                    height: 1.1,
+                                  ).copyWith(color: palette.ink),
                                 ),
-                                const SizedBox(width: 6),
-                                PaisaChip(
-                                  label: progress.isOver ? 'Over' : 'Within',
-                                  color: progress.isOver
-                                      ? palette.expense
-                                      : accent,
+                                const SizedBox(height: 4),
+                                Row(
+                                  children: <Widget>[
+                                    Text(
+                                      progress.budget.period[0].toUpperCase() +
+                                          progress.budget.period.substring(1),
+                                      style: AppTextStyles.base(
+                                        size: 14,
+                                        weight: FontWeight.w400,
+                                        height: 1.1,
+                                      ).copyWith(color: palette.sub),
+                                    ),
+                                    const SizedBox(width: 6),
+                                    Text(
+                                      '·',
+                                      style: AppTextStyles.base(
+                                        size: 14,
+                                        height: 1.1,
+                                      ).copyWith(color: palette.tertiary),
+                                    ),
+                                    const SizedBox(width: 6),
+                                    PaisaChip(
+                                      label:
+                                          progress.isOver ? 'Over' : 'Within',
+                                      color: progress.isOver
+                                          ? palette.expense
+                                          : accent,
+                                    ),
+                                  ],
                                 ),
                               ],
                             ),
-                            const SizedBox(height: 10),
-                            _MiniFigure(
-                              icon: Icons.account_balance_outlined,
-                              label: 'Budget',
-                              value: Fmt.money(progress.amount, forceCompact: true),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 10),
+                      Row(
+                        children: <Widget>[
+                          RingGauge(
+                            value: progress.ratio,
+                            size: 104,
+                            strokeWidth: 11,
+                            color: accent,
+                            center: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: <Widget>[
+                                Text(
+                                  '${progress.percent.toStringAsFixed(0)}%',
+                                  style: AppTextStyles.base(
+                                    size: 21,
+                                    weight: FontWeight.w700,
+                                    height: 1.05,
+                                  ).copyWith(color: palette.ink),
+                                ),
+                                Text(
+                                  'used',
+                                  style: AppTextStyles.base(
+                                    size: 13,
+                                    weight: FontWeight.w400,
+                                    height: 1.2,
+                                  ).copyWith(color: palette.sub),
+                                ),
+                              ],
                             ),
-                            _MiniFigure(
-                              icon: Icons.shopping_cart_outlined,
-                              label: 'Spent',
-                              value: Fmt.money(progress.spent, forceCompact: true),
+                          ),
+                          const SizedBox(width: 16),
+                          Expanded(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: <Widget>[
+                                _MiniFigure(
+                                  icon: Icons.account_balance_outlined,
+                                  label: 'Budget',
+                                  value: Fmt.money(progress.amount),
+                                ),
+                                _MiniFigure(
+                                  icon: Icons.shopping_cart_outlined,
+                                  label: 'Spent',
+                                  value: Fmt.money(progress.spent),
+                                ),
+                                _MiniFigure(
+                                  icon: Icons.savings_outlined,
+                                  label: 'Remaining',
+                                  value: Fmt.money(progress.remaining),
+                                  tone: accent,
+                                ),
+                              ],
                             ),
-                            _MiniFigure(
-                              icon: Icons.savings_outlined,
-                              label: 'Remaining',
-                              value: Fmt.money(progress.remaining, forceCompact: true),
-                              tone: accent,
-                            ),
-                          ],
-                        ),
+                          ),
+                        ],
                       ),
                     ],
                   ),
@@ -1494,22 +1547,26 @@ class _MiniFigure extends StatelessWidget {
     final palette = context.c;
     final color = tone ?? palette.ink;
     return Padding(
-      padding: const EdgeInsets.only(bottom: 3),
+      padding: const EdgeInsets.symmetric(vertical: 4),
       child: Row(
         children: <Widget>[
-          Icon(icon, size: 13, color: color.withOpacity(0.8)),
-          const SizedBox(width: 6),
+          Icon(icon, size: 16, color: color.withOpacity(0.8)),
+          const SizedBox(width: 8),
           Expanded(
             child: Text(
               label,
-              style: AppTextStyles.caption(palette.sub).copyWith(fontSize: 11.5),
+              style: AppTextStyles.base(
+                size: 15,
+                weight: FontWeight.w400,
+                height: 1.2,
+              ).copyWith(color: palette.sub),
             ),
           ),
           Text(
             value,
             style: AppTextStyles.base(
-              size: 12.5,
-              weight: FontWeight.w700,
+              size: 15.5,
+              weight: FontWeight.w600,
               height: 1.1,
             ).copyWith(color: color),
           ),
