@@ -374,7 +374,7 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen> {
                 decoration: BoxDecoration(
                   color: palette.card,
                   borderRadius: BorderRadius.circular(20),
-                  border: Border.all(color: palette.divider.withOpacity(0.65)),
+                  border: Border.all(color: palette.divider.withOpacity(0.35)),
                 ),
                 child: Row(
                   children: <Widget>[
@@ -437,7 +437,7 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen> {
               decoration: BoxDecoration(
                 color: palette.card,
                 borderRadius: BorderRadius.circular(24),
-                border: Border.all(color: palette.divider.withOpacity(0.65)),
+                border: Border.all(color: palette.divider.withOpacity(0.35)),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -603,7 +603,7 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen> {
               decoration: BoxDecoration(
                 color: palette.card,
                 borderRadius: BorderRadius.circular(22),
-                border: Border.all(color: palette.divider.withOpacity(0.65)),
+                border: Border.all(color: palette.divider.withOpacity(0.35)),
               ),
               child: Column(
                 children: <Widget>[
@@ -725,7 +725,7 @@ class _InsightTile extends StatelessWidget {
       decoration: BoxDecoration(
         color: palette.card,
         borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: palette.divider.withOpacity(0.6)),
+        border: Border.all(color: palette.divider.withOpacity(0.35)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -975,7 +975,7 @@ class _DropdownPill extends StatelessWidget {
         decoration: BoxDecoration(
           color: palette.card,
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: palette.divider.withOpacity(0.6)),
+          border: Border.all(color: palette.divider.withOpacity(0.35)),
         ),
         child: Row(
           children: <Widget>[
@@ -1128,7 +1128,7 @@ class _ReportRow extends StatelessWidget {
         decoration: BoxDecoration(
           border: showDivider
               ? Border(
-                  bottom: BorderSide(color: palette.divider.withOpacity(0.6)))
+                  bottom: BorderSide(color: palette.divider.withOpacity(0.35)))
               : null,
         ),
         child: Row(

@@ -1261,7 +1261,7 @@ class _TemplateCard extends StatelessWidget {
         decoration: BoxDecoration(
           color: palette.card,
           borderRadius: BorderRadius.circular(22),
-          border: Border.all(color: palette.divider.withOpacity(0.6)),
+          border: Border.all(color: palette.divider.withOpacity(0.35)),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,

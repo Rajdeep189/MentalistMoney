@@ -63,7 +63,7 @@ class PaisaNavBar extends StatelessWidget {
                     color: i == index
                         ? (palette.isDark
                             ? palette.cardAlt
-                            : palette.accent.withOpacity(0.22))
+                            : palette.accent.withOpacity(0.30))
                         : Colors.transparent,
                     borderRadius: BorderRadius.circular(999),
                   ),
@@ -74,7 +74,7 @@ class PaisaNavBar extends StatelessWidget {
                         i == index ? items[i].activeIcon : items[i].icon,
                         size: 22,
                         color: i == index
-                            ? (palette.isDark ? palette.accent : palette.ink)
+                            ? palette.ink
                             : palette.tertiary,
                       ),
                       const SizedBox(height: 4),
@@ -88,7 +88,7 @@ class PaisaNavBar extends StatelessWidget {
                           height: 1.0,
                         ).copyWith(
                           color: i == index
-                              ? (palette.isDark ? palette.accent : palette.ink)
+                              ? palette.ink
                               : palette.tertiary,
                         ),
                       ),

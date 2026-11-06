@@ -147,7 +147,7 @@ class AssetsScreen extends ConsumerWidget {
                       color: palette.card,
                       borderRadius: BorderRadius.circular(22),
                       border: Border.all(
-                          color: palette.divider.withOpacity(0.65)),
+                          color: palette.divider.withOpacity(0.35)),
                     ),
                     child: Column(
                       children: <Widget>[
@@ -236,7 +236,7 @@ class _AssetRow extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
         decoration: BoxDecoration(
           border: showDivider
-              ? Border(bottom: BorderSide(color: palette.divider.withOpacity(0.6)))
+              ? Border(bottom: BorderSide(color: palette.divider.withOpacity(0.35)))
               : null,
         ),
         child: Row(

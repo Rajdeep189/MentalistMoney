@@ -655,7 +655,7 @@ class TrendChart extends StatelessWidget {
               today: marked,
               prefix: prefix,
               ink: palette.tertiary,
-              grid: palette.divider.withOpacity(0.55),
+              grid: palette.divider.withOpacity(0.35),
               previousColor: palette.tertiary,
               currentColor: palette.accent,
               upcomingColor: const Color(0xFFBFD07A),
@@ -925,7 +925,7 @@ class PaisaSectionCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: palette.card,
         borderRadius: BorderRadius.circular(AppRadius.card),
-        border: Border.all(color: palette.divider.withOpacity(0.65)),
+        border: Border.all(color: palette.divider.withOpacity(0.35)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1025,7 +1025,7 @@ class PaisaTxnCard extends StatelessWidget {
           border: Border.all(
             color: selected
                 ? palette.accent
-                : palette.divider.withOpacity(0.6),
+                : palette.divider.withOpacity(0.35),
             width: selected ? 1.5 : 1,
           ),
         ),
@@ -1248,7 +1248,7 @@ class ToggleRow extends StatelessWidget {
       decoration: BoxDecoration(
         color: palette.card,
         borderRadius: BorderRadius.circular(AppRadius.card),
-        border: Border.all(color: palette.divider.withOpacity(0.65)),
+        border: Border.all(color: palette.divider.withOpacity(0.35)),
       ),
       child: Row(
         children: <Widget>[

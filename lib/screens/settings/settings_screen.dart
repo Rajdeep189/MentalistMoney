@@ -307,7 +307,7 @@ class _ProfileHeader extends StatelessWidget {
       decoration: BoxDecoration(
         color: palette.card,
         borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: palette.divider.withOpacity(0.65)),
+        border: Border.all(color: palette.divider.withOpacity(0.35)),
       ),
       child: Row(
         children: <Widget>[

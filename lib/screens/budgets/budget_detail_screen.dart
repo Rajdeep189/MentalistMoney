@@ -136,7 +136,7 @@ class _BudgetDetailScreenState extends ConsumerState<BudgetDetailScreen> {
                 decoration: BoxDecoration(
                   color: palette.card,
                   borderRadius: BorderRadius.circular(26),
-                  border: Border.all(color: palette.divider.withOpacity(0.7)),
+                  border: Border.all(color: palette.divider.withOpacity(0.35)),
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -531,7 +531,7 @@ class _BudgetProgressChart extends StatelessWidget {
                 drawVerticalLine: false,
                 horizontalInterval: maxY / 4,
                 getDrawingHorizontalLine: (value) => FlLine(
-                  color: palette.divider.withOpacity(0.6),
+                  color: palette.divider.withOpacity(0.35),
                   strokeWidth: 1,
                 ),
               ),

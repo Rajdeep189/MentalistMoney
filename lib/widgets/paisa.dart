@@ -37,7 +37,7 @@ class PaisaCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: bg,
         borderRadius: BorderRadius.circular(radius),
-        border: border ?? Border.all(color: palette.divider.withOpacity(0.7)),
+        border: border ?? Border.all(color: palette.divider.withOpacity(0.35)),
       ),
       child: Material(
         color: Colors.transparent,
@@ -403,7 +403,7 @@ class OverviewTile extends StatelessWidget {
         decoration: BoxDecoration(
           color: palette.card,
           borderRadius: BorderRadius.circular(AppRadius.card),
-          border: Border.all(color: palette.divider.withOpacity(0.75)),
+          border: Border.all(color: palette.divider.withOpacity(0.35)),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
