@@ -66,6 +66,7 @@ class AppDatabase {
       await _addColumnIfMissing(db, 'accounts', 'end_date', 'INTEGER');
       await _addColumnIfMissing(db, 'accounts', 'category_id', 'INTEGER');
       await _addColumnIfMissing(db, 'accounts', 'loan_kind', 'TEXT');
+      await _addColumnIfMissing(db, 'tags', 'color', "TEXT DEFAULT '#A855F7'");
     }
   }
 
@@ -216,7 +217,8 @@ class AppDatabase {
     batch.execute('''
       CREATE TABLE tags (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
-        name TEXT NOT NULL UNIQUE
+        name TEXT NOT NULL UNIQUE,
+        color TEXT DEFAULT '#A855F7'
       )
     ''');
 

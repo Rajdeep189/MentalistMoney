@@ -13,6 +13,7 @@ import '../accounts/accounts_screen.dart';
 import '../achievements/achievements_screen.dart';
 import '../bills/bills_screen.dart';
 import '../categories/categories_screen.dart';
+import '../labels/labels_screen.dart';
 import '../io/data_backup_screen.dart';
 import '../premium/premium_screen.dart';
 import '../profile/profile_screen.dart';
@@ -113,6 +114,14 @@ class SettingsScreen extends ConsumerWidget {
                 icon: Icons.category_outlined,
                 onTap: () => Navigator.of(context).push(
                   MaterialPageRoute<void>(builder: (_) => const CategoriesScreen()),
+                ),
+              ),
+              SettingsTile(
+                title: 'Labels',
+                subtitle: 'Tag transactions across categories',
+                icon: Icons.sell_outlined,
+                onTap: () => Navigator.of(context).push(
+                  MaterialPageRoute<void>(builder: (_) => const LabelsScreen()),
                 ),
               ),
               SettingsTile(

@@ -14,6 +14,7 @@ import '../data/repositories/category_repository.dart';
 import '../data/repositories/export_repository.dart';
 import '../data/repositories/goal_repository.dart';
 import '../data/repositories/import_repository.dart';
+import '../data/repositories/label_repository.dart';
 import '../data/repositories/settings_repository.dart';
 import '../data/repositories/split_repository.dart';
 import '../data/repositories/stats_repository.dart';
@@ -49,6 +50,40 @@ final Provider<TransactionRepository> transactionRepositoryProvider =
 
 final Provider<BudgetRepository> budgetRepositoryProvider = Provider<BudgetRepository>(
   (ref) => BudgetRepository(ref.watch(databaseProvider)),
+);
+
+final Provider<LabelRepository> labelRepositoryProvider =
+    Provider<LabelRepository>(
+  (ref) => LabelRepository(ref.watch(databaseProvider)),
+);
+
+final FutureProvider<List<LabelInfo>> labelsProvider =
+    FutureProvider<List<LabelInfo>>(
+  (ref) {
+    ref.watch(revisionProvider);
+    return ref.watch(labelRepositoryProvider).all();
+  },
+  name: 'labels',
+);
+
+final FutureProviderFamily<List<Txn>, String> labelTransactionsProvider =
+    FutureProvider.family<List<Txn>, String>((ref, tag) {
+  ref.watch(revisionProvider);
+  return ref.watch(transactionRepositoryProvider).query(
+        TransactionFilter(tags: <String>[tag], sort: 'newest'),
+      );
+}, name: 'labelTransactions');
+
+final FutureProvider<List<LabelInfo>> labelsThisMonthProvider =
+    FutureProvider<List<LabelInfo>>(
+  (ref) {
+    ref.watch(revisionProvider);
+    final now = DateTime.now();
+    final start = DateTime(now.year, now.month, 1);
+    final end = DateTime(now.year, now.month + 1, 1);
+    return ref.watch(labelRepositoryProvider).all(start: start, end: end);
+  },
+  name: 'labelsThisMonth',
 );
 
 final Provider<GoalRepository> goalRepositoryProvider = Provider<GoalRepository>(

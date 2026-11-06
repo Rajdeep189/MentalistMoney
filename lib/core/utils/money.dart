@@ -203,6 +203,8 @@ class DateX {
   static String shortWeekday(DateTime d) => DateFormat('EEE').format(d);
 
   static String monthShort(DateTime d) => DateFormat('MMM').format(d);
+  static String weekdayDate(DateTime d) => DateFormat('EEE, MMM d').format(d);
+  static String shortDate(DateTime d) => DateFormat('MMM d').format(d);
 
   static List<DateTime> daysInRange(DateTime start, DateTime end) {
     final result = <DateTime>[];
