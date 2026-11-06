@@ -1,0 +1,71 @@
+name: moneyman
+description: "MoneyMan - Track every Money. Own your money. Offline-first personal finance app."
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: ">=3.4.0 <4.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+
+  # State management
+  flutter_riverpod: ^2.5.1
+
+  # Local persistence (offline-first source of truth)
+  sqflite: ^2.3.3+1
+  path: ^1.9.0
+  path_provider: ^2.1.4
+  shared_preferences: ^2.3.2
+
+  # Charts
+  fl_chart: ^0.68.0
+  intl: ^0.19.0
+
+  # Security
+  local_auth: ^2.2.0
+
+  # Notifications
+  flutter_local_notifications: ^17.2.3
+  timezone: ^0.9.4
+
+  # Files, export & share
+  file_picker: ^8.1.2
+  share_plus: ^10.0.2
+  pdf: ^3.11.1
+  csv: ^6.0.0
+  image_picker: ^1.1.2
+
+  # Misc
+  package_info_plus: ^8.1.0
+  url_launcher: ^6.3.0
+  collection: ^1.18.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^4.0.0
+  sqflite_common_ffi: ^2.3.3
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/
+  fonts:
+    - family: Poppins
+      fonts:
+        - asset: assets/fonts/Poppins-Regular.ttf
+          weight: 400
+        - asset: assets/fonts/Poppins-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/Poppins-SemiBold.ttf
+          weight: 600
+        - asset: assets/fonts/Poppins-Bold.ttf
+          weight: 700
+    - family: Prata
+      fonts:
+        - asset: assets/fonts/Prata-Regular.ttf
+          weight: 400

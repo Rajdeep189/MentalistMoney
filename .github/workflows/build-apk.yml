@@ -1,0 +1,179 @@
+name: Build Android APK
+
+on:
+  push:
+    branches:
+      - main
+      - 'arena/**'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  issues: write
+
+jobs:
+  build:
+    name: Build release APK
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: zulu
+          java-version: '17'
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: 3.24.5
+          channel: stable
+          cache: true
+
+      - name: Flutter version
+        run: flutter --version
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Analyze
+        run: |
+          set +e
+          flutter analyze --no-fatal-infos --no-fatal-warnings > analyze.log 2>&1
+          status=$?
+          tail -n 250 analyze.log
+          if [ $status -ne 0 ]; then
+            python3 - <<'PY'
+          import json, os, urllib.request
+          body = open('analyze.log').read()[-55000:]
+          payload = {
+              'title': 'Compile report: analyzer errors',
+              'body': '```\n' + body + '\n```',
+          }
+          token = os.environ['GITHUB_TOKEN']
+          repo = os.environ['GITHUB_REPOSITORY']
+          req = urllib.request.Request(
+              'https://api.github.com/repos/%s/issues' % repo,
+              data=json.dumps(payload).encode(),
+              headers={
+                  'Authorization': 'Bearer ' + token,
+                  'Accept': 'application/vnd.github+json',
+                  'Content-Type': 'application/json',
+              },
+              method='POST',
+          )
+          try:
+              urllib.request.urlopen(req)
+          except Exception as exc:
+              print('could not open issue:', exc)
+          PY
+            exit $status
+          fi
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Run tests
+        run: |
+          set +e
+          flutter test --reporter expanded > test.log 2>&1
+          status=$?
+          tail -n 200 test.log
+          if [ $status -ne 0 ]; then
+            python3 - <<'PY'
+          import json, os, urllib.request
+          body = open('test.log').read()[-55000:]
+          payload = {'title': 'Test report: failures', 'body': '```\n' + body + '\n```'}
+          token = os.environ['GITHUB_TOKEN']
+          repo = os.environ['GITHUB_REPOSITORY']
+          req = urllib.request.Request(
+              'https://api.github.com/repos/%s/issues' % repo,
+              data=json.dumps(payload).encode(),
+              headers={
+                  'Authorization': 'Bearer ' + token,
+                  'Accept': 'application/vnd.github+json',
+                  'Content-Type': 'application/json',
+              },
+              method='POST',
+          )
+          try:
+              urllib.request.urlopen(req)
+          except Exception as exc:
+              print('could not open issue:', exc)
+          PY
+            exit $status
+          fi
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build release APK
+        run: |
+          set +e
+          flutter build apk --release --build-name=1.0.0 --build-number=${{ github.run_number }} > build.log 2>&1
+          status=$?
+          tail -n 200 build.log
+          if [ $status -ne 0 ]; then
+            python3 - <<'PY'
+          import json, os, urllib.request
+          body = open('build.log').read()[-55000:]
+          payload = {
+              'title': 'Build report: Gradle/compile failure',
+              'body': '```\n' + body + '\n```',
+          }
+          token = os.environ['GITHUB_TOKEN']
+          repo = os.environ['GITHUB_REPOSITORY']
+          req = urllib.request.Request(
+              'https://api.github.com/repos/%s/issues' % repo,
+              data=json.dumps(payload).encode(),
+              headers={
+                  'Authorization': 'Bearer ' + token,
+                  'Accept': 'application/vnd.github+json',
+                  'Content-Type': 'application/json',
+              },
+              method='POST',
+          )
+          try:
+              urllib.request.urlopen(req)
+          except Exception as exc:
+              print('could not open issue:', exc)
+          PY
+            exit $status
+          fi
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Rename artifact
+        run: |
+          mkdir -p dist
+          cp build/app/outputs/flutter-apk/app-release.apk dist/MoneyMan-1.0.0.apk
+          ls -lh dist
+
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: MoneyMan-apk
+          path: dist/MoneyMan-1.0.0.apk
+          if-no-files-found: error
+
+      - name: Publish GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v1.0.0
+          name: MoneyMan v1.0.0
+          body: |
+            MoneyMan — Track every Money. Own your money.
+
+            A fully offline, privacy-first personal finance app built with Flutter.
+
+            **Install**
+            1. Download `MoneyMan-1.0.0.apk` below.
+            2. Allow "Install unknown apps" for your browser/file manager.
+            3. Open the file and install.
+
+            Debug-signed release build — intended for direct sideloading, not the Play Store.
+          files: dist/MoneyMan-1.0.0.apk
+          fail_on_unmatched_files: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
