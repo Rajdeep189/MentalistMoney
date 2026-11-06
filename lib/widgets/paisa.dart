@@ -556,6 +556,7 @@ class PaisaSectionTitle extends StatelessWidget {
   const PaisaSectionTitle({
     super.key,
     required this.title,
+    this.subtitle,
     this.action,
     this.onAction,
     this.color,
@@ -563,6 +564,7 @@ class PaisaSectionTitle extends StatelessWidget {
   });
 
   final String title;
+  final String? subtitle;
   final String? action;
   final VoidCallback? onAction;
   final Color? color;
@@ -576,13 +578,29 @@ class PaisaSectionTitle extends StatelessWidget {
       child: Row(
         children: <Widget>[
           Expanded(
-            child: Text(
-              title,
-              style: AppTextStyles.base(
-                size: 20,
-                weight: FontWeight.w600,
-                height: 1.15,
-              ).copyWith(color: color ?? palette.ink),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                Text(
+                  title,
+                  style: AppTextStyles.base(
+                    size: 20,
+                    weight: FontWeight.w600,
+                    height: 1.15,
+                  ).copyWith(color: color ?? palette.ink),
+                ),
+                if (subtitle != null) ...<Widget>[
+                  const SizedBox(height: 2),
+                  Text(
+                    subtitle!,
+                    style: AppTextStyles.base(
+                      size: 13.5,
+                      weight: FontWeight.w400,
+                      height: 1.2,
+                    ).copyWith(color: palette.sub),
+                  ),
+                ],
+              ],
             ),
           ),
           if (action != null)

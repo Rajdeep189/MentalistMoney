@@ -23,6 +23,7 @@ class AchievementsScreen extends ConsumerStatefulWidget {
 
 class _AchievementsScreenState extends ConsumerState<AchievementsScreen> {
   String _filter = 'All';
+  bool _grid = true;
 
   @override
   Widget build(BuildContext context) {
@@ -47,6 +48,15 @@ class _AchievementsScreenState extends ConsumerState<AchievementsScreen> {
         titleSpacing: 0,
         title: Text('Achievements', style: AppTextStyles.h2(palette.ink)),
         actions: <Widget>[
+          IconButton(
+            tooltip: _grid ? 'List view' : 'Grid view',
+            onPressed: () => setState(() => _grid = !_grid),
+            icon: Icon(
+              _grid ? Icons.view_agenda_outlined : Icons.grid_view_rounded,
+              size: 22,
+              color: palette.sub,
+            ),
+          ),
           IconButton(
             tooltip: 'How achievements work',
             onPressed: () => _showInfo(context),
@@ -210,21 +220,40 @@ class _AchievementsScreenState extends ConsumerState<AchievementsScreen> {
             onChanged: (value) => setState(() => _filter = value),
           ),
           const SizedBox(height: AppSpacing.x4),
-          GridView.count(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            crossAxisCount: 2,
-            mainAxisSpacing: 10,
-            crossAxisSpacing: 10,
-            childAspectRatio: 1.02,
-            children: <Widget>[
-              for (final achievement in visible)
-                _BadgeTile(
-                  achievement: achievement,
-                  onTap: () => _openBadge(context, achievement),
-                ),
-            ],
-          ),
+          if (_grid)
+            GridView.count(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              crossAxisCount: 2,
+              mainAxisSpacing: 10,
+              crossAxisSpacing: 10,
+              childAspectRatio: 1.02,
+              children: <Widget>[
+                for (final achievement in visible)
+                  _BadgeTile(
+                    achievement: achievement,
+                    onTap: () => _openBadge(context, achievement),
+                  ),
+              ],
+            )
+          else
+            Container(
+              decoration: BoxDecoration(
+                color: palette.card,
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(color: palette.divider.withOpacity(0.35)),
+              ),
+              child: Column(
+                children: <Widget>[
+                  for (var i = 0; i < visible.length; i++)
+                    _BadgeRow(
+                      achievement: visible[i],
+                      showDivider: i < visible.length - 1,
+                      onTap: () => _openBadge(context, visible[i]),
+                    ),
+                ],
+              ),
+            ),
           const SizedBox(height: 16),
           PaisaCard(
             color: palette.accentSoft,
@@ -511,6 +540,103 @@ class _BadgeSheet extends StatelessWidget {
               ),
             ],
           ),
+        ),
+      ),
+    );
+  }
+}
+
+class _BadgeRow extends StatelessWidget {
+  const _BadgeRow({
+    required this.achievement,
+    required this.onTap,
+    required this.showDivider,
+  });
+
+  final Achievement achievement;
+  final VoidCallback onTap;
+  final bool showDivider;
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = context.c;
+    final done = achievement.unlocked;
+    final tone = done ? palette.accent : palette.sub;
+    final progress = achievement.target == 0
+        ? 0.0
+        : (achievement.progress / achievement.target).clamp(0.0, 1.0);
+    return InkWell(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.fromLTRB(14, 12, 14, 12),
+        decoration: BoxDecoration(
+          border: showDivider
+              ? Border(
+                  bottom: BorderSide(
+                    color: palette.divider.withOpacity(0.35),
+                  ),
+                )
+              : null,
+        ),
+        child: Row(
+          children: <Widget>[
+            Container(
+              height: 46,
+              width: 46,
+              decoration: BoxDecoration(
+                color: done
+                    ? palette.accent.withOpacity(0.2)
+                    : palette.surfaceAlt,
+                borderRadius: BorderRadius.circular(14),
+              ),
+              child: Icon(
+                done ? Icons.emoji_events_rounded : Icons.lock_outline_rounded,
+                size: 22,
+                color: tone,
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  Text(
+                    achievement.name,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: AppTextStyles.base(
+                      size: 16,
+                      weight: FontWeight.w600,
+                      height: 1.15,
+                    ).copyWith(color: palette.ink),
+                  ),
+                  const SizedBox(height: 3),
+                  Text(
+                    done
+                        ? 'Unlocked'
+                        : '${(progress * 100).round()}% · ${achievement.description}',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: AppTextStyles.base(
+                      size: 13,
+                      weight: FontWeight.w400,
+                      height: 1.2,
+                    ).copyWith(color: palette.sub),
+                  ),
+                  const SizedBox(height: 6),
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(999),
+                    child: LinearProgressIndicator(
+                      value: done ? 1 : progress,
+                      minHeight: 6,
+                      backgroundColor: palette.divider.withOpacity(0.5),
+                      valueColor: AlwaysStoppedAnimation<Color>(tone),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
         ),
       ),
     );

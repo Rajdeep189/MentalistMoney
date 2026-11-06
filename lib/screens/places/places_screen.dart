@@ -56,6 +56,7 @@ class _TagEntityScreenState extends ConsumerState<TagEntityScreen> {
   Widget build(BuildContext context) {
     final palette = context.c;
     final async = _isPlace ? ref.watch(placesProvider) : ref.watch(peopleProvider);
+    final count = (async.valueOrNull ?? const <TagEntityStat>[]).length;
     final accent = _isPlace ? const Color(0xFF2ED3B7) : const Color(0xFFE91E63);
 
     return Scaffold(
@@ -72,7 +73,7 @@ class _TagEntityScreenState extends ConsumerState<TagEntityScreen> {
               border: Border.all(color: palette.divider),
             ),
             child: Text(
-              '2/2',
+              '$count/$count',
               style: AppTextStyles.base(
                 size: 13,
                 weight: FontWeight.w600,
