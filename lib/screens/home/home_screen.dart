@@ -845,7 +845,7 @@ class _Header extends StatelessWidget {
         Expanded(
           child: Text.rich(
             TextSpan(
-              children: <TextSpan>[
+              children: <InlineSpan>[
                 TextSpan(text: '${DateX.greeting()} '),
                 TextSpan(
                   text: name,
