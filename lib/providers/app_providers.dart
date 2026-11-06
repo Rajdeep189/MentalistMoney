@@ -206,6 +206,12 @@ final FutureProvider<List<Txn>> recentTransactionsProvider = FutureProvider<List
   name: 'recentTransactions',
 );
 
+final ruleTransactionsProvider =
+    FutureProvider.family<List<Txn>, int>((ref, ruleId) {
+  ref.watch(revisionProvider);
+  return ref.watch(transactionRepositoryProvider).byRecurringRule(ruleId);
+}, name: 'ruleTransactions');
+
 final FutureProvider<List<String>> allTagsProvider = FutureProvider<List<String>>(
   (ref) {
     ref.watch(revisionProvider);

@@ -16,6 +16,7 @@ import '../../widgets/empty_state.dart';
 import '../../widgets/fields.dart';
 import '../../widgets/illustration.dart';
 import '../../widgets/pickers.dart';
+import 'recurring_detail_screen.dart';
 
 /// Recency dashboard: stat tiles, tab filter, calendar view and dark info sheet.
 class RecurringScreen extends ConsumerStatefulWidget {
@@ -302,7 +303,12 @@ class _RecurringScreenState extends ConsumerState<RecurringScreen> {
                     showActions: true,
                     account: accounts[rule.accountId]?.name,
                     category: categories[rule.categoryId],
-                    onTap: () => _openEditor(context, ref, rule: rule),
+                    onTap: () => Navigator.of(context).push(
+                      MaterialPageRoute<void>(
+                        builder: (_) =>
+                            RecurringDetailScreen(ruleId: rule.id!),
+                      ),
+                    ),
                     onSkip: () async {
                       await ref
                           .read(transactionRepositoryProvider)
@@ -328,7 +334,12 @@ class _RecurringScreenState extends ConsumerState<RecurringScreen> {
                     rule: rule,
                     account: accounts[rule.accountId]?.name,
                     category: categories[rule.categoryId],
-                    onTap: () => _openEditor(context, ref, rule: rule),
+                    onTap: () => Navigator.of(context).push(
+                      MaterialPageRoute<void>(
+                        builder: (_) =>
+                            RecurringDetailScreen(ruleId: rule.id!),
+                      ),
+                    ),
                     onSkip: () async {
                       await ref
                           .read(transactionRepositoryProvider)
@@ -377,28 +388,34 @@ class _RecurringScreenState extends ConsumerState<RecurringScreen> {
     BuildContext context,
     WidgetRef ref, {
     RecurringRule? rule,
-  }) async {
-    final accounts =
-        ref.read(accountsProvider).valueOrNull ?? const <Account>[];
-    final categories =
-        ref.read(categoriesProvider).valueOrNull ?? const <Category>[];
-    if (accounts.isEmpty) {
-      showSnack(context, 'Add an account before creating a recurring rule',
-          error: true);
-      return;
-    }
-    final result = await showAppSheet<RecurringRule>(
-      context,
-      (sheetContext) => _RecurringEditor(
-        rule: rule,
-        accounts: accounts,
-        categories: categories,
-      ),
-    );
-    if (result == null) return;
-    await ref.read(transactionRepositoryProvider).saveRecurringRule(result);
-    if (context.mounted) showSnack(context, 'Recurring rule saved');
+  }) =>
+      showRecurringEditor(context, ref, rule: rule);
+}
+
+Future<void> showRecurringEditor(
+  BuildContext context,
+  WidgetRef ref, {
+  RecurringRule? rule,
+}) async {
+  final accounts = ref.read(accountsProvider).valueOrNull ?? const <Account>[];
+  final categories =
+      ref.read(categoriesProvider).valueOrNull ?? const <Category>[];
+  if (accounts.isEmpty) {
+    showSnack(context, 'Add an account before creating a recurring rule',
+        error: true);
+    return;
   }
+  final result = await showAppSheet<RecurringRule>(
+    context,
+    (sheetContext) => _RecurringEditor(
+      rule: rule,
+      accounts: accounts,
+      categories: categories,
+    ),
+  );
+  if (result == null) return;
+  await ref.read(transactionRepositoryProvider).saveRecurringRule(result);
+  if (context.mounted) showSnack(context, 'Recurring rule saved');
 }
 
 class _RecurringRow extends StatelessWidget {

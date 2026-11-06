@@ -379,6 +379,19 @@ class TransactionRepository {
     return rows.map((row) => _mapWithTag(row, tagMap)).toList();
   }
 
+  Future<List<Txn>> byRecurringRule(int ruleId, {int limit = 20}) async {
+    final db = await _db.database;
+    final rows = await db.query(
+      'transactions',
+      where: 'deleted = 0 AND recurring_rule_id = ?',
+      whereArgs: <Object?>[ruleId],
+      orderBy: 'date DESC, id DESC',
+      limit: limit,
+    );
+    final tagMap = await _tagMap();
+    return rows.map((row) => _mapWithTag(row, tagMap)).toList();
+  }
+
   Future<Txn?> byId(int id) async {
     final db = await _db.database;
     final rows = await db.query(

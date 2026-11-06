@@ -10,12 +10,9 @@ import '../../data/models/models.dart';
 import '../../providers/app_providers.dart';
 import '../../widgets/app_card.dart';
 import '../../widgets/app_sheets.dart';
+import '../../widgets/paisa.dart';
 import '../../widgets/buttons.dart';
 import '../../widgets/category_icon.dart';
-import '../../widgets/illustration.dart';
-import '../../widgets/premium_badge.dart';
-import '../../widgets/progress_widgets.dart';
-import '../../widgets/section_header.dart';
 
 class PremiumPlan {
   const PremiumPlan({
@@ -139,31 +136,42 @@ class _PremiumScreenState extends ConsumerState<PremiumScreen> {
           Container(
             padding: const EdgeInsets.all(AppSpacing.x5),
             decoration: BoxDecoration(
-              gradient: AppColors.graphiteGradient,
-              borderRadius: BorderRadius.circular(AppRadius.card + 4),
-              border: Border.all(color: AppColors.gold.withOpacity(0.35)),
-              boxShadow: <BoxShadow>[
-                BoxShadow(
-                  color: Colors.black.withOpacity(palette.isDark ? 0.5 : 0.22),
-                  blurRadius: 28,
-                  offset: const Offset(0, 14),
-                ),
-              ],
+              gradient: AppColors.heroGradient,
+              borderRadius: BorderRadius.circular(26),
+              border: Border.all(color: AppColors.accent.withOpacity(0.5)),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
                 Row(
                   children: <Widget>[
-                    const PremiumBadge(dense: true),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 10, vertical: 5),
+                      decoration: BoxDecoration(
+                        color: AppColors.espresso.withOpacity(0.16),
+                        borderRadius: BorderRadius.circular(999),
+                      ),
+                      child: Text(
+                        'MONEYMAN PRO',
+                        style: AppTextStyles.base(
+                          size: 11,
+                          weight: FontWeight.w700,
+                          height: 1.1,
+                          letterSpacing: 0.7,
+                        ).copyWith(color: AppColors.espresso),
+                      ),
+                    ),
                     const Spacer(),
                     if (premium)
                       Row(
                         children: <Widget>[
                           const Icon(Icons.verified_rounded,
-                              size: 15, color: Colors.white),
+                              size: 15, color: AppColors.espresso),
                           const SizedBox(width: 4),
-                          Text('Active', style: AppTextStyles.caption(Colors.white)),
+                          Text('Active',
+                              style: AppTextStyles.caption(
+                                  AppColors.espresso)),
                         ],
                       ),
                   ],
@@ -171,24 +179,41 @@ class _PremiumScreenState extends ConsumerState<PremiumScreen> {
                 const SizedBox(height: AppSpacing.x3),
                 Text(
                   premium ? 'You have everything' : 'Own your money, completely',
-                  style: AppTextStyles.h1(Colors.white),
+                  style: AppTextStyles.base(
+                    size: 27,
+                    weight: FontWeight.w800,
+                    height: 1.15,
+                    letterSpacing: -0.4,
+                  ).copyWith(color: AppColors.espresso),
                 ),
                 const SizedBox(height: 6),
                 Text(
                   premium
                       ? 'Unlimited budgets, goals, splits, advanced analytics and every theme.'
                       : 'Unlimited budgets and goals, advanced analytics, bill splitting and premium themes.',
-                  style: AppTextStyles.body(Colors.white.withOpacity(0.82))
-                      .copyWith(height: 1.45),
+                  style: AppTextStyles.body(
+                    AppColors.espresso.withOpacity(0.78),
+                  ).copyWith(fontSize: 14.5, height: 1.45),
                 ),
                 const SizedBox(height: AppSpacing.x4),
-                const AppIllustration(kind: IllustrationKind.premium, size: 96),
+                Row(
+                  children: <Widget>[
+                    Icon(Icons.workspace_premium_rounded,
+                        size: 34, color: AppColors.espresso.withOpacity(0.85)),
+                    const SizedBox(width: 8),
+                    Icon(Icons.auto_awesome_rounded,
+                        size: 24, color: AppColors.espresso.withOpacity(0.55)),
+                  ],
+                ),
               ],
             ),
           ),
           const SizedBox(height: AppSpacing.x5),
-          SectionHeader(title: 'What you get', padding: EdgeInsets.zero),
-          AppCard(
+          PaisaSectionTitle(
+            title: 'What you get',
+            padding: const EdgeInsets.only(bottom: 10),
+          ),
+          PaisaCard(
             child: Column(
               children: <Widget>[
                 _featureRow(context, Icons.pie_chart_rounded, 'Unlimited budgets',
@@ -209,7 +234,10 @@ class _PremiumScreenState extends ConsumerState<PremiumScreen> {
             ),
           ),
           const SizedBox(height: AppSpacing.x5),
-          SectionHeader(title: 'Free vs Premium', padding: EdgeInsets.zero),
+          PaisaSectionTitle(
+            title: 'Free vs Premium',
+            padding: const EdgeInsets.only(bottom: 10),
+          ),
           AppCard(
             padding: EdgeInsets.zero,
             child: Column(
@@ -230,7 +258,10 @@ class _PremiumScreenState extends ConsumerState<PremiumScreen> {
           ),
           const SizedBox(height: AppSpacing.x5),
           if (!premium) ...<Widget>[
-            SectionHeader(title: 'Choose a plan', padding: EdgeInsets.zero),
+            PaisaSectionTitle(
+              title: 'Choose a plan',
+              padding: const EdgeInsets.only(bottom: 10),
+            ),
             ...kPremiumPlans.map(
               (plan) => Padding(
                 padding: const EdgeInsets.only(bottom: AppSpacing.x2),
@@ -301,14 +332,34 @@ class _PremiumScreenState extends ConsumerState<PremiumScreen> {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
-          CategoryIcon(icon: icon, color: palette.accent, size: 30),
-          const SizedBox(width: 10),
+          Container(
+            height: 40,
+            width: 40,
+            decoration: BoxDecoration(
+              color: const Color(0xFFA8502B).withOpacity(0.14),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Icon(icon, size: 20, color: const Color(0xFFA8502B)),
+          ),
+          const SizedBox(width: 12),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
-                Text(title, style: AppTextStyles.label(palette.ink)),
-                Text(body, style: context.caption),
+                Text(
+                  title,
+                  style: AppTextStyles.base(
+                    size: 16,
+                    weight: FontWeight.w600,
+                    height: 1.2,
+                  ).copyWith(color: palette.ink),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  body,
+                  style: AppTextStyles.body(palette.tertiary)
+                      .copyWith(fontSize: 13.5, height: 1.4),
+                ),
               ],
             ),
           ),
@@ -387,10 +438,15 @@ class _PlanTile extends StatelessWidget {
         duration: const Duration(milliseconds: 160),
         padding: const EdgeInsets.all(AppSpacing.x4),
         decoration: BoxDecoration(
-          color: palette.card,
-          borderRadius: BorderRadius.circular(AppRadius.card),
+          color: selected
+              ? Color.alphaBlend(
+                  palette.accent.withOpacity(0.10), palette.card)
+              : palette.card,
+          borderRadius: BorderRadius.circular(20),
           border: Border.all(
-            color: selected ? palette.accent : palette.divider,
+            color: selected
+                ? palette.accent
+                : palette.divider.withOpacity(0.5),
             width: selected ? 1.6 : 1,
           ),
         ),

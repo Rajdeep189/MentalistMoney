@@ -992,6 +992,8 @@ class PaisaTxnCard extends StatelessWidget {
     this.onLongPress,
     this.selected = false,
     this.showTime = true,
+    this.margin,
+    this.showDivider = false,
   });
 
   final Txn txn;
@@ -1002,6 +1004,8 @@ class PaisaTxnCard extends StatelessWidget {
   final VoidCallback? onLongPress;
   final bool selected;
   final bool showTime;
+  final EdgeInsetsGeometry? margin;
+  final bool showDivider;
 
   @override
   Widget build(BuildContext context) {
@@ -1033,17 +1037,23 @@ class PaisaTxnCard extends StatelessWidget {
       onTap: onTap,
       onLongPress: onLongPress,
       child: Container(
-        margin: const EdgeInsets.only(bottom: 10),
-        padding: const EdgeInsets.fromLTRB(14, 14, 16, 14),
+        margin: margin ?? const EdgeInsets.only(bottom: 10),
+        padding: EdgeInsets.fromLTRB(14, 14, 16, showDivider ? 16 : 14),
         decoration: BoxDecoration(
-          color: palette.card,
+          color: showDivider ? Colors.transparent : palette.card,
           borderRadius: BorderRadius.circular(18),
-          border: Border.all(
-            color: selected
-                ? palette.accent
-                : palette.divider.withOpacity(0.35),
-            width: selected ? 1.5 : 1,
-          ),
+          border: showDivider
+              ? Border(
+                  bottom: BorderSide(
+                    color: palette.divider.withOpacity(0.4),
+                  ),
+                )
+              : Border.all(
+                  color: selected
+                      ? palette.accent
+                      : palette.divider.withOpacity(0.35),
+                  width: selected ? 1.5 : 1,
+                ),
         ),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
