@@ -34,21 +34,24 @@ class AccountsScreen extends ConsumerWidget {
     return Scaffold(
       backgroundColor: palette.surface,
       appBar: AppBar(
-        title: Row(
-          children: <Widget>[
-            const MetallicMark(size: 30, animated: false),
-            const SizedBox(width: 10),
-            Text('Accounts', style: AppTextStyles.h2(palette.ink)),
-          ],
-        ),
+        titleSpacing: 0,
+        title: Text('Accounts', style: AppTextStyles.h2(palette.ink)),
         actions: <Widget>[
           IconButton(
             tooltip: 'Transfer money',
-            icon: const Icon(Icons.swap_horiz_rounded),
+            icon: Icon(Icons.swap_horiz_rounded, color: palette.sub),
             onPressed: () => Navigator.of(context).push(
               MaterialPageRoute<void>(builder: (_) => const TransferScreen()),
             ),
           ),
+          IconButton(
+            onPressed: () => Navigator.of(context).push(
+              MaterialPageRoute<void>(builder: (_) => const AccountFormScreen()),
+            ),
+            icon: Icon(Icons.add_circle_outline_rounded,
+                color: palette.onSoft),
+          ),
+          const SizedBox(width: 6),
         ],
       ),
       floatingActionButton: FloatingActionButton(
@@ -100,7 +103,7 @@ class AccountsScreen extends ConsumerWidget {
                     children: <Widget>[
                       Text(
                         accountTypeLabel(entry.key),
-                        style: AppTextStyles.h3(palette.ink),
+                        style: AppTextStyles.serif(size: 17, color: palette.ink),
                       ),
                       const SizedBox(width: 8),
                       Text(
@@ -126,7 +129,8 @@ class AccountsScreen extends ConsumerWidget {
               if (archived.isNotEmpty) ...<Widget>[
                 Padding(
                   padding: const EdgeInsets.only(bottom: 10, top: 4),
-                  child: Text('Archived', style: AppTextStyles.h3(palette.ink)),
+                  child: Text('Archived',
+                      style: AppTextStyles.serif(size: 17, color: palette.ink)),
                 ),
                 ...archived.map(
                   (account) => AccountCard(
@@ -156,81 +160,64 @@ class _NetWorthHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = context.c;
+    final fg = palette.isDark ? Colors.white : const Color(0xFF3A1B0E);
+    final soft = fg.withOpacity(0.72);
     return Container(
-      padding: const EdgeInsets.all(AppSpacing.x5),
+      padding: const EdgeInsets.fromLTRB(18, 18, 18, 16),
       decoration: BoxDecoration(
-        gradient: AppColors.graphiteGradient,
-        borderRadius: BorderRadius.circular(AppRadius.cardLarge + 2),
-        border: Border.all(color: Colors.white.withOpacity(0.08)),
-        boxShadow: <BoxShadow>[
-          BoxShadow(
-            color: Colors.black.withOpacity(palette.isDark ? 0.5 : 0.22),
-            blurRadius: 28,
-            offset: const Offset(0, 14),
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: palette.isDark
+              ? const <Color>[Color(0xFF6E3E28), Color(0xFF4A2618)]
+              : const <Color>[Color(0xFFFFD9C6), Color(0xFFFFC1A5)],
+        ),
+        borderRadius: BorderRadius.circular(26),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          Text(
+            'Net worth',
+            style: AppTextStyles.base(
+              size: 14,
+              weight: FontWeight.w600,
+              height: 1.1,
+            ).copyWith(color: soft),
+          ),
+          const SizedBox(height: 8),
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            alignment: Alignment.centerLeft,
+            child: Text(
+              Fmt.money(assets - liabilities),
+              style: AppTextStyles.serif(size: 32, color: fg),
+            ),
+          ),
+          const SizedBox(height: 14),
+          Row(
+            children: <Widget>[
+              Expanded(
+                child: _NetStat(
+                  label: 'Assets',
+                  value: assets,
+                  color: fg,
+                  soft: soft,
+                  icon: Icons.trending_up_rounded,
+                ),
+              ),
+              Expanded(
+                child: _NetStat(
+                  label: 'Liabilities',
+                  value: liabilities,
+                  color: fg,
+                  soft: soft,
+                  icon: Icons.trending_down_rounded,
+                ),
+              ),
+            ],
           ),
         ],
-      ),
-      child: ShineSweep(
-        period: const Duration(milliseconds: 4600),
-        opacity: 0.22,
-        borderRadius: BorderRadius.circular(AppRadius.cardLarge + 2),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            Row(
-              children: <Widget>[
-                const Eyebrow('Net worth', color: Color(0xFF9C9CA6)),
-                const Spacer(),
-                Container(
-                  height: 30,
-                  width: 30,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    border: Border.all(color: Colors.white.withOpacity(0.18)),
-                  ),
-                  child: const Icon(Icons.diamond_outlined,
-                      size: 14, color: AppColors.gold),
-                ),
-              ],
-            ),
-            const SizedBox(height: 8),
-            FittedBox(
-              fit: BoxFit.scaleDown,
-              alignment: Alignment.centerLeft,
-              child: Text(
-                Fmt.money(assets - liabilities),
-                style: AppTextStyles.serif(size: 34, color: Colors.white),
-              ),
-            ),
-            const SizedBox(height: AppSpacing.x4),
-            Row(
-              children: <Widget>[
-                Expanded(
-                  child: _NetStat(
-                    label: 'Assets',
-                    value: assets,
-                    color: AppColors.darkIncome,
-                    icon: Icons.trending_up_rounded,
-                  ),
-                ),
-                Container(
-                  width: 1,
-                  height: 30,
-                  color: Colors.white.withOpacity(0.10),
-                ),
-                const SizedBox(width: AppSpacing.x4),
-                Expanded(
-                  child: _NetStat(
-                    label: 'Liabilities',
-                    value: liabilities,
-                    color: AppColors.darkExpense,
-                    icon: Icons.trending_down_rounded,
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
       ),
     );
   }
@@ -241,12 +228,14 @@ class _NetStat extends StatelessWidget {
     required this.label,
     required this.value,
     required this.color,
+    required this.soft,
     required this.icon,
   });
 
   final String label;
   final int value;
   final Color color;
+  final Color soft;
   final IconData icon;
 
   @override
@@ -256,22 +245,21 @@ class _NetStat extends StatelessWidget {
       children: <Widget>[
         Row(
           children: <Widget>[
-            Icon(icon, size: 12, color: color),
+            Icon(icon, size: 13, color: soft),
             const SizedBox(width: 4),
             Text(
-              label.toUpperCase(),
-              style: AppTextStyles.overline(const Color(0xFF7C7C86))
-                  .copyWith(fontSize: 8.5, letterSpacing: 1.1),
+              label,
+              style: AppTextStyles.caption(soft).copyWith(fontSize: 11.5),
             ),
           ],
         ),
-        const SizedBox(height: 4),
+        const SizedBox(height: 3),
         FittedBox(
           fit: BoxFit.scaleDown,
           alignment: Alignment.centerLeft,
           child: Text(
-            Fmt.money(value),
-            style: AppTextStyles.serif(size: 15, color: Colors.white),
+            Fmt.money(value, forceCompact: true),
+            style: AppTextStyles.serif(size: 17, color: color),
           ),
         ),
       ],
@@ -290,6 +278,99 @@ class AccountCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return LuxeAccountCard(account: account, onTap: onTap);
+    final palette = context.c;
+    final tint = AppColors.categoryPalette[
+        (account.type.hashCode.abs() % AppColors.categoryPalette.length)];
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 10),
+        padding: const EdgeInsets.all(14),
+        decoration: BoxDecoration(
+          color: palette.card,
+          borderRadius: BorderRadius.circular(AppRadius.card),
+          border: Border.all(color: palette.divider.withOpacity(0.7)),
+        ),
+        child: Row(
+          children: <Widget>[
+            Container(
+              height: 46,
+              width: 46,
+              decoration: BoxDecoration(
+                color: tint.withOpacity(0.22),
+                borderRadius: BorderRadius.circular(14),
+              ),
+              child: Icon(
+                accountIcon(account.type),
+                size: 21,
+                color: tint,
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  Text(
+                    account.name,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: AppTextStyles.base(
+                      size: 15,
+                      weight: FontWeight.w600,
+                      height: 1.15,
+                    ).copyWith(color: palette.ink),
+                  ),
+                  const SizedBox(height: 3),
+                  Text(
+                    accountTypeLabel(account.type),
+                    style: AppTextStyles.caption(palette.tertiary)
+                        .copyWith(fontSize: 11.5),
+                  ),
+                ],
+              ),
+            ),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: <Widget>[
+                Text(
+                  Fmt.money(account.balance, forceCompact: true),
+                  style: AppTextStyles.money(
+                    16,
+                    color: account.balance < 0 ? palette.expense : palette.ink,
+                    weight: FontWeight.w700,
+                  ),
+                ),
+                if (account.creditLimit != null)
+                  Text(
+                    'limit ${Fmt.money(account.creditLimit!, forceCompact: true)}',
+                    style: AppTextStyles.caption(palette.tertiary)
+                        .copyWith(fontSize: 10),
+                  ),
+              ],
+            ),
+            const SizedBox(width: 6),
+            Icon(Icons.chevron_right_rounded, size: 18, color: palette.tertiary),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+IconData accountIcon(String type) {
+  switch (type) {
+    case kAccountBank:
+      return Icons.account_balance_rounded;
+    case kAccountCredit:
+      return Icons.credit_card_rounded;
+    case kAccountWallet:
+      return Icons.account_balance_wallet_rounded;
+    case kAccountInvestment:
+      return Icons.trending_up_rounded;
+    case kAccountLoan:
+      return Icons.request_quote_rounded;
+    default:
+      return Icons.payments_rounded;
   }
 }

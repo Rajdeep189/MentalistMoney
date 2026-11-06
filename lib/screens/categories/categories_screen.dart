@@ -13,6 +13,7 @@ import '../../widgets/category_icon.dart';
 import '../../widgets/empty_state.dart';
 import '../../widgets/fields.dart';
 import '../../widgets/illustration.dart';
+import '../../widgets/paisa.dart';
 import 'category_detail_screen.dart';
 import 'category_form_screen.dart';
 
@@ -39,10 +40,11 @@ class _CategoriesScreenState extends ConsumerState<CategoriesScreen> {
     return Scaffold(
       backgroundColor: palette.surface,
       appBar: AppBar(
-        title: const Text('Categories'),
+        titleSpacing: 0,
+        title: Text('Categories', style: AppTextStyles.h2(palette.ink)),
         actions: <Widget>[
           IconButton(
-            icon: const Icon(Icons.add_rounded),
+            icon: Icon(Icons.add_circle_outline_rounded, color: palette.onSoft),
             onPressed: () => Navigator.of(context).push(
               MaterialPageRoute<void>(
                 builder: (_) => CategoryFormScreen(initialType: _type),
@@ -57,12 +59,23 @@ class _CategoriesScreenState extends ConsumerState<CategoriesScreen> {
             padding: const EdgeInsets.symmetric(horizontal: AppSpacing.screen),
             child: Column(
               children: <Widget>[
-                SegmentedControl<String>(
-                  value: _type,
-                  options: const <SegmentOption<String>>[
-                    SegmentOption(value: kTypeExpense, label: 'Expense'),
-                    SegmentOption(value: kTypeIncome, label: 'Income'),
+                PaisaSegment<String>(
+                  options: const <String>[
+                    kTypeExpense,
+                    kTypeIncome,
+                    kTypeTransfer,
                   ],
+                  value: _type,
+                  labelOf: (value) {
+                    switch (value) {
+                      case kTypeIncome:
+                        return 'Income';
+                      case kTypeTransfer:
+                        return 'Transfer';
+                      default:
+                        return 'Expense';
+                    }
+                  },
                   onChanged: (value) => setState(() => _type = value),
                 ),
                 const SizedBox(height: 10),

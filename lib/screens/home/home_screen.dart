@@ -50,6 +50,7 @@ class HomeScreen extends ConsumerWidget {
         const <CategoryTotal>[];
     final daily = ref.watch(monthDailyTotalsProvider).valueOrNull ??
         const <DayTotal>[];
+    final tags = ref.watch(allTagsProvider).valueOrNull ?? const <String>[];
     final hidden = ref.watch(amountsHiddenProvider);
 
     final assets = netWorth['assets'] ?? 0;
@@ -253,6 +254,57 @@ class HomeScreen extends ConsumerWidget {
                       _TileValue(
                         'Progress: ${Fmt.money(goalSaved, forceCompact: true)} / ${Fmt.money(goalTarget, forceCompact: true)}',
                       ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 10),
+            _TileRow(
+              children: <Widget>[
+                OverviewTile(
+                  title: 'Assets',
+                  icon: Icons.savings_outlined,
+                  minHeight: 148,
+                  onTap: () => _push(context, const AccountsScreen()),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
+                      _CountValue('$assets', 'Total Assets'),
+                      const SizedBox(height: 6),
+                      _TileValue(
+                        '${accounts.where((a) => a.type == kAccountInvestment).length} investments',
+                      ),
+                      _TileValue(
+                        '${accounts.where((a) => a.type == kAccountBank).length} bank accounts',
+                      ),
+                    ],
+                  ),
+                ),
+                OverviewTile(
+                  title: 'Labels',
+                  icon: Icons.sell_outlined,
+                  minHeight: 148,
+                  onTap: () => _push(context, const CategoriesScreen()),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
+                      _CountValue('${tags.length}', 'Labels'),
+                      const SizedBox(height: 8),
+                      if (tags.isEmpty)
+                        _TileValue('Tag transactions to group them')
+                      else
+                        for (final tag in tags.take(3))
+                          Padding(
+                            padding: const EdgeInsets.only(bottom: 3),
+                            child: Text(
+                              '#$tag',
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: AppTextStyles.caption(palette.accentShift)
+                                  .copyWith(fontSize: 11.5),
+                            ),
+                          ),
                     ],
                   ),
                 ),

@@ -72,24 +72,19 @@ class StatsScreen extends ConsumerWidget {
     return Scaffold(
       backgroundColor: palette.surface,
       appBar: AppBar(
-        title: Row(
-          children: <Widget>[
-            const MetallicMark(size: 28, animated: false),
-            const SizedBox(width: 10),
-            Text(tr(context, 'Insights'), style: AppTextStyles.h2(palette.ink)),
-          ],
-        ),
+        titleSpacing: 0,
+        title: Text('Reports', style: AppTextStyles.h2(palette.ink)),
         actions: <Widget>[
           IconButton(
             tooltip: 'Export',
-            icon: const Icon(Icons.ios_share_rounded),
+            icon: Icon(Icons.ios_share_rounded, color: palette.sub),
             onPressed: () => Navigator.of(context).push(
               MaterialPageRoute<void>(builder: (_) => const ExportScreen()),
             ),
           ),
           IconButton(
             tooltip: 'Custom report',
-            icon: const Icon(Icons.auto_graph_rounded),
+            icon: Icon(Icons.auto_graph_rounded, color: palette.sub),
             onPressed: () async {
               if (!premium) {
                 final allowed = await ensurePremium(context, ref, feature: 'Custom reports');

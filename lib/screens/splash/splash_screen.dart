@@ -43,7 +43,7 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
     );
 
     return Scaffold(
-      backgroundColor: const Color(0xFF08080A),
+      backgroundColor: AppColors.espresso,
       body: Stack(
         children: <Widget>[
           const Positioned.fill(
@@ -62,7 +62,7 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
               decoration: BoxDecoration(
                 gradient: RadialGradient(
                   colors: <Color>[
-                    AppColors.gold.withOpacity(0.22),
+                    AppColors.accent.withOpacity(0.24),
                     Colors.transparent,
                   ],
                 ),
@@ -79,12 +79,18 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
                     opacity: logoScale,
                     child: Column(
                       children: <Widget>[
-                        const MetallicMark(size: 104),
-                        const SizedBox(height: AppSpacing.x4),
                         Container(
-                          height: 1,
-                          width: 64,
-                          color: AppColors.gold.withOpacity(0.5),
+                          height: 104,
+                          width: 104,
+                          decoration: BoxDecoration(
+                            gradient: AppColors.heroGradient,
+                            borderRadius: BorderRadius.circular(30),
+                          ),
+                          child: const Icon(
+                            Icons.savings_rounded,
+                            size: 52,
+                            color: AppColors.espresso,
+                          ),
                         ),
                       ],
                     ),
@@ -109,9 +115,9 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        'TRACK EVERY MONEY · OWN YOUR MONEY',
-                        style: AppTextStyles.caption(AppColors.gold)
-                            .copyWith(fontSize: 9, letterSpacing: 2.2),
+                        'MONEY, MADE SIMPLE',
+                        style: AppTextStyles.caption(AppColors.accent)
+                            .copyWith(fontSize: 10, letterSpacing: 2.4),
                       ),
                     ],
                   ),
@@ -123,7 +129,7 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
                     height: 3,
                     width: 120 * line.value,
                     decoration: BoxDecoration(
-                      gradient: AppColors.goldGradient,
+                      gradient: AppColors.accentGradient,
                       borderRadius: BorderRadius.circular(2),
                     ),
                   ),
@@ -149,7 +155,7 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
             child: FadeTransition(
               opacity: fade,
               child: Text(
-                'Offline-first · Private by design · Made by Superman',
+                'Offline-first · Private by design',
                 textAlign: TextAlign.center,
                 style: AppTextStyles.caption(Colors.white.withOpacity(0.35)),
               ),
