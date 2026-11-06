@@ -31,16 +31,27 @@ class _AchievementsScreenState extends ConsumerState<AchievementsScreen> {
     final achievements =
         ref.watch(achievementsProvider).valueOrNull ?? const <Achievement>[];
     final unlocked = achievements.where((a) => a.unlocked).toList();
-    final locked = achievements.where((a) => !a.unlocked).toList();
     final completion =
         achievements.isEmpty ? 0.0 : unlocked.length / achievements.length;
     final latest = unlocked.isEmpty ? null : unlocked.last;
 
-    final visible = _filter == 'Unlocked'
-        ? unlocked
-        : _filter == 'Locked'
-            ? locked
-            : achievements;
+    String groupOf(Achievement a) {
+      final key = a.key.toLowerCase();
+      if (key == 'first_transaction' || key == 'txn_100') return 'Transactions';
+      if (key.contains('streak')) return 'Streaks';
+      if (key == 'first_goal' || key == 'saved_10k') return 'Goals';
+      return 'Budgets';
+    }
+
+    final groups = <String>['Transactions', 'Streaks', 'Goals', 'Budgets'];
+    final groupCounts = <String, String>{
+      for (final group in groups)
+        group: '${achievements.where((a) => a.unlocked && groupOf(a) == group).length}'
+            '/${achievements.where((a) => groupOf(a) == group).length}',
+    };
+    final visible = _filter == 'All'
+        ? achievements
+        : achievements.where((a) => groupOf(a) == _filter).toList();
 
     return Scaffold(
       backgroundColor: palette.surface,
@@ -212,9 +223,44 @@ class _AchievementsScreenState extends ConsumerState<AchievementsScreen> {
               ],
             ),
           ),
+          const SizedBox(height: 12),
+          SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Row(
+              children: <Widget>[
+                for (var i = 0; i < groups.length; i++) ...<Widget>[
+                  if (i > 0)
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 10),
+                      child: Text(
+                        '·',
+                        style: AppTextStyles.base(
+                          size: 14,
+                          weight: FontWeight.w400,
+                          height: 1.1,
+                        ).copyWith(color: palette.tertiary),
+                      ),
+                    ),
+                  Text(
+                    '${groupCounts[groups[i]]} ${groups[i]}',
+                    style: AppTextStyles.base(
+                      size: 14,
+                      weight: FontWeight.w500,
+                      height: 1.1,
+                    ).copyWith(color: palette.sub),
+                  ),
+                ],
+              ],
+            ),
+          ),
           const SizedBox(height: AppSpacing.x4),
           PaisaSegment<String>(
-            options: const <String>['All', 'Unlocked', 'Locked'],
+            options: const <String>[
+              'All',
+              'Transactions',
+              'Streaks',
+              'Goals',
+            ],
             value: _filter,
             dense: true,
             onChanged: (value) => setState(() => _filter = value),
