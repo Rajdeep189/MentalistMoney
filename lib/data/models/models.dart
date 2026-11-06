@@ -371,6 +371,10 @@ class Txn {
     this.paymentMethod = 'UPI',
     this.includeInReports = true,
     this.recurringRuleId,
+    this.budgetId,
+    this.loanAccountId,
+    this.place,
+    this.payee,
     this.createdAt = 0,
     this.updatedAt = 0,
     this.deleted = false,
@@ -389,6 +393,10 @@ class Txn {
   final String paymentMethod;
   final bool includeInReports;
   final int? recurringRuleId;
+  final int? budgetId;
+  final int? loanAccountId;
+  final String? place;
+  final String? payee;
   final int createdAt;
   final int updatedAt;
   final bool deleted;
@@ -420,6 +428,10 @@ class Txn {
         'payment_method': paymentMethod,
         'include_in_reports': includeInReports ? 1 : 0,
         'recurring_rule_id': recurringRuleId,
+        'budget_id': budgetId,
+        'loan_account_id': loanAccountId,
+        'place': place,
+        'payee': payee,
         'created_at': createdAt,
         'updated_at': updatedAt,
         'deleted': deleted ? 1 : 0,
@@ -437,6 +449,10 @@ class Txn {
         paymentMethod: (map['payment_method'] ?? 'UPI') as String,
         includeInReports: _bool(map['include_in_reports'], fallback: true),
         recurringRuleId: _int(map['recurring_rule_id']),
+        budgetId: _int(map['budget_id']),
+        loanAccountId: _int(map['loan_account_id']),
+        place: map['place'] as String?,
+        payee: map['payee'] as String?,
         createdAt: _intOr(map['created_at'], 0),
         updatedAt: _intOr(map['updated_at'], 0),
         deleted: _bool(map['deleted']),
@@ -455,6 +471,10 @@ class Txn {
     String? paymentMethod,
     bool? includeInReports,
     int? recurringRuleId,
+    int? budgetId,
+    int? loanAccountId,
+    String? place,
+    String? payee,
     int? createdAt,
     int? updatedAt,
     bool? deleted,
@@ -473,6 +493,10 @@ class Txn {
       paymentMethod: paymentMethod ?? this.paymentMethod,
       includeInReports: includeInReports ?? this.includeInReports,
       recurringRuleId: recurringRuleId ?? this.recurringRuleId,
+      budgetId: budgetId ?? this.budgetId,
+      loanAccountId: loanAccountId ?? this.loanAccountId,
+      place: place ?? this.place,
+      payee: payee ?? this.payee,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
       deleted: deleted ?? this.deleted,

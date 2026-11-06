@@ -15,6 +15,8 @@ import '../data/repositories/export_repository.dart';
 import '../data/repositories/goal_repository.dart';
 import '../data/repositories/import_repository.dart';
 import '../data/repositories/label_repository.dart';
+import '../data/repositories/place_repository.dart';
+import '../data/repositories/template_repository.dart';
 import '../data/repositories/settings_repository.dart';
 import '../data/repositories/split_repository.dart';
 import '../data/repositories/stats_repository.dart';
@@ -50,6 +52,43 @@ final Provider<TransactionRepository> transactionRepositoryProvider =
 
 final Provider<BudgetRepository> budgetRepositoryProvider = Provider<BudgetRepository>(
   (ref) => BudgetRepository(ref.watch(databaseProvider)),
+);
+
+final Provider<PlaceRepository> placeRepositoryProvider =
+    Provider<PlaceRepository>(
+  (ref) => PlaceRepository(ref.watch(databaseProvider)),
+);
+
+final FutureProvider<List<TagEntityStat>> placesProvider =
+    FutureProvider<List<TagEntityStat>>(
+  (ref) {
+    ref.watch(revisionProvider);
+    return ref.watch(placeRepositoryProvider).allPlaces();
+  },
+  name: 'places',
+);
+
+final FutureProvider<List<TagEntityStat>> peopleProvider =
+    FutureProvider<List<TagEntityStat>>(
+  (ref) {
+    ref.watch(revisionProvider);
+    return ref.watch(placeRepositoryProvider).allPeople();
+  },
+  name: 'people',
+);
+
+final Provider<TemplateRepository> templateRepositoryProvider =
+    Provider<TemplateRepository>(
+  (ref) => TemplateRepository(ref.watch(databaseProvider)),
+);
+
+final FutureProvider<List<TxnTemplate>> templatesProvider =
+    FutureProvider<List<TxnTemplate>>(
+  (ref) {
+    ref.watch(revisionProvider);
+    return ref.watch(templateRepositoryProvider).all();
+  },
+  name: 'templates',
 );
 
 final Provider<LabelRepository> labelRepositoryProvider =

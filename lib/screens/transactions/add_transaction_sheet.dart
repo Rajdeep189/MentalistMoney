@@ -7,10 +7,12 @@ import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_radius.dart';
 import '../../core/theme/app_spacing.dart';
 import '../../core/theme/app_text_styles.dart';
+import '../../core/utils/app_icons.dart';
 import '../../core/utils/money.dart';
 import '../../core/utils/smart_engine.dart';
 import '../../core/utils/validators.dart';
 import '../../data/models/models.dart';
+import '../../data/repositories/place_repository.dart';
 import '../../providers/app_providers.dart';
 import '../../services/receipt_service.dart';
 import '../../widgets/app_sheets.dart';
@@ -18,6 +20,8 @@ import '../../widgets/buttons.dart';
 import '../../widgets/category_icon.dart';
 import '../../widgets/fields.dart';
 import '../../widgets/pickers.dart';
+import '../accounts/account_form_screen.dart';
+import '../budgets/budget_form_screen.dart';
 
 /// Opens the add / edit transaction bottom sheet.
 Future<int?> showAddTransactionSheet(
@@ -85,6 +89,10 @@ class _AddTransactionSheetState extends ConsumerState<AddTransactionSheet> {
   final TextEditingController _tagController = TextEditingController();
   final List<String> _tags = <String>[];
   String? _attachmentPath;
+  int? _budgetId;
+  int? _loanAccountId;
+  String? _place;
+  String? _payee;
   bool _saving = false;
   bool _showAdvanced = false;
   String? _amountError;
@@ -107,6 +115,10 @@ class _AddTransactionSheetState extends ConsumerState<AddTransactionSheet> {
     _paymentMethod = existing?.paymentMethod ?? settings.defaultPaymentMethod;
     _includeInReports = existing?.includeInReports ?? true;
     _noteController.text = existing?.note ?? widget.initialNote ?? '';
+    _budgetId = existing?.budgetId;
+    _loanAccountId = existing?.loanAccountId;
+    _place = existing?.place;
+    _payee = existing?.payee;
     if (existing != null) {
       _tags.addAll(existing.tagNames);
       _attachmentPath = existing.attachmentPath;
@@ -167,6 +179,10 @@ class _AddTransactionSheetState extends ConsumerState<AddTransactionSheet> {
       note: _noteController.text.trim().isEmpty ? null : _noteController.text.trim(),
       paymentMethod: _paymentMethod,
       includeInReports: _includeInReports,
+      budgetId: _budgetId,
+      loanAccountId: _loanAccountId,
+      place: _place,
+      payee: _payee,
     );
 
     if (widget.existing == null && !_duplicateWarningShown) {
@@ -295,6 +311,9 @@ class _AddTransactionSheetState extends ConsumerState<AddTransactionSheet> {
     final palette = context.c;
     final accounts = _accounts();
     final categories = _categories();
+    final budgets =
+        ref.watch(budgetsProvider).valueOrNull ?? const <BudgetProgress>[];
+    final loans = accounts.where((a) => a.loanKind != null).toList();
 
     if (_accountId == null && accounts.isNotEmpty) {
       _accountId = accounts.first.id;
@@ -322,9 +341,9 @@ class _AddTransactionSheetState extends ConsumerState<AddTransactionSheet> {
                 SegmentedControl<String>(
                   value: widget.existing != null ? widget.existing!.type : _type,
                   options: const <SegmentOption<String>>[
-                    SegmentOption(value: kTypeExpense, label: 'Expense', icon: Icons.south_west_rounded),
-                    SegmentOption(value: kTypeIncome, label: 'Income', icon: Icons.north_east_rounded),
-                    SegmentOption(value: kTypeTransfer, label: 'Transfer', icon: Icons.swap_horiz_rounded),
+                    SegmentOption(value: kTypeExpense, label: 'Expense'),
+                    SegmentOption(value: kTypeIncome, label: 'Income'),
+                    SegmentOption(value: kTypeTransfer, label: 'Transfer'),
                   ],
                   onChanged: (value) => setState(() {
                     _type = value;
@@ -347,102 +366,245 @@ class _AddTransactionSheetState extends ConsumerState<AddTransactionSheet> {
                           : palette.accent,
                 ),
                 const SizedBox(height: AppSpacing.x4),
-                Text('Account', style: AppTextStyles.label(palette.sub)),
-                const SizedBox(height: 8),
-                if (accounts.isEmpty)
-                  Text(
-                    'Add an account first to record transactions.',
-                    style: AppTextStyles.body(palette.expense),
-                  )
-                else
-                  SizedBox(
-                    height: 62,
-                    child: ListView.separated(
-                      scrollDirection: Axis.horizontal,
-                      itemCount: accounts.length,
-                      separatorBuilder: (_, __) => const SizedBox(width: 8),
-                      itemBuilder: (context, index) {
-                        final account = accounts[index];
-                        final selected = account.id == _accountId;
-                        return GestureDetector(
-                          onTap: () => setState(() {
-                            _accountId = account.id;
-                            if (_toAccountId == account.id) _toAccountId = null;
-                          }),
-                          child: AnimatedContainer(
-                            duration: const Duration(milliseconds: 150),
-                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                            decoration: BoxDecoration(
-                              color: selected
-                                  ? palette.accent.withOpacity(0.1)
-                                  : (palette.isDark ? palette.cardAlt : Colors.white),
-                              borderRadius: BorderRadius.circular(AppRadius.sm),
-                              border: Border.all(
-                                color: selected ? palette.accent : palette.divider,
-                                width: selected ? 1.4 : 1,
-                              ),
-                            ),
-                            child: Row(
-                              children: <Widget>[
-                                CategoryIcon(
-                                  iconName: account.icon,
-                                  color: selected ? palette.accent : palette.sub,
-                                  size: 30,
-                                ),
-                                const SizedBox(width: 8),
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: <Widget>[
-                                    Text(
-                                      account.name,
-                                      style: AppTextStyles.label(palette.ink)
-                                          .copyWith(fontSize: 12),
-                                    ),
-                                    Text(
-                                      Fmt.money(account.balance, forceCompact: true),
-                                      style: AppTextStyles.caption(palette.tertiary)
-                                          .copyWith(fontSize: 10.5),
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ),
-                          ),
-                        );
-                      },
+                _SectionHeaderRow(
+                  icon: Icons.account_balance_wallet_outlined,
+                  title: _type == kTypeTransfer ? 'From account' : 'Account',
+                  subtitle: _selectedAccountName(accounts),
+                  onAdd: () => Navigator.of(context).push(
+                    MaterialPageRoute<void>(
+                      builder: (_) => const AccountFormScreen(),
                     ),
                   ),
+                ),
+                const SizedBox(height: 10),
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: <Widget>[
+                    for (final account in accounts)
+                      _Pill(
+                        label: account.name,
+                        icon: AppIcons.byName(account.icon,
+                            fallback: Icons.account_balance_rounded),
+                        tone: AppColors.fromHex(account.color),
+                        selected: account.id == _accountId,
+                        onTap: () => setState(() {
+                          _accountId = account.id;
+                          if (_toAccountId == account.id) _toAccountId = null;
+                        }),
+                      ),
+                  ],
+                ),
                 if (_type == kTypeTransfer) ...<Widget>[
-                  const SizedBox(height: AppSpacing.x4),
-                  Text('To account', style: AppTextStyles.label(palette.sub)),
-                  const SizedBox(height: 8),
+                  const SizedBox(height: 16),
+                  _SectionHeaderRow(
+                    icon: Icons.arrow_forward_rounded,
+                    title: 'To account',
+                    subtitle: _toAccountId == null
+                        ? 'Select account'
+                        : accounts
+                                .where((a) => a.id == _toAccountId)
+                                .isEmpty
+                            ? 'Select account'
+                            : accounts
+                                .firstWhere((a) => a.id == _toAccountId)
+                                .name,
+                  ),
+                  const SizedBox(height: 10),
                   Wrap(
                     spacing: 8,
                     runSpacing: 8,
-                    children: accounts
-                        .where((a) => a.id != _accountId)
-                        .map((account) => AppChip(
-                              label: account.name,
-                              selected: _toAccountId == account.id,
-                              onTap: () => setState(() => _toAccountId = account.id),
-                              color: palette.transfer,
-                            ))
-                        .toList(),
+                    children: <Widget>[
+                      for (final account in accounts)
+                        if (account.id != _accountId)
+                          _Pill(
+                            label: account.name,
+                            icon: AppIcons.byName(account.icon,
+                                fallback: Icons.account_balance_rounded),
+                            tone: palette.transfer,
+                            selected: _toAccountId == account.id,
+                            onTap: () =>
+                                setState(() => _toAccountId = account.id),
+                          ),
+                    ],
                   ),
                 ] else ...<Widget>[
-                  const SizedBox(height: AppSpacing.x4),
-                  CategorySelectorGrid(
-                    categories: categories,
-                    selectedId: _categoryId,
-                    onSelected: (id) => setState(() => _categoryId = id),
-                    onManage: () => Navigator.of(context).push(
+                  const SizedBox(height: 16),
+                  _SectionHeaderRow(
+                    icon: Icons.category_outlined,
+                    title: 'Category',
+                    subtitle: _categoryLabel(categories),
+                  ),
+                  const SizedBox(height: 10),
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: <Widget>[
+                      for (final category in categories)
+                        _Pill(
+                          label: category.name,
+                          icon: AppIcons.byName(category.icon,
+                              fallback: Icons.category_rounded),
+                          tone: AppColors.fromHex(category.color),
+                          selected: category.id == _categoryId,
+                          onTap: () =>
+                              setState(() => _categoryId = category.id),
+                        ),
+                      _Pill(
+                        label: 'Add',
+                        icon: Icons.add_circle_outline_rounded,
+                        tone: palette.accent,
+                        selected: false,
+                        onTap: () => Navigator.of(context).push(
+                          MaterialPageRoute<void>(
+                            builder: (_) => CategoryQuickManager(type: _type),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  _SectionHeaderRow(
+                    icon: Icons.savings_outlined,
+                    title: 'Budget',
+                    subtitle: _budgetLabel(),
+                    onAdd: () => Navigator.of(context).push(
                       MaterialPageRoute<void>(
-                        builder: (_) => CategoryQuickManager(type: _type),
+                        builder: (_) => const BudgetFormScreen(),
                       ),
                     ),
                   ),
+                  const SizedBox(height: 10),
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: <Widget>[
+                      for (final budget in budgets.take(6))
+                        _Pill(
+                          label: budget.budget.name,
+                          icon: AppIcons.byName(budget.budget.icon,
+                              fallback: Icons.savings_rounded),
+                          tone: AppColors.fromHex(budget.budget.color),
+                          selected: budget.budget.id == _budgetId,
+                          onTap: () => setState(() => _budgetId =
+                              _budgetId == budget.budget.id
+                                  ? null
+                                  : budget.budget.id),
+                        ),
+                      _Pill(
+                        label: 'Add',
+                        icon: Icons.add_circle_outline_rounded,
+                        tone: palette.accent,
+                        selected: false,
+                        onTap: () => Navigator.of(context).push(
+                          MaterialPageRoute<void>(
+                            builder: (_) => const BudgetFormScreen(),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                 ],
+                const SizedBox(height: 6),
+                _ExpanderRow(
+                  icon: Icons.sell_outlined,
+                  title: 'Label',
+                  subtitle: _tags.isEmpty
+                      ? 'Select label'
+                      : _tags.map((tag) => '#$tag').join(', '),
+                  onTap: _addTagDialog,
+                ),
+                if (_type != kTypeTransfer)
+                  _ExpanderRow(
+                    icon: Icons.credit_card_rounded,
+                    title: 'Loan',
+                    subtitle: _loanLabel(loans),
+                    onTap: () => _pickLoan(loans),
+                  ),
+                _ExpanderRow(
+                  icon: Icons.place_outlined,
+                  title: 'Place',
+                  subtitle: _place ?? 'Select a place',
+                  onTap: () => _pickEntity(isPlace: true),
+                ),
+                _ExpanderRow(
+                  icon: Icons.person_outline_rounded,
+                  title: 'Payee',
+                  subtitle: _payee ?? 'Select a person',
+                  onTap: () => _pickEntity(isPlace: false),
+                ),
+                const SizedBox(height: 16),
+                Row(
+                  children: <Widget>[
+                    Text(
+                      'Receipt or Bill (optional)',
+                      style: AppTextStyles.base(
+                        size: 15,
+                        weight: FontWeight.w500,
+                        height: 1.2,
+                      ).copyWith(color: palette.sub),
+                    ),
+                    const SizedBox(width: 6),
+                    Icon(Icons.lock_outline_rounded,
+                        size: 14, color: palette.tertiary),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                GestureDetector(
+                  onTap: _pickAttachment,
+                  child: Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.symmetric(vertical: 26),
+                    decoration: BoxDecoration(
+                      color: palette.isDark
+                          ? Colors.white.withOpacity(0.03)
+                          : palette.surfaceAlt,
+                      borderRadius: BorderRadius.circular(14),
+                      border: Border.all(
+                        color: palette.divider.withOpacity(0.6),
+                      ),
+                    ),
+                    child: _attachmentPath == null
+                        ? Column(
+                            children: <Widget>[
+                              Icon(Icons.photo_camera_outlined,
+                                  size: 30, color: palette.tertiary),
+                              const SizedBox(height: 8),
+                              Text(
+                                'Add Receipt or Bill',
+                                style: AppTextStyles.base(
+                                  size: 15.5,
+                                  weight: FontWeight.w600,
+                                  height: 1.2,
+                                ).copyWith(color: palette.accent),
+                              ),
+                              const SizedBox(height: 2),
+                              Text(
+                                'Tap to select an image',
+                                style: AppTextStyles.base(
+                                  size: 13.5,
+                                  weight: FontWeight.w400,
+                                  height: 1.2,
+                                ).copyWith(color: palette.sub),
+                              ),
+                            ],
+                          )
+                        : ClipRRect(
+                            borderRadius: BorderRadius.circular(12),
+                            child: Image.file(
+                              File(_attachmentPath!),
+                              height: 150,
+                              width: double.infinity,
+                              fit: BoxFit.cover,
+                              errorBuilder: (context, error, stack) => Text(
+                                'Receipt not available',
+                                textAlign: TextAlign.center,
+                                style: AppTextStyles.caption(palette.tertiary),
+                              ),
+                            ),
+                          ),
+                  ),
+                ),
                 const SizedBox(height: AppSpacing.x4),
                 DateField(
                   label: 'Date & time',
@@ -559,40 +721,18 @@ class _AddTransactionSheetState extends ConsumerState<AddTransactionSheet> {
                     onChanged: (value) => setState(() => _includeInReports = value),
                     icon: Icons.insights_rounded,
                   ),
-                  const SizedBox(height: AppSpacing.x2),
-                  Row(
-                    children: <Widget>[
-                      SecondaryButton(
-                        label: _attachmentPath == null ? 'Attach receipt' : 'Change receipt',
-                        icon: Icons.photo_camera_rounded,
-                        expanded: false,
-                        height: 44,
-                        onPressed: _pickAttachment,
-                      ),
-                      if (_attachmentPath != null) ...<Widget>[
-                        const SizedBox(width: 8),
-                        IconButton(
-                          onPressed: () => setState(() => _attachmentPath = null),
-                          icon: Icon(Icons.delete_outline_rounded, color: palette.expense),
+                  if (_attachmentPath != null)
+                    Row(
+                      children: <Widget>[
+                        SecondaryButton(
+                          label: 'Remove receipt',
+                          icon: Icons.delete_outline_rounded,
+                          expanded: false,
+                          height: 44,
+                          onPressed: () =>
+                              setState(() => _attachmentPath = null),
                         ),
                       ],
-                    ],
-                  ),
-                  if (_attachmentPath != null)
-                    Padding(
-                      padding: const EdgeInsets.only(top: 8),
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(AppRadius.sm),
-                        child: Image.file(
-                          File(_attachmentPath!),
-                          height: 120,
-                          fit: BoxFit.cover,
-                          errorBuilder: (context, error, stack) => Text(
-                            'Receipt not available',
-                            style: AppTextStyles.caption(palette.tertiary),
-                          ),
-                        ),
-                      ),
                     ),
                   const SizedBox(height: AppSpacing.x3),
                 ],
@@ -613,19 +753,54 @@ class _AddTransactionSheetState extends ConsumerState<AddTransactionSheet> {
             ),
             child: Row(
               children: <Widget>[
-                if (widget.existing == null)
-                  Expanded(
-                    child: SecondaryButton(
-                      label: 'Save & add another',
-                      onPressed: _saving ? null : () => _save(addAnother: true),
+                Expanded(
+                  child: SizedBox(
+                    height: 56,
+                    child: ElevatedButton.icon(
+                      onPressed: _saving ? null : () => _save(),
+                      icon: const Icon(Icons.receipt_long_rounded, size: 20),
+                      label: Text(
+                        widget.existing == null
+                            ? 'Add transaction'
+                            : 'Update transaction',
+                        style: AppTextStyles.base(
+                          size: 16.5,
+                          weight: FontWeight.w700,
+                          height: 1.1,
+                        ).copyWith(color: AppColors.espresso),
+                      ),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: palette.accent,
+                        foregroundColor: AppColors.espresso,
+                        elevation: 0,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(999),
+                        ),
+                      ),
                     ),
                   ),
-                if (widget.existing == null) const SizedBox(width: 10),
-                Expanded(
-                  child: PrimaryButton(
-                    label: widget.existing == null ? 'Save' : 'Update',
-                    loading: _saving,
-                    onPressed: _saving ? null : () => _save(),
+                ),
+                const SizedBox(width: 8),
+                SizedBox(
+                  height: 56,
+                  width: 56,
+                  child: ElevatedButton(
+                    onPressed: _saving ? null : _showQuickActions,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: palette.accent,
+                      foregroundColor: AppColors.espresso,
+                      elevation: 0,
+                      padding: EdgeInsets.zero,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(999),
+                      ),
+                    ),
+                    child: Icon(
+                      _showAdvanced
+                          ? Icons.keyboard_arrow_down_rounded
+                          : Icons.keyboard_arrow_up_rounded,
+                      size: 26,
+                    ),
                   ),
                 ),
               ],
@@ -634,6 +809,254 @@ class _AddTransactionSheetState extends ConsumerState<AddTransactionSheet> {
         ],
       ),
     );
+  }
+
+  String _selectedAccountName(List<Account> accounts) {
+    for (final account in accounts) {
+      if (account.id == _accountId) return account.name;
+    }
+    return 'Select account';
+  }
+
+  String _categoryLabel(List<Category> categories) {
+    if (_categoryId == null) return 'Select a category';
+    for (final category in categories) {
+      if (category.id == _categoryId) return category.name;
+    }
+    return 'Select a category';
+  }
+
+  String _budgetLabel() {
+    if (_budgetId == null) return 'Select a budget';
+    final budgets = ref.read(budgetsProvider).valueOrNull ??
+        const <BudgetProgress>[];
+    for (final budget in budgets) {
+      if (budget.budget.id == _budgetId) return budget.budget.name;
+    }
+    return 'Select a budget';
+  }
+
+  String _loanLabel(List<Account> loans) {
+    if (_loanAccountId == null) return 'Select Loan';
+    for (final loan in loans) {
+      if (loan.id == _loanAccountId) return loan.name;
+    }
+    return 'Select Loan';
+  }
+
+  Future<void> _pickLoan(List<Account> loans) async {
+    final choice = await showAppSheet<int?>(
+      context,
+      (sheetContext) => Padding(
+        padding: EdgeInsets.fromLTRB(
+          20,
+          18,
+          20,
+          18 + MediaQuery.of(sheetContext).padding.bottom,
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            Text(
+              'Link a loan',
+              style: AppTextStyles.base(
+                size: 22,
+                weight: FontWeight.w700,
+                height: 1.2,
+              ).copyWith(color: sheetContext.c.ink),
+            ),
+            const SizedBox(height: 12),
+            if (loans.isEmpty)
+              Text(
+                'Create a loan from the Loans screen first.',
+                style: AppTextStyles.body(sheetContext.c.sub),
+              )
+            else
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: <Widget>[
+                  for (final loan in loans)
+                    _Pill(
+                      label: loan.name,
+                      icon: Icons.savings_rounded,
+                      tone: const Color(0xFFF2407E),
+                      selected: loan.id == _loanAccountId,
+                      onTap: () => Navigator.of(sheetContext).pop(loan.id),
+                    ),
+                  _Pill(
+                    label: 'None',
+                    icon: Icons.close_rounded,
+                    tone: sheetContext.c.sub,
+                    selected: _loanAccountId == null,
+                    onTap: () => Navigator.of(sheetContext).pop(-1),
+                  ),
+                ],
+              ),
+          ],
+        ),
+      ),
+    );
+    if (choice == null) return;
+    setState(() => _loanAccountId = choice == -1 ? null : choice);
+  }
+
+  Future<void> _pickEntity({required bool isPlace}) async {
+    final entries = (isPlace
+            ? ref.read(placesProvider).valueOrNull
+            : ref.read(peopleProvider).valueOrNull) ??
+        const <TagEntityStat>[];
+    final controller = TextEditingController(
+      text: (isPlace ? _place : _payee) ?? '',
+    );
+    final choice = await showAppSheet<String>(
+      context,
+      (sheetContext) => StatefulBuilder(
+        builder: (context, setSheetState) => Padding(
+          padding: EdgeInsets.fromLTRB(
+            20,
+            18,
+            20,
+            18 + MediaQuery.of(sheetContext).padding.bottom,
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              Text(
+                isPlace ? 'Select a place' : 'Select a person',
+                style: AppTextStyles.base(
+                  size: 22,
+                  weight: FontWeight.w700,
+                  height: 1.2,
+                ).copyWith(color: sheetContext.c.ink),
+              ),
+              const SizedBox(height: 14),
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: <Widget>[
+                  for (final entry in entries)
+                    _Pill(
+                      label: entry.name,
+                      icon: isPlace ? Icons.place_rounded : Icons.person_rounded,
+                      tone: AppColors.fromHex(entry.color),
+                      selected: (isPlace ? _place : _payee) == entry.name,
+                      onTap: () => Navigator.of(sheetContext).pop(entry.name),
+                    ),
+                ],
+              ),
+              const SizedBox(height: 14),
+              AppTextField(
+                controller: controller,
+                label: isPlace ? 'New place' : 'New person',
+                hint: isPlace ? 'e.g. Home, Office' : 'e.g. Alice',
+              ),
+              const SizedBox(height: 12),
+              SizedBox(
+                height: 50,
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: () async {
+                    final name = controller.text.trim();
+                    if (name.isEmpty) return;
+                    final repo = ref.read(placeRepositoryProvider);
+                    try {
+                      if (isPlace) {
+                        await repo.createPlace(name: name);
+                      } else {
+                        await repo.createPerson(name: name);
+                      }
+                    } catch (_) {}
+                    if (sheetContext.mounted) {
+                      Navigator.of(sheetContext).pop(name);
+                    }
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: sheetContext.c.accent,
+                    elevation: 0,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(999),
+                    ),
+                  ),
+                  child: Text(
+                    'Use this ${isPlace ? 'place' : 'person'}',
+                    style: AppTextStyles.base(
+                      size: 15.5,
+                      weight: FontWeight.w700,
+                      height: 1.1,
+                    ).copyWith(color: AppColors.espresso),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+    if (choice == null) return;
+    setState(() {
+      if (isPlace) {
+        _place = choice;
+      } else {
+        _payee = choice;
+      }
+    });
+  }
+
+  Future<void> _showQuickActions() async {
+    final choice = await showAppSheet<String>(
+      context,
+      (sheetContext) => Padding(
+        padding: EdgeInsets.fromLTRB(
+          18,
+          18,
+          18,
+          16 + MediaQuery.of(sheetContext).padding.bottom,
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: <Widget>[
+            ListTile(
+              leading: Icon(Icons.playlist_add_rounded,
+                  color: sheetContext.c.accent),
+              title: Text(
+                'Save & add another',
+                style: AppTextStyles.body(sheetContext.c.ink),
+              ),
+              onTap: () => Navigator.of(sheetContext).pop('another'),
+            ),
+            ListTile(
+              leading: Icon(Icons.photo_camera_rounded,
+                  color: sheetContext.c.accent),
+              title: Text(
+                _attachmentPath == null
+                    ? 'Attach receipt'
+                    : 'Change receipt',
+                style: AppTextStyles.body(sheetContext.c.ink),
+              ),
+              onTap: () => Navigator.of(sheetContext).pop('receipt'),
+            ),
+            ListTile(
+              leading: Icon(Icons.tune_rounded, color: sheetContext.c.accent),
+              title: Text(
+                _showAdvanced ? 'Hide more options' : 'Show more options',
+                style: AppTextStyles.body(sheetContext.c.ink),
+              ),
+              onTap: () => Navigator.of(sheetContext).pop('advanced'),
+            ),
+          ],
+        ),
+      ),
+    );
+    if (choice == 'another') {
+      await _save(addAnother: true);
+    } else if (choice == 'receipt') {
+      await _pickAttachment();
+    } else if (choice == 'advanced') {
+      setState(() => _showAdvanced = !_showAdvanced);
+    }
   }
 
   Future<void> _addTagDialog() async {
@@ -756,6 +1179,177 @@ class CategoryQuickManager extends ConsumerWidget {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _SectionHeaderRow extends StatelessWidget {
+  const _SectionHeaderRow({
+    required this.icon,
+    required this.title,
+    required this.subtitle,
+    this.onAdd,
+  });
+
+  final IconData icon;
+  final String title;
+  final String subtitle;
+  final VoidCallback? onAdd;
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = context.c;
+    return Row(
+      children: <Widget>[
+        Icon(icon, size: 24, color: palette.accent),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              Text(
+                title,
+                style: AppTextStyles.base(
+                  size: 18,
+                  weight: FontWeight.w500,
+                  height: 1.15,
+                ).copyWith(color: palette.ink),
+              ),
+              const SizedBox(height: 2),
+              Text(
+                subtitle,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: AppTextStyles.base(
+                  size: 15,
+                  weight: FontWeight.w400,
+                  height: 1.2,
+                ).copyWith(color: palette.accent),
+              ),
+            ],
+          ),
+        ),
+        if (onAdd != null)
+          IconButton(
+            onPressed: onAdd,
+            icon: Icon(Icons.add_rounded, size: 22, color: palette.accent),
+          )
+        else
+          Icon(Icons.keyboard_arrow_up_rounded,
+              size: 22, color: palette.accent),
+      ],
+    );
+  }
+}
+
+class _ExpanderRow extends StatelessWidget {
+  const _ExpanderRow({
+    required this.icon,
+    required this.title,
+    required this.subtitle,
+    required this.onTap,
+  });
+
+  final IconData icon;
+  final String title;
+  final String subtitle;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = context.c;
+    return InkWell(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 14),
+        decoration: BoxDecoration(
+          border: Border(
+            bottom: BorderSide(color: palette.divider.withOpacity(0.35)),
+          ),
+        ),
+        child: Row(
+          children: <Widget>[
+            Icon(icon, size: 24, color: palette.ink.withOpacity(0.85)),
+            const SizedBox(width: 14),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  Text(
+                    title,
+                    style: AppTextStyles.base(
+                      size: 18,
+                      weight: FontWeight.w500,
+                      height: 1.15,
+                    ).copyWith(color: palette.ink),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    subtitle,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: AppTextStyles.base(
+                      size: 15,
+                      weight: FontWeight.w400,
+                      height: 1.2,
+                    ).copyWith(color: palette.sub),
+                  ),
+                ],
+              ),
+            ),
+            Icon(Icons.keyboard_arrow_down_rounded,
+                size: 24, color: palette.sub),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _Pill extends StatelessWidget {
+  const _Pill({
+    required this.label,
+    required this.icon,
+    required this.tone,
+    required this.selected,
+    required this.onTap,
+  });
+
+  final String label;
+  final IconData icon;
+  final Color tone;
+  final bool selected;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = context.c;
+    return GestureDetector(
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 160),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+        decoration: BoxDecoration(
+          color: selected ? tone.withOpacity(0.16) : Colors.transparent,
+          borderRadius: BorderRadius.circular(999),
+          border: Border.all(color: selected ? tone : palette.divider),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: <Widget>[
+            Icon(icon, size: 16, color: tone),
+            const SizedBox(width: 7),
+            Text(
+              label,
+              style: AppTextStyles.base(
+                size: 15,
+                weight: FontWeight.w500,
+                height: 1.1,
+              ).copyWith(color: palette.ink),
+            ),
+          ],
+        ),
       ),
     );
   }

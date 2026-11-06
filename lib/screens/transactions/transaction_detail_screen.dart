@@ -188,6 +188,31 @@ class TransactionDetailScreen extends ConsumerWidget {
                           label: 'Recurring',
                           value: 'Linked to a repeat rule',
                         ),
+                      if (txn.loanAccountId != null)
+                        _DetailItem(
+                          icon: Icons.savings_rounded,
+                          tone: const Color(0xFFF2407E),
+                          label: 'Loan',
+                          value: ref
+                                  .watch(accountLookupProvider)
+                                  .valueOrNull?[txn.loanAccountId]
+                                  ?.name ??
+                              'Linked loan',
+                        ),
+                      if (txn.place != null && txn.place!.isNotEmpty)
+                        _DetailItem(
+                          icon: Icons.place_rounded,
+                          tone: const Color(0xFF00897B),
+                          label: 'Place',
+                          value: txn.place!,
+                        ),
+                      if (txn.payee != null && txn.payee!.isNotEmpty)
+                        _DetailItem(
+                          icon: Icons.person_rounded,
+                          tone: const Color(0xFFE91E63),
+                          label: 'Person',
+                          value: txn.payee!,
+                        ),
                       _DetailItem(
                         icon: Icons.credit_card_rounded,
                         tone: const Color(0xFF2FBF7A),

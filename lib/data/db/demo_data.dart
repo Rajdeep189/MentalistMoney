@@ -131,6 +131,8 @@ class DemoData {
       String payment = 'UPI',
       int hour = 12,
       int minute = 30,
+      String? place,
+      String? payee,
     }) {
       rows.add(<String, Object?>{
         'type': type,
@@ -142,6 +144,8 @@ class DemoData {
         'note': note,
         'payment_method': payment,
         'include_in_reports': 1,
+        'place': place,
+        'payee': payee,
         'created_at': nowMs,
         'updated_at': nowMs,
         'deleted': 0,
@@ -150,12 +154,12 @@ class DemoData {
 
 
     // Current month
-    addTxn(daysAgo: 0, type: 'expense', paise: 32000, category: 'Food & Drinks', account: 'Paytm Wallet', note: 'Swiggy lunch', payment: 'UPI', hour: 13);
-    addTxn(daysAgo: 1, type: 'expense', paise: 145000, category: 'Groceries', account: 'HDFC Savings', note: 'BigBasket weekly', payment: 'Card', hour: 19);
-    addTxn(daysAgo: 2, type: 'expense', paise: 28000, category: 'Transport', account: 'Cash', note: 'Auto to office', payment: 'Cash', hour: 9);
-    addTxn(daysAgo: 3, type: 'expense', paise: 249000, category: 'Shopping', account: 'ICICI Credit Card', note: 'Myntra sale', payment: 'Card', hour: 21);
+    addTxn(daysAgo: 0, type: 'expense', paise: 32000, category: 'Food & Drinks', account: 'Paytm Wallet', note: 'Swiggy lunch', payment: 'UPI', hour: 13, place: 'Home');
+    addTxn(daysAgo: 1, type: 'expense', paise: 145000, category: 'Groceries', account: 'HDFC Savings', note: 'BigBasket weekly', payment: 'Card', hour: 19, place: 'Home');
+    addTxn(daysAgo: 2, type: 'expense', paise: 28000, category: 'Transport', account: 'Cash', note: 'Auto to office', payment: 'Cash', hour: 9, place: 'Work');
+    addTxn(daysAgo: 3, type: 'expense', paise: 249000, category: 'Shopping', account: 'ICICI Credit Card', note: 'Myntra sale', payment: 'Card', hour: 21, payee: 'Alice');
     addTxn(daysAgo: 4, type: 'expense', paise: 89900, category: 'Bills & Utilities', account: 'HDFC Savings', note: 'Electricity bill', payment: 'Net Banking', hour: 11);
-    addTxn(daysAgo: 5, type: 'expense', paise: 35000, category: 'Food & Drinks', account: 'Paytm Wallet', note: 'Cafe with team', payment: 'UPI', hour: 18);
+    addTxn(daysAgo: 5, type: 'expense', paise: 35000, category: 'Food & Drinks', account: 'Paytm Wallet', note: 'Cafe with team', payment: 'UPI', hour: 18, place: 'Work', payee: 'Bob');
     addTxn(daysAgo: 6, type: 'expense', paise: 120000, category: 'Health', account: 'HDFC Savings', note: 'Pharmacy + checkup', payment: 'UPI', hour: 10);
     addTxn(daysAgo: 7, type: 'expense', paise: 19900, category: 'Subscriptions', account: 'ICICI Credit Card', note: 'Netflix', payment: 'Card', hour: 6);
     addTxn(daysAgo: 8, type: 'expense', paise: 6000, category: 'Transport', account: 'Paytm Wallet', note: 'Metro card', payment: 'UPI', hour: 8);
@@ -165,8 +169,8 @@ class DemoData {
     addTxn(daysAgo: 12, type: 'expense', paise: 96000, category: 'Personal Care', account: 'ICICI Credit Card', note: 'Salon', payment: 'Card', hour: 17);
     addTxn(daysAgo: 13, type: 'income', paise: 1500000, category: 'Freelance', account: 'HDFC Savings', note: 'Design project', payment: 'UPI', hour: 15);
     addTxn(daysAgo: 14, type: 'transfer', paise: 500000, category: 'Savings', account: 'HDFC Savings', toAccount: 'Paytm Wallet', note: 'Wallet top-up', payment: 'UPI', hour: 12);
-    addTxn(daysAgo: 15, type: 'expense', paise: 78000, category: 'Food & Drinks', account: 'Paytm Wallet', note: 'Zomato dinner', payment: 'UPI', hour: 21);
-    addTxn(daysAgo: 16, type: 'expense', paise: 42000, category: 'Transport', account: 'Cash', note: 'Petrol', payment: 'Cash', hour: 9);
+    addTxn(daysAgo: 15, type: 'expense', paise: 78000, category: 'Food & Drinks', account: 'Paytm Wallet', note: 'Zomato dinner', payment: 'UPI', hour: 21, place: 'Home', payee: 'Alice');
+    addTxn(daysAgo: 16, type: 'expense', paise: 42000, category: 'Transport', account: 'Cash', note: 'Petrol', payment: 'Cash', hour: 9, place: 'Work');
 
     // Previous month
     addTxn(daysAgo: 40, type: 'income', paise: 8500000, category: 'Salary', account: 'HDFC Savings', note: 'Monthly salary', payment: 'Net Banking', hour: 9);
@@ -323,6 +327,146 @@ class DemoData {
         },
         conflictAlgorithm: ConflictAlgorithm.ignore,
       );
+    }
+
+    // Places, people and templates power the batch-5 screens.
+    for (final place in <Map<String, Object?>>[
+      <String, Object?>{
+        'name': 'Home',
+        'icon': 'home',
+        'color': '#2ED3B7',
+        'created_at': nowMs,
+      },
+      <String, Object?>{
+        'name': 'Work',
+        'icon': 'work',
+        'color': '#F06292',
+        'created_at': nowMs,
+      },
+    ]) {
+      await db.insert('places', place);
+    }
+    for (final person in <Map<String, Object?>>[
+      <String, Object?>{
+        'name': 'Alice',
+        'icon': 'person',
+        'color': '#E91E63',
+        'created_at': nowMs,
+      },
+      <String, Object?>{
+        'name': 'Bob',
+        'icon': 'person',
+        'color': '#3F51B5',
+        'created_at': nowMs,
+      },
+    ]) {
+      await db.insert('people', person);
+    }
+
+    final templates = <Map<String, Object?>>[
+      {
+        'name': 'Morning Coffee',
+        'type': 'expense',
+        'amount': 450,
+        'icon': 'coffee',
+        'color': '#6D4C41',
+        'category_id': categoryIds['Food & Drinks'],
+        'account_id': accountIds['Paytm Wallet'],
+        'sort_order': 0,
+      },
+      {
+        'name': 'Grocery Run',
+        'type': 'expense',
+        'amount': 6500,
+        'icon': 'shopping_basket',
+        'color': '#2E7D32',
+        'category_id': categoryIds['Groceries'],
+        'account_id': accountIds['HDFC Savings'],
+        'sort_order': 1,
+      },
+      {
+        'name': 'Metro Commute',
+        'type': 'expense',
+        'amount': 350,
+        'icon': 'directions_bus',
+        'color': '#1565C0',
+        'category_id': categoryIds['Transport'],
+        'account_id': accountIds['Paytm Wallet'],
+        'sort_order': 2,
+      },
+      {
+        'name': 'Lunch Special',
+        'type': 'expense',
+        'amount': 1500,
+        'icon': 'restaurant',
+        'color': '#EF6C00',
+        'category_id': categoryIds['Food & Drinks'],
+        'account_id': accountIds['Paytm Wallet'],
+        'sort_order': 3,
+      },
+      {
+        'name': 'Fuel/Gas',
+        'type': 'expense',
+        'amount': 4500,
+        'icon': 'local_gas_station',
+        'color': '#37474F',
+        'category_id': categoryIds['Transport'],
+        'account_id': accountIds['Cash'],
+        'sort_order': 4,
+      },
+      {
+        'name': 'Streaming',
+        'type': 'expense',
+        'amount': 1499,
+        'icon': 'movie',
+        'color': '#C62828',
+        'category_id': categoryIds['Subscriptions'],
+        'account_id': accountIds['ICICI Credit Card'],
+        'sort_order': 5,
+      },
+      {
+        'name': 'Gym',
+        'type': 'expense',
+        'amount': 2500,
+        'icon': 'fitness_center',
+        'color': '#00838F',
+        'category_id': categoryIds['Health'],
+        'account_id': accountIds['HDFC Savings'],
+        'sort_order': 6,
+      },
+      {
+        'name': 'Electric Utility',
+        'type': 'expense',
+        'amount': 7500,
+        'icon': 'bolt',
+        'color': '#F9A825',
+        'category_id': categoryIds['Bills & Utilities'],
+        'account_id': accountIds['HDFC Savings'],
+        'sort_order': 7,
+      },
+      {
+        'name': 'Weekend Dining',
+        'type': 'expense',
+        'amount': 5500,
+        'icon': 'restaurant',
+        'color': '#8E24AA',
+        'category_id': categoryIds['Food & Drinks'],
+        'account_id': accountIds['ICICI Credit Card'],
+        'sort_order': 8,
+      },
+      {
+        'name': 'Freelance Payout',
+        'type': 'income',
+        'amount': 35000,
+        'icon': 'payments',
+        'color': '#2E7D32',
+        'category_id': categoryIds['Freelance'],
+        'account_id': accountIds['HDFC Savings'],
+        'sort_order': 9,
+      },
+    ];
+    for (final template in templates) {
+      await db.insert('templates', template);
     }
 
     final billRows = <Map<String, Object?>>[

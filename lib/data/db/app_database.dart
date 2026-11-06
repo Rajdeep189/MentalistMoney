@@ -67,6 +67,36 @@ class AppDatabase {
       await _addColumnIfMissing(db, 'accounts', 'category_id', 'INTEGER');
       await _addColumnIfMissing(db, 'accounts', 'loan_kind', 'TEXT');
       await _addColumnIfMissing(db, 'tags', 'color', "TEXT DEFAULT '#A855F7'");
+      await _addColumnIfMissing(db, 'transactions', 'budget_id', 'INTEGER');
+      await _addColumnIfMissing(db, 'transactions', 'loan_account_id', 'INTEGER');
+      await _addColumnIfMissing(db, 'transactions', 'place', 'TEXT');
+      await _addColumnIfMissing(db, 'transactions', 'payee', 'TEXT');
+      await db.execute('''CREATE TABLE IF NOT EXISTS places (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT NOT NULL,
+        icon TEXT DEFAULT 'place',
+        color TEXT DEFAULT '#2ED3B7',
+        created_at INTEGER
+      )''');
+      await db.execute('''CREATE TABLE IF NOT EXISTS people (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT NOT NULL,
+        icon TEXT DEFAULT 'person',
+        color TEXT DEFAULT '#E91E63',
+        created_at INTEGER
+      )''');
+      await db.execute('''CREATE TABLE IF NOT EXISTS templates (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT NOT NULL,
+        type TEXT NOT NULL DEFAULT 'expense',
+        amount INTEGER NOT NULL DEFAULT 0,
+        icon TEXT DEFAULT 'receipt_long',
+        color TEXT DEFAULT '#8A6A5C',
+        account_id INTEGER,
+        category_id INTEGER,
+        note TEXT,
+        sort_order INTEGER NOT NULL DEFAULT 0
+      )''');
     }
   }
 
@@ -95,6 +125,9 @@ class AppDatabase {
     await db.transaction((txn) async {
       for (final table in <String>[
         'transaction_tags',
+        'templates',
+        'places',
+        'people',
         'attachments',
         'transactions',
         'tags',
@@ -205,6 +238,10 @@ class AppDatabase {
         payment_method TEXT NOT NULL DEFAULT 'UPI',
         include_in_reports INTEGER NOT NULL DEFAULT 1,
         recurring_rule_id INTEGER,
+        budget_id INTEGER,
+        loan_account_id INTEGER,
+        place TEXT,
+        payee TEXT,
         created_at INTEGER NOT NULL,
         updated_at INTEGER NOT NULL,
         deleted INTEGER NOT NULL DEFAULT 0,
@@ -229,6 +266,41 @@ class AppDatabase {
         PRIMARY KEY (transaction_id, tag_id),
         FOREIGN KEY (transaction_id) REFERENCES transactions (id) ON DELETE CASCADE,
         FOREIGN KEY (tag_id) REFERENCES tags (id) ON DELETE CASCADE
+      )
+    ''');
+
+    batch.execute('''
+      CREATE TABLE places (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT NOT NULL,
+        icon TEXT DEFAULT 'place',
+        color TEXT DEFAULT '#2ED3B7',
+        created_at INTEGER
+      )
+    ''');
+
+    batch.execute('''
+      CREATE TABLE people (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT NOT NULL,
+        icon TEXT DEFAULT 'person',
+        color TEXT DEFAULT '#E91E63',
+        created_at INTEGER
+      )
+    ''');
+
+    batch.execute('''
+      CREATE TABLE templates (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT NOT NULL,
+        type TEXT NOT NULL DEFAULT 'expense',
+        amount INTEGER NOT NULL DEFAULT 0,
+        icon TEXT DEFAULT 'receipt_long',
+        color TEXT DEFAULT '#8A6A5C',
+        account_id INTEGER,
+        category_id INTEGER,
+        note TEXT,
+        sort_order INTEGER NOT NULL DEFAULT 0
       )
     ''');
 

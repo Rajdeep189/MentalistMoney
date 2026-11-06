@@ -14,6 +14,9 @@ import '../achievements/achievements_screen.dart';
 import '../bills/bills_screen.dart';
 import '../categories/categories_screen.dart';
 import '../labels/labels_screen.dart';
+import '../places/places_screen.dart';
+import '../transactions/calendar_screen.dart';
+import '../transactions/templates_screen.dart';
 import '../io/data_backup_screen.dart';
 import '../premium/premium_screen.dart';
 import '../profile/profile_screen.dart';
@@ -114,6 +117,38 @@ class SettingsScreen extends ConsumerWidget {
                 icon: Icons.category_outlined,
                 onTap: () => Navigator.of(context).push(
                   MaterialPageRoute<void>(builder: (_) => const CategoriesScreen()),
+                ),
+              ),
+              SettingsTile(
+                title: 'Places',
+                subtitle: 'Tag transactions with locations',
+                icon: Icons.place_outlined,
+                onTap: () => Navigator.of(context).push(
+                  MaterialPageRoute<void>(builder: (_) => const PlacesScreen()),
+                ),
+              ),
+              SettingsTile(
+                title: 'People',
+                subtitle: 'Track who you transact with',
+                icon: Icons.people_outline_rounded,
+                onTap: () => Navigator.of(context).push(
+                  MaterialPageRoute<void>(builder: (_) => const PeopleScreen()),
+                ),
+              ),
+              SettingsTile(
+                title: 'Templates',
+                subtitle: 'One-tap shortcuts for frequent entries',
+                icon: Icons.copy_all_outlined,
+                onTap: () => Navigator.of(context).push(
+                  MaterialPageRoute<void>(builder: (_) => const TemplatesScreen()),
+                ),
+              ),
+              SettingsTile(
+                title: 'Calendar',
+                subtitle: 'Spending by day',
+                icon: Icons.calendar_month_outlined,
+                onTap: () => Navigator.of(context).push(
+                  MaterialPageRoute<void>(builder: (_) => const CalendarScreen()),
                 ),
               ),
               SettingsTile(
