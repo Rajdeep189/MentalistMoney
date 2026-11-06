@@ -99,8 +99,13 @@ class InfoSheet extends StatelessWidget {
                     ),
                   ),
                   IconButton(
-                    onPressed: () =>
-                        onDone?.call() ?? Navigator.of(context).maybePop(),
+                    onPressed: () {
+                      if (onDone != null) {
+                        onDone!();
+                      } else {
+                        Navigator.of(context).maybePop();
+                      }
+                    },
                     icon: Icon(Icons.close_rounded, size: 22, color: muted),
                   ),
                 ],
@@ -137,8 +142,13 @@ class InfoSheet extends StatelessWidget {
                   borderRadius: BorderRadius.circular(999),
                   child: InkWell(
                     borderRadius: BorderRadius.circular(999),
-                    onTap: () =>
-                        onDone?.call() ?? Navigator.of(context).maybePop(),
+                    onTap: () {
+                      if (onDone != null) {
+                        onDone!();
+                      } else {
+                        Navigator.of(context).maybePop();
+                      }
+                    },
                     child: Center(
                       child: Text(
                         buttonLabel,
@@ -767,7 +777,7 @@ class _TrendPainter extends CustomPainter {
 
     double yFor(double value) =>
         chart.bottom - ((value - minV) / span) * chart.height;
-    double xFor(int day) =>
+    double xFor(num day) =>
         chart.left + ((day - startDay) / (endDay - startDay)) * chart.width;
 
     // horizontal grid + y labels
