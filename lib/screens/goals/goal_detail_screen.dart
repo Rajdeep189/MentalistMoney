@@ -412,7 +412,7 @@ class _GoalDetailScreenState extends ConsumerState<GoalDetailScreen> {
         return '${date.year}';
       case 'Monthly':
       default:
-        return Fmt.monthYear(date);
+        return Fmt.monthYear(date.millisecondsSinceEpoch);
     }
   }
 }
